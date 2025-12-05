@@ -1,0 +1,9 @@
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.dialect">org.hibernate.dialect.SQLiteDialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <mapping class="com.intellilib.models.Book"/>
+        <mapping class="com.intellilib.models.Member"/>
+        ...
+    </session-factory>
+</hibernate-configuration>
