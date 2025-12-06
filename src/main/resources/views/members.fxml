@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.intellilib.controllers.MemberController">
+    <top>
+        <Label text="Gestion des Membres" style="-fx-font-size: 24px; -fx-padding: 10;"/>
+    </top>
+    <center>
+        <TableView fx:id="memberTable" prefHeight="400" prefWidth="600">
+            <columns>
+                <TableColumn text="ID" fx:id="idColumn"/>
+                <TableColumn text="Nom" fx:id="nameColumn"/>
+                <TableColumn text="Email" fx:id="emailColumn"/>
+                <TableColumn text="Téléphone" fx:id="phoneColumn"/>
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox spacing="10" padding="10">
+            <Button text="Ajouter" fx:id="addButton"/>
+            <Button text="Modifier" fx:id="editButton"/>
+            <Button text="Supprimer" fx:id="deleteButton"/>
+        </HBox>
+    </bottom>
+</BorderPane>

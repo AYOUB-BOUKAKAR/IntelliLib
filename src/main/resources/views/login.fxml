@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.LoginController">
+    <Label text="IntelliLib - Connexion" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="usernameField" promptText="Nom d'utilisateur" />
+    <PasswordField fx:id="passwordField" promptText="Mot de passe" />
+    <Button fx:id="loginButton" text="Se connecter" onAction="#login"/>
+    <Label fx:id="errorLabel" textFill="red"/>
+</VBox>

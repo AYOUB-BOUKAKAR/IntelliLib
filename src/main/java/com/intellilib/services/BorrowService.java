@@ -2,26 +2,35 @@ package com.intellilib.services;
 
 import com.intellilib.models.Borrow;
 import com.intellilib.repositories.BorrowRepository;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
+@Service
 public class BorrowService {
 
-    private final BorrowRepository repository = new BorrowRepository();
+    @Autowired
+    private BorrowRepository borrowRepository;
 
-    public Borrow getBorrowById(Long id) {
-        return repository.findById(id);
+    public Borrow save(Borrow borrow) {
+        return borrowRepository.save(borrow);
     }
 
-    public List<Borrow> getAllBorrows() {
-        return repository.findAll();
+    public Borrow update(Borrow borrow) {
+        return borrowRepository.save(borrow);
     }
 
-    public void addOrUpdateBorrow(Borrow borrow) {
-        repository.save(borrow);
+    public void delete(Long id) {
+        borrowRepository.deleteById(id);
     }
 
-    public void deleteBorrow(Long id) {
-        repository.delete(id);
+    public Optional<Borrow> findById(Long id) {
+        return borrowRepository.findById(id);
+    }
+
+    public List<Borrow> findAll() {
+        return borrowRepository.findAll();
     }
 }
-

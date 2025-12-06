@@ -20,19 +20,16 @@ public class BorrowRepository {
 
     public List<Borrow> findAll() {
         EntityManager em = emf.createEntityManager();
-        List<Borrow> borrows = em.createQuery("SELECT b FROM Borrow b", Borrow.class).getResultList();
+        List<Borrow> list = em.createQuery("FROM Borrow", Borrow.class).getResultList();
         em.close();
-        return borrows;
+        return list;
     }
 
     public void save(Borrow borrow) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        if (borrow.getId() == null) {
-            em.persist(borrow);
-        } else {
-            em.merge(borrow);
-        }
+        if (borrow.getId() == null) em.persist(borrow);
+        else em.merge(borrow);
         em.getTransaction().commit();
         em.close();
     }

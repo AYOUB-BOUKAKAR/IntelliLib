@@ -1,57 +1,57 @@
 package com.intellilib.repositories;
 
-import com.intellilib.models.Book;
+import com.intellilib.models.Admin;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.util.List;
 
-public class BookRepository {
+public class AdminRepository {
 
     private static final EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("intellilibPU");
 
-    public Book findById(Long id) {
+    public Admin findById(Long id) {
         EntityManager em = emf.createEntityManager();
-        Book book = em.find(Book.class, id);
+        Admin admin = em.find(Admin.class, id);
         em.close();
-        return book;
+        return admin;
     }
 
-    public List<Book> findAll() {
+    public List<Admin> findAll() {
         EntityManager em = emf.createEntityManager();
-        List<Book> list = em.createQuery("FROM Book", Book.class).getResultList();
+        List<Admin> list = em.createQuery("FROM Admin", Admin.class).getResultList();
         em.close();
         return list;
     }
 
-    public void save(Book book) {
+    public void save(Admin admin) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        if (book.getId() == null) em.persist(book);
-        else em.merge(book);
+        if (admin.getId() == null) em.persist(admin);
+        else em.merge(admin);
         em.getTransaction().commit();
         em.close();
     }
 
     public void delete(Long id) {
         EntityManager em = emf.createEntityManager();
-        Book book = em.find(Book.class, id);
-        if (book != null) {
+        Admin admin = em.find(Admin.class, id);
+        if (admin != null) {
             em.getTransaction().begin();
-            em.remove(book);
+            em.remove(admin);
             em.getTransaction().commit();
         }
         em.close();
     }
 
-    public List<Book> findByTitle(String title) {
+    public Admin findByUsername(String username) {
         EntityManager em = emf.createEntityManager();
-        List<Book> list = em.createQuery(
-                "FROM Book b WHERE b.title LIKE :t", Book.class)
-                .setParameter("t", "%" + title + "%")
+        List<Admin> list = em.createQuery(
+                "FROM Admin a WHERE a.username = :u", Admin.class)
+                .setParameter("u", username)
                 .getResultList();
         em.close();
-        return list;
+        return list.isEmpty() ? null : list.get(0);
     }
 }

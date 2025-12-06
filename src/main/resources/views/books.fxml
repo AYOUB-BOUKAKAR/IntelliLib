@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10.0" padding="10.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.BookController">
+
+    <Label text="Gestion des Livres" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+    <HBox spacing="10">
+        <TextField fx:id="titleField" promptText="Titre"/>
+        <TextField fx:id="authorField" promptText="Auteur"/>
+        <TextField fx:id="genreField" promptText="Genre"/>
+        <TextField fx:id="yearField" promptText="Année"/>
+        <Button text="Ajouter" onAction="#addBook"/>
+    </HBox>
+
+    <TableView fx:id="booksTable" prefHeight="400">
+        <columns>
+            <TableColumn text="ID" fx:id="idColumn"/>
+            <TableColumn text="Titre" fx:id="titleColumn"/>
+            <TableColumn text="Auteur" fx:id="authorColumn"/>
+            <TableColumn text="Genre" fx:id="genreColumn"/>
+            <TableColumn text="Année" fx:id="yearColumn"/>
+        </columns>
+    </TableView>
+</VBox>

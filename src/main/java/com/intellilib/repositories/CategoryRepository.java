@@ -20,19 +20,16 @@ public class CategoryRepository {
 
     public List<Category> findAll() {
         EntityManager em = emf.createEntityManager();
-        List<Category> categories = em.createQuery("SELECT c FROM Category c", Category.class).getResultList();
+        List<Category> list = em.createQuery("FROM Category", Category.class).getResultList();
         em.close();
-        return categories;
+        return list;
     }
 
     public void save(Category category) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        if (category.getId() == null) {
-            em.persist(category);
-        } else {
-            em.merge(category);
-        }
+        if (category.getId() == null) em.persist(category);
+        else em.merge(category);
         em.getTransaction().commit();
         em.close();
     }

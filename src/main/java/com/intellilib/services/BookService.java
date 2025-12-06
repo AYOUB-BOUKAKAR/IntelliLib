@@ -2,30 +2,35 @@ package com.intellilib.services;
 
 import com.intellilib.models.Book;
 import com.intellilib.repositories.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
+@Service
 public class BookService {
 
-    private final BookRepository repository = new BookRepository();
+    @Autowired
+    private BookRepository bookRepository;
 
-    public Book getBookById(Long id) {
-        return repository.findById(id);
+    public Book save(Book book) {
+        return bookRepository.save(book);
     }
 
-    public List<Book> getAllBooks() {
-        return repository.findAll();
+    public Book update(Book book) {
+        return bookRepository.save(book);
     }
 
-    public void addOrUpdateBook(Book book) {
-        repository.save(book);
+    public void delete(Long id) {
+        bookRepository.deleteById(id);
     }
 
-    public void deleteBook(Long id) {
-        repository.delete(id);
+    public Optional<Book> findById(Long id) {
+        return bookRepository.findById(id);
     }
 
-    public List<Book> searchBooksByTitle(String title) {
-        return repository.findByTitle(title);
+    public List<Book> findAll() {
+        return bookRepository.findAll();
     }
 }

@@ -20,19 +20,16 @@ public class MemberRepository {
 
     public List<Member> findAll() {
         EntityManager em = emf.createEntityManager();
-        List<Member> members = em.createQuery("SELECT m FROM Member m", Member.class).getResultList();
+        List<Member> list = em.createQuery("FROM Member", Member.class).getResultList();
         em.close();
-        return members;
+        return list;
     }
 
     public void save(Member member) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        if (member.getId() == null) {
-            em.persist(member);
-        } else {
-            em.merge(member);
-        }
+        if (member.getId() == null) em.persist(member);
+        else em.merge(member);
         em.getTransaction().commit();
         em.close();
     }
@@ -46,15 +43,5 @@ public class MemberRepository {
             em.getTransaction().commit();
         }
         em.close();
-    }
-
-    public Member findByEmail(String email) {
-        EntityManager em = emf.createEntityManager();
-        List<Member> result = em.createQuery(
-                        "SELECT m FROM Member m WHERE LOWER(m.email) = LOWER(:email)", Member.class)
-                .setParameter("email", email)
-                .getResultList();
-        em.close();
-        return result.isEmpty() ? null : result.get(0);
     }
 }

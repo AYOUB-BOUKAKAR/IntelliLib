@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20.0" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.DashboardController">
+    <Label text="Tableau de Bord" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+
+    <GridPane hgap="20" vgap="20">
+        <Label text="Admins:"/>
+        <Label fx:id="totalAdminsLabel" GridPane.columnIndex="1"/>
+
+        <Label text="Livres:" GridPane.rowIndex="1"/>
+        <Label fx:id="totalBooksLabel" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="Membres:" GridPane.rowIndex="2"/>
+        <Label fx:id="totalMembersLabel" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <Label text="Catégories:" GridPane.rowIndex="3"/>
+        <Label fx:id="totalCategoriesLabel" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <Label text="Emprunts:" GridPane.rowIndex="4"/>
+        <Label fx:id="totalBorrowsLabel" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+    </GridPane>
+</VBox>
