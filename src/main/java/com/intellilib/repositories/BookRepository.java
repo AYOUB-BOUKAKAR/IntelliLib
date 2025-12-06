@@ -1,16 +1,6 @@
-package main.java.com.intellilib.repositories;
+package com.intellilib.repositories;
 
-//public class BookRepository {
-//    /*
-//     * findById()
-//     * findAll()
-//     * save() / Had les methodes khass it implementaw hna !!/
-//     * delete()
-//     * findByTitle()
-//     */
-//}
-
-import com.intellilib.library.model.Book;
+import com.intellilib.models.Book;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;

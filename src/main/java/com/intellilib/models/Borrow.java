@@ -1,4 +1,4 @@
-package main.java.com.intellilib.models;
+package com.intellilib.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;

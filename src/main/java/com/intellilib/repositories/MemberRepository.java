@@ -1,6 +1,6 @@
-package main.java.com.intellilib.repositories;
+package com.intellilib.repositories;
 
-import com.intellilib.library.model.Member;
+import com.intellilib.models.Member;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;

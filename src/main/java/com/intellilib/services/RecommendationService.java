@@ -1,3 +1,3 @@
-package main.java.com.intellilib.services;
+package com.intellilib.services;
 
 

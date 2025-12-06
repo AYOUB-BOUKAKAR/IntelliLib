@@ -1,4 +1,4 @@
-package main.java.com.intellilib;
+package com.intellilib;
 
 public class MainApp {
     

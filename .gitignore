@@ -28,3 +28,124 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+### IntelliJ IDEA ###
+*.iws
+*.iml
+*.ipr
+.idea
+.idea/*
+.idea_modules/
+.idea/
+
+### NetBeans ###
+build/
+
+### VS Code ###
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
+
+### Mac OS ###
+.AppleDouble
+.LSOverride
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# H2 Database
+*.h2.db
+*.lock.db
+
+# HSQLDB
+*.log
+*.lck
+*.script
+
+# SQLite
+*.db
+*.sqlite
+
+# Application logs and temporary files
+logs/
+temp/
+
+# Hibernate
+hibernate.cfg.xml
+hibernate.properties
+hibernate.script.sql
+
+# Maven wrapper
+.mvn/
+
+# Local configuration files
+*.local
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Maven wrapper
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# VS Code Java specific files
+.classpath
+.project
+.settings/
+.factorypath
+
+# VS Code launch.json
+launch.json
+
+# VS Code extensions
+.extensions/
+
+# VS Code workspace settings
+*.code-workspace

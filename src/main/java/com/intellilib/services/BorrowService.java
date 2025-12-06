@@ -1,8 +1,7 @@
-package main.java.com.intellilib.services;
+package com.intellilib.services;
 
-import com.intellilib.library.model.Borrow;
-import com.intellilib.library.repository.BorrowRepository;
-
+import com.intellilib.models.Borrow;
+import com.intellilib.repositories.BorrowRepository;
 import java.util.List;
 
 public class BorrowService {

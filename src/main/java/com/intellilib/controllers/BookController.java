@@ -1,4 +1,4 @@
-package main.java.com.intellilib.controllers;
+package com.intellilib.controllers;
 
 public class BookController {
     

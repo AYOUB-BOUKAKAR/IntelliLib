@@ -1,7 +1,7 @@
-package main.java.com.intellilib.services;
+package com.intellilib.services;
 
-import com.intellilib.library.model.Book;
-import com.intellilib.library.repository.BookRepository;
+import com.intellilib.models.Book;
+import com.intellilib.repositories.BookRepository;
 
 import java.util.List;
 
