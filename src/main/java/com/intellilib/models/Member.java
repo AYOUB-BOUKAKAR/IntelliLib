@@ -1,49 +1,45 @@
 package com.intellilib.models;
 
 import jakarta.persistence.*;
-import java.util.Objects;
+import lombok.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "member")
+@Table(name = "members")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String name;
+    
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+    
+    @Column(unique = true)
     private String email;
+    
+    @Column(unique = true)
     private String phone;
-
-    public Member() {}
-
-    public Member(String name, String email, String phone) {
-        this.name = name;
+    
+    private String address;
+    
+    @Column(name = "membership_date")
+    private LocalDate membershipDate = LocalDate.now();
+    
+    @Column(name = "membership_expiry")
+    private LocalDate membershipExpiry;
+    
+    private boolean active = true;
+    
+    // Custom constructor
+    public Member(String fullName, String email, String phone) {
+        this.fullName = fullName;
         this.email = email;
         this.phone = phone;
+        this.membershipDate = LocalDate.now();
+        this.active = true;
     }
-
-    // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Member)) return false;
-        Member member = (Member) o;
-        return Objects.equals(id, member.id);
-    }
-
-    @Override
-    public int hashCode() { return Objects.hash(id); }
 }

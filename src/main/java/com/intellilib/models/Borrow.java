@@ -1,59 +1,48 @@
 package com.intellilib.models;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDate;
-import java.util.Objects;
 
 @Entity
-@Table(name = "borrow")
+@Table(name = "borrows")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Borrow {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @ManyToOne
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
-
+    
     @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
-
-    private LocalDate borrowDate;
+    
+    @Column(name = "borrow_date", nullable = false)
+    private LocalDate borrowDate = LocalDate.now();
+    
+    @Column(name = "due_date", nullable = false)
+    private LocalDate dueDate;
+    
+    @Column(name = "return_date")
     private LocalDate returnDate;
-
-    public Borrow() {}
-
-    public Borrow(Book book, Member member, LocalDate borrowDate, LocalDate returnDate) {
+    
+    private boolean returned = false;
+    
+    private Double fineAmount = 0.0;
+    
+    // Custom constructor
+    public Borrow(Book book, Member member, LocalDate dueDate) {
         this.book = book;
         this.member = member;
-        this.borrowDate = borrowDate;
-        this.returnDate = returnDate;
+        this.borrowDate = LocalDate.now();
+        this.dueDate = dueDate;
+        this.returned = false;
+        this.fineAmount = 0.0;
     }
-
-    // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public Book getBook() { return book; }
-    public void setBook(Book book) { this.book = book; }
-
-    public Member getMember() { return member; }
-    public void setMember(Member member) { this.member = member; }
-
-    public LocalDate getBorrowDate() { return borrowDate; }
-    public void setBorrowDate(LocalDate borrowDate) { this.borrowDate = borrowDate; }
-
-    public LocalDate getReturnDate() { return returnDate; }
-    public void setReturnDate(LocalDate returnDate) { this.returnDate = returnDate; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Borrow)) return false;
-        Borrow borrow = (Borrow) o;
-        return Objects.equals(id, borrow.id);
-    }
-
-    @Override
-    public int hashCode() { return Objects.hash(id); }
 }

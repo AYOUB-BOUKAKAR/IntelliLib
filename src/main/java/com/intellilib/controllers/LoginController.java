@@ -1,13 +1,18 @@
 package com.intellilib.controllers;
 
-import com.intellilib.models.Admin;
-import com.intellilib.services.AdminService;
+import com.intellilib.models.User;
+import com.intellilib.services.UserService;
+import com.intellilib.util.FXMLLoaderUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 
+import java.util.Optional;
+
+@Controller  // Changed from public class to @Controller
+@RequiredArgsConstructor  // Spring will inject services via constructor
 public class LoginController {
 
     @FXML private TextField usernameField;
@@ -15,34 +20,63 @@ public class LoginController {
     @FXML private Button loginButton;
     @FXML private Label errorLabel;
 
-    private AdminService adminService = new AdminService();
+    // Spring will inject these automatically
+    private final UserService userService;
+    
+    // Remove manual service creation: private final AuthService authService = new AuthService();
 
     @FXML
     private void login() {
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = passwordField.getText();
 
-        Admin admin = adminService.authenticate(username, password);
-        if (admin != null) {
-            errorLabel.setText("");
-            openDashboard();
-            // fermer la fenêtre login
-            loginButton.getScene().getWindow().hide();
-        } else {
-            errorLabel.setText("Nom d'utilisateur ou mot de passe incorrect");
+        if (username.isEmpty() || password.isEmpty()) {
+            errorLabel.setText("Veuillez remplir tous les champs");
+            return;
+        }
+
+        try {
+            Optional<User> userOpt = userService.login(username, password);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                if (!user.isActive()) {
+                    errorLabel.setText("Ce compte est désactivé");
+                    return;
+                }
+                
+                errorLabel.setText("");
+                openDashboard();
+                // Close login window
+                ((Stage) loginButton.getScene().getWindow()).close();
+            } else {
+                errorLabel.setText("Nom d'utilisateur ou mot de passe incorrect");
+            }
+        } catch (Exception e) {
+            errorLabel.setText("Une erreur est survenue lors de la connexion");
+            e.printStackTrace();
         }
     }
 
     private void openDashboard() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Dashboard.fxml"));
-            Scene scene = new Scene(loader.load());
-            Stage stage = new Stage();
-            stage.setTitle("Tableau de Bord");
-            stage.setScene(scene);
+            // Use the Spring-aware FXMLLoader
+            Stage stage = FXMLLoaderUtil.loadStage("/fxml/Dashboard.fxml", "Tableau de Bord - IntelliLib", true);
             stage.show();
+            
+            // Close login window after successful login
+            Stage loginStage = (Stage) loginButton.getScene().getWindow();
+            loginStage.close();
         } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir le tableau de bord");
             e.printStackTrace();
         }
+    }
+    
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

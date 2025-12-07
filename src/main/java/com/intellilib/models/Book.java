@@ -1,64 +1,51 @@
 package com.intellilib.models;
 
 import jakarta.persistence.*;
-import java.util.Objects;
+import lombok.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "book")
+@Table(name = "books")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Book {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @Column(nullable = false)
     private String title;
+    
+    @Column(nullable = false)
     private String author;
-    private String genre;
+    
+    @Column(unique = true)
+    private String isbn;
+    
+    private Integer publicationYear;
+    
+    private String publisher;
+    
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+    
+    @Column(columnDefinition = "TEXT")
     private String description;
-    private int year;
-    private String coverUrl;
-
-    public Book() {}
-
-    public Book(String title, String author, String genre, String description, int year, String coverUrl) {
+    
+    private boolean available = true;
+    
+    @Column(name = "added_date")
+    private LocalDate addedDate = LocalDate.now();
+    
+    // Custom constructor
+    public Book(String title, String author, String isbn) {
         this.title = title;
         this.author = author;
-        this.genre = genre;
-        this.description = description;
-        this.year = year;
-        this.coverUrl = coverUrl;
+        this.isbn = isbn;
+        this.available = true;
+        this.addedDate = LocalDate.now();
     }
-
-    // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
-
-    public String getGenre() { return genre; }
-    public void setGenre(String genre) { this.genre = genre; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public int getYear() { return year; }
-    public void setYear(int year) { this.year = year; }
-
-    public String getCoverUrl() { return coverUrl; }
-    public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Book)) return false;
-        Book book = (Book) o;
-        return Objects.equals(id, book.id);
-    }
-
-    @Override
-    public int hashCode() { return Objects.hash(id); }
 }

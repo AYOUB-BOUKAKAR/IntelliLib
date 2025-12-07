@@ -109,7 +109,7 @@ logs/
 temp/
 
 # Hibernate
-hibernate.cfg.xml
+#hibernate.cfg.xml
 hibernate.properties
 hibernate.script.sql
 

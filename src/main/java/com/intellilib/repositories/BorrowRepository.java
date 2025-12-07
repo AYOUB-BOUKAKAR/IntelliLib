@@ -1,47 +1,34 @@
 package com.intellilib.repositories;
 
 import com.intellilib.models.Borrow;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import com.intellilib.models.Book;
+import com.intellilib.models.Member;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
 import java.util.List;
 
-public class BorrowRepository {
-
-    private static final EntityManagerFactory emf =
-            Persistence.createEntityManagerFactory("intellilibPU");
-
-    public Borrow findById(Long id) {
-        EntityManager em = emf.createEntityManager();
-        Borrow borrow = em.find(Borrow.class, id);
-        em.close();
-        return borrow;
-    }
-
-    public List<Borrow> findAll() {
-        EntityManager em = emf.createEntityManager();
-        List<Borrow> list = em.createQuery("FROM Borrow", Borrow.class).getResultList();
-        em.close();
-        return list;
-    }
-
-    public void save(Borrow borrow) {
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        if (borrow.getId() == null) em.persist(borrow);
-        else em.merge(borrow);
-        em.getTransaction().commit();
-        em.close();
-    }
-
-    public void delete(Long id) {
-        EntityManager em = emf.createEntityManager();
-        Borrow borrow = em.find(Borrow.class, id);
-        if (borrow != null) {
-            em.getTransaction().begin();
-            em.remove(borrow);
-            em.getTransaction().commit();
-        }
-        em.close();
-    }
+@Repository
+public interface BorrowRepository extends JpaRepository<Borrow, Long> {
+    // FREE: save(), findById(), findAll(), deleteById(), etc.
+    
+    // Find borrows by book
+    List<Borrow> findByBook(Book book);
+    
+    // Find borrows by member
+    List<Borrow> findByMember(Member member);
+    
+    // Find active borrows (not returned)
+    List<Borrow> findByReturnedFalse();
+    
+    // Find overdue borrows
+    @Query("SELECT b FROM Borrow b WHERE b.returned = false AND b.dueDate < :today")
+    List<Borrow> findOverdueBorrows(LocalDate today);
+    
+    // Find borrows by book ID
+    List<Borrow> findByBookId(Long bookId);
+    
+    // Find borrows by member ID
+    List<Borrow> findByMemberId(Long memberId);
 }

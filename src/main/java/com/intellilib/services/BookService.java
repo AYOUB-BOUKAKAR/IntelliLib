@@ -2,35 +2,60 @@ package com.intellilib.services;
 
 import com.intellilib.models.Book;
 import com.intellilib.repositories.BookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class BookService {
-
-    @Autowired
-    private BookRepository bookRepository;
-
-    public Book save(Book book) {
+    
+    private final BookRepository bookRepository;
+    
+    public Book saveBook(Book book) {
         return bookRepository.save(book);
     }
-
-    public Book update(Book book) {
-        return bookRepository.save(book);
-    }
-
-    public void delete(Long id) {
-        bookRepository.deleteById(id);
-    }
-
-    public Optional<Book> findById(Long id) {
+    
+    public Optional<Book> getBookById(Long id) {
         return bookRepository.findById(id);
     }
-
-    public List<Book> findAll() {
+    
+    public List<Book> getAllBooks() {
         return bookRepository.findAll();
+    }
+    
+    public void deleteBook(Long id) {
+        bookRepository.deleteById(id);
+    }
+    
+    public List<Book> searchBooks(String keyword) {
+        return bookRepository.searchByTitleOrAuthor(keyword);
+    }
+    
+    @Transactional
+    public boolean borrowBook(Long bookId) {
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        if (optionalBook.isPresent() && optionalBook.get().isAvailable()) {
+            Book book = optionalBook.get();
+            book.setAvailable(false);
+            bookRepository.save(book);
+            return true;
+        }
+        return false;
+    }
+    
+    @Transactional
+    public boolean returnBook(Long bookId) {
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        if (optionalBook.isPresent() && !optionalBook.get().isAvailable()) {
+            Book book = optionalBook.get();
+            book.setAvailable(true);
+            bookRepository.save(book);
+            return true;
+        }
+        return false;
     }
 }
