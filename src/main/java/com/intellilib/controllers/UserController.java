@@ -8,17 +8,16 @@
 // import javafx.fxml.FXML;
 // import javafx.scene.control.*;
 // import javafx.scene.control.cell.PropertyValueFactory;
-// import lombok.RequiredArgsConstructor;
+// import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.stereotype.Controller;
 
 // import java.util.Optional;
 
 // @Controller
-// @RequiredArgsConstructor
 // public class UserController {
 
-//     // Spring will inject these services
-//     private final AdminService adminService;
+//     @Autowired
+//     private AdminService adminService;
 
 //     // Table controls
 //     @FXML private TableView<User> userTable;
@@ -39,6 +38,10 @@
     
 //     private ObservableList<User> userList = FXCollections.observableArrayList();
 //     private ObservableList<User.UserRole> roleList = FXCollections.observableArrayList();
+
+//     public UserController() {
+//         // No-arg constructor for FXML compatibility
+//     }
 
 //     @FXML
 //     public void initialize() {
@@ -208,7 +211,7 @@
 
 //         // Don't allow self-deletion or deleting last admin
 //         try {
-//             Optional<User> currentUser = adminService.getCurrentUser(); // You need to implement this
+//             Optional<User> currentUser = adminService.getCurrentUser();
 //             if (currentUser.isPresent() && currentUser.get().getId().equals(selected.getId())) {
 //                 showAlert("Erreur", "Vous ne pouvez pas supprimer votre propre compte");
 //                 return;

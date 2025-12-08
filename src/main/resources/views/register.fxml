@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intellilib.controllers.RegisterController">
+    
+    <center>
+        <VBox alignment="CENTER" spacing="20" style="-fx-padding: 40;">
+            <Label text="Inscription" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+            
+            <VBox spacing="10" style="-fx-min-width: 300;">
+                <!-- Username -->
+                <Label text="Nom d'utilisateur *" />
+                <TextField fx:id="usernameField" promptText="Entrez votre nom d'utilisateur" />
+                
+                <!-- Email -->
+                <Label text="Email (optionnel)" />
+                <TextField fx:id="emailField" promptText="exemple@domaine.com" />
+                
+                <!-- Password -->
+                <Label text="Mot de passe *" />
+                <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères" />
+                
+                <!-- Confirm Password -->
+                <Label text="Confirmer le mot de passe *" />
+                <PasswordField fx:id="confirmPasswordField" promptText="Retapez votre mot de passe" />
+                
+                <!-- Role -->
+                <Label text="Rôle" />
+                <ComboBox fx:id="roleComboBox" />
+                
+                <!-- Messages -->
+                <Label fx:id="errorLabel" style="-fx-text-fill: red;" />
+                <Label fx:id="successLabel" style="-fx-text-fill: green;" />
+                
+                <!-- Buttons -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Button fx:id="backButton" text="Retour" onAction="#goToLogin" 
+                            style="-fx-background-color: #cccccc;" />
+                    <Button fx:id="registerButton" text="S'inscrire" onAction="#register" 
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+                </HBox>
+                
+                <Label text="* Champs obligatoires" style="-fx-font-size: 10px; -fx-text-fill: gray;" />
+            </VBox>
+        </VBox>
+    </center>
+    
+</BorderPane>

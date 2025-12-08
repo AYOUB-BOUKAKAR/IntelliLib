@@ -1,9 +1,7 @@
 package com.intellilib.app;
 
+import com.intellilib.util.FXMLLoaderUtil;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,40 +15,35 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class MainApp extends Application {
     
     private static ConfigurableApplicationContext springContext;
-    private Parent root;
 
     public static void main(String[] args) {
-        Application.launch(MainApp.class, args);
+        launch(MainApp.class, args);
     }
 
     @Override
     public void init() throws Exception {
+        // Start Spring context
         springContext = SpringApplication.run(MainApp.class);
+        
+        // Set Spring context for FXMLLoaderUtil
+        FXMLLoaderUtil.setApplicationContext(springContext);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
-        loader.setControllerFactory(springContext::getBean);
-        
-        root = loader.load();
-        primaryStage.setTitle("IntelliLib - Login");
-        primaryStage.setScene(new Scene(root, 800, 600));
+        primaryStage.setTitle("IntelliLib - Welcome");
+        primaryStage.setScene(FXMLLoaderUtil.loadScene("/views/main.fxml"));
         primaryStage.show();
     }
 
     @Override
     public void stop() {
-        springContext.close();
+        if (springContext != null) {
+            springContext.close();
+        }
     }
     
-    public static Parent loadFXML(String fxmlPath) throws Exception {
-        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource(fxmlPath));
-        loader.setControllerFactory(springContext::getBean);
-        return loader.load();
-    }
-    
-    public static <T> T getController(Class<T> controllerClass) {
-        return springContext.getBean(controllerClass);
+    public static ConfigurableApplicationContext getSpringContext() {
+        return springContext;
     }
 }

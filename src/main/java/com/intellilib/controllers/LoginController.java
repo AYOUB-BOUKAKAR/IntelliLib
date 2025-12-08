@@ -6,13 +6,10 @@ import com.intellilib.util.FXMLLoaderUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import java.util.Optional;
-
-@Controller  // Changed from public class to @Controller
-@RequiredArgsConstructor  // Spring will inject services via constructor
+@Controller
 public class LoginController {
 
     @FXML private TextField usernameField;
@@ -20,10 +17,17 @@ public class LoginController {
     @FXML private Button loginButton;
     @FXML private Label errorLabel;
 
-    // Spring will inject these automatically
-    private final UserService userService;
-    
-    // Remove manual service creation: private final AuthService authService = new AuthService();
+    @Autowired
+    private UserService userService;
+
+    public LoginController() {
+        // No-arg constructor for FXML compatibility
+    }
+
+    @FXML
+    private void initialize() {
+        // Initialization code if needed
+    }
 
     @FXML
     private void login() {
@@ -36,38 +40,67 @@ public class LoginController {
         }
 
         try {
-            Optional<User> userOpt = userService.login(username, password);
-            if (userOpt.isPresent()) {
-                User user = userOpt.get();
+            User user = userService.login(username, password);
+            if (user != null) {
                 if (!user.isActive()) {
                     errorLabel.setText("Ce compte est désactivé");
                     return;
                 }
                 
                 errorLabel.setText("");
-                openDashboard();
-                // Close login window
-                ((Stage) loginButton.getScene().getWindow()).close();
+                openDashboard(user);
             } else {
                 errorLabel.setText("Nom d'utilisateur ou mot de passe incorrect");
             }
         } catch (Exception e) {
-            errorLabel.setText("Une erreur est survenue lors de la connexion");
+            errorLabel.setText("Erreur: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void openDashboard() {
+    private void openDashboard(User user) {
         try {
-            // Use the Spring-aware FXMLLoader
-            Stage stage = FXMLLoaderUtil.loadStage("/fxml/Dashboard.fxml", "Tableau de Bord - IntelliLib", true);
+            String fxmlPath;
+            String title;
+            
+            // Determine which dashboard to load based on user role
+            switch (user.getRole()) {
+                case ADMIN:
+                    fxmlPath = "/views/admin-dashboard.fxml";
+                    title = "Tableau de Bord Admin - IntelliLib";
+                    break;
+                case LIBRARIAN:
+                    fxmlPath = "/views/librarian-dashboard.fxml";
+                    title = "Tableau de Bord Bibliothécaire - IntelliLib";
+                    break;
+                case MEMBER:
+                default:
+                    fxmlPath = "/views/member-dashboard.fxml";
+                    title = "Mon Tableau de Bord - IntelliLib";
+                    break;
+            }
+            
+            Stage stage = FXMLLoaderUtil.loadStage(fxmlPath, title, true);
             stage.show();
             
-            // Close login window after successful login
+            // Close login window
             Stage loginStage = (Stage) loginButton.getScene().getWindow();
             loginStage.close();
+            
         } catch (Exception e) {
             showError("Erreur", "Impossible d'ouvrir le tableau de bord");
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    private void backToMain() {
+        try {
+            Stage stage = (Stage) loginButton.getScene().getWindow();
+            stage.setScene(FXMLLoaderUtil.loadScene("/views/main.fxml"));
+            stage.setTitle("IntelliLib - Welcome");
+        } catch (Exception e) {
+            showError("Erreur", "Impossible de revenir à l'accueil");
             e.printStackTrace();
         }
     }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20.0" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.AdminDashboardController">
+    <stylesheets>
+        <URL value="@/css/dashboard.css" />
+    </stylesheets>
+    
+    <Label text="Admin Dashboard" styleClass="dashboard-title" />
+    
+    <HBox spacing="20" alignment="CENTER_LEFT">
+        <VBox styleClass="info-card" spacing="10">
+            <Label text="Welcome, Administrator" styleClass="welcome-text" />
+            <Label fx:id="adminNameLabel" styleClass="user-name" />
+        </VBox>
+        
+        <VBox styleClass="stats-card" spacing="10">
+            <Label text="Library Overview" styleClass="section-title" />
+            <GridPane hgap="20" vgap="15">
+                <Label text="Total Books:" styleClass="stat-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="totalBooksLabel" styleClass="stat-value" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                
+                <Label text="Active Members:" styleClass="stat-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="totalMembersLabel" styleClass="stat-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                
+                <Label text="Active Borrows:" styleClass="stat-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label fx:id="activeBorrowsLabel" styleClass="stat-value" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                
+                <Label text="Overdue Books:" styleClass="stat-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Label fx:id="overdueBooksLabel" styleClass="stat-value warning" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            </GridPane>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="20" alignment="CENTER">
+        <VBox styleClass="chart-card" spacing="10">
+            <Label text="Borrows This Month" styleClass="section-title" />
+            <LineChart fx:id="borrowsChart" legendVisible="false" />
+        </VBox>
+        
+        <VBox styleClass="chart-card" spacing="10">
+            <Label text="Popular Categories" styleClass="section-title" />
+            <PieChart fx:id="categoriesChart" legendVisible="true" />
+        </VBox>
+    </HBox>
+
+    <VBox styleClass="section" spacing="10">
+        <Label text="Recent Activities" styleClass="section-title" />
+        <TableView fx:id="activitiesTable" styleClass="data-table">
+            <columns>
+                <TableColumn text="Date/Time" fx:id="activityDateColumn" />
+                <TableColumn text="User" fx:id="userColumn" />
+                <TableColumn text="Action" fx:id="actionColumn" />
+                <TableColumn text="Details" fx:id="detailsColumn" />
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

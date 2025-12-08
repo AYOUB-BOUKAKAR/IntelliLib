@@ -8,30 +8,62 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URL;
 
 @Component
 public class FXMLLoaderUtil {
     
-    private static ApplicationContext context;
+    private static ApplicationContext applicationContext;
     
-    public static void setApplicationContext(ApplicationContext ctx) {
-        context = ctx;
+    public static void setApplicationContext(ApplicationContext context) {
+        applicationContext = context;
     }
     
-    public static Parent load(String fxmlPath) throws IOException {
-        FXMLLoader loader = new FXMLLoader(FXMLLoaderUtil.class.getResource(fxmlPath));
-        loader.setControllerFactory(context::getBean);
-        return loader.load();
+    public static Scene loadScene(String fxmlPath) throws IOException {
+        URL fxmlUrl = FXMLLoaderUtil.class.getResource(fxmlPath);
+        
+        if (fxmlUrl == null) {
+            throw new IOException("FXML file not found: " + fxmlPath);
+        }
+        
+        FXMLLoader loader = new FXMLLoader(fxmlUrl);
+        
+        // Use Spring to create controllers
+        if (applicationContext != null) {
+            loader.setControllerFactory(applicationContext::getBean);
+        }
+        
+        Parent root = loader.load();
+        return new Scene(root);
     }
     
     public static Stage loadStage(String fxmlPath, String title, boolean maximized) throws IOException {
-        Parent root = load(fxmlPath);
         Stage stage = new Stage();
+        Scene scene = loadScene(fxmlPath);
+        stage.setScene(scene);
         stage.setTitle(title);
-        stage.setScene(new Scene(root));
+        
         if (maximized) {
             stage.setMaximized(true);
         }
+        
         return stage;
+    }
+    
+    public static <T> T loadController(String fxmlPath) throws IOException {
+        URL fxmlUrl = FXMLLoaderUtil.class.getResource(fxmlPath);
+        
+        if (fxmlUrl == null) {
+            throw new IOException("FXML file not found: " + fxmlPath);
+        }
+        
+        FXMLLoader loader = new FXMLLoader(fxmlUrl);
+        
+        if (applicationContext != null) {
+            loader.setControllerFactory(applicationContext::getBean);
+        }
+        
+        loader.load();
+        return loader.getController();
     }
 }

@@ -2,42 +2,89 @@ package com.intellilib.services;
 
 import com.intellilib.models.User;
 import com.intellilib.repositories.UserRepository;
+import com.intellilib.session.SessionManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
     
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final SessionManager sessionManager;
     
-    public User registerUser(String username, String password, String email, User.UserRole role) {
-        if (userRepository.existsByUsername(username)) {
+    public User registerUser(User user) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
         
-        User user = new User(username, password, email, role);
+        // Encrypt password before saving
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encryptedPassword);
+        
+        // Set timestamps
+        user.setCreatedAt(LocalDateTime.now());
+        user.setActive(true);
+        
         return userRepository.save(user);
     }
     
-    public Optional<User> login(String username, String password) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            User loggedInUser = user.get();
-            loggedInUser.setLastLogin(java.time.LocalDateTime.now());
-            userRepository.save(loggedInUser);
-            return user;
+    public boolean usernameExists(String username) {
+        return userRepository.existsByUsername(username);
+    }
+    
+    public boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+    
+    public User login(String username, String password) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            
+            // Verify password
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                if (!user.isActive()) {
+                    throw new RuntimeException("Account is deactivated");
+                }
+                
+                // Update last login
+                user.setLastLogin(LocalDateTime.now());
+                User updatedUser = userRepository.save(user);
+                
+                // Set user in session
+                sessionManager.login(updatedUser);
+                
+                return updatedUser;
+            }
         }
-        return Optional.empty();
+        
+        return null;
+    }
+    
+    public User getCurrentUser() {
+        return sessionManager.getCurrentUser();
+    }
+    
+    public void logout() {
+        sessionManager.logout();
     }
     
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
     
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    // Optional: Get user by ID
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 }

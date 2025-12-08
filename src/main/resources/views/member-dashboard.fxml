@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20.0" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.MemberDashboardController">
+    <stylesheets>
+        <URL value="@/css/dashboard.css" />
+    </stylesheets>
+    
+    <Label text="My Dashboard" styleClass="dashboard-title" />
+    
+    <HBox spacing="20" alignment="CENTER_LEFT">
+        <VBox styleClass="info-card" spacing="10">
+            <Label text="Welcome back," styleClass="welcome-text" />
+            <Label fx:id="userNameLabel" styleClass="user-name" />
+            <Label fx:id="userEmailLabel" styleClass="user-email" />
+        </VBox>
+        
+        <VBox styleClass="stats-card" spacing="10">
+            <Label text="My Stats" styleClass="section-title" />
+            <HBox spacing="20">
+                <VBox styleClass="stat-box">
+                    <Label text="Borrowed" styleClass="stat-label" />
+                    <Label fx:id="borrowedCountLabel" styleClass="stat-value" />
+                </VBox>
+                <VBox styleClass="stat-box">
+                    <Label text="Due Soon" styleClass="stat-label" />
+                    <Label fx:id="dueSoonCountLabel" styleClass="stat-value" />
+                </VBox>
+                <VBox styleClass="stat-box">
+                    <Label text="Overdue" styleClass="stat-label" />
+                    <Label fx:id="overdueCountLabel" styleClass="stat-value warning" />
+                </VBox>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <VBox styleClass="section" spacing="10">
+        <Label text="My Current Borrowings" styleClass="section-title" />
+        <TableView fx:id="currentBorrowingsTable" styleClass="data-table">
+            <columns>
+                <TableColumn text="Book" fx:id="bookColumn" />
+                <TableColumn text="Borrowed On" fx:id="borrowDateColumn" />
+                <TableColumn text="Due Date" fx:id="dueDateColumn" />
+                <TableColumn text="Status" fx:id="statusColumn" />
+                <TableColumn text="Actions" fx:id="actionsColumn" />
+            </columns>
+        </TableView>
+    </VBox>
+
+    <VBox styleClass="section" spacing="10">
+        <Label text="Recommended For You" styleClass="section-title" />
+        <HBox fx:id="recommendationsContainer" spacing="15" />
+    </VBox>
+</VBox>
