@@ -37,4 +37,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     // Search by title OR author
     @Query("SELECT b FROM Book b WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Book> searchByTitleOrAuthor(String keyword);
+
+    long countByAvailableTrue();
+    long countByAvailableFalse();
 }

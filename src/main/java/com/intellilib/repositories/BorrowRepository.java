@@ -31,4 +31,6 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     
     // Find borrows by member ID
     List<Borrow> findByMemberId(Long memberId);
+
+    long countByReturnedFalse();
 }

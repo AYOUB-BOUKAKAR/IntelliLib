@@ -1,21 +1,28 @@
 package com.intellilib.controllers;
 
+import com.intellilib.models.Activity;
 import com.intellilib.models.User;
 import com.intellilib.services.BookService;
 import com.intellilib.services.BorrowService;
 import com.intellilib.services.UserService;
+import com.intellilib.services.ActivityService;
+import com.intellilib.services.DatabaseService;
 import com.intellilib.util.FXMLLoaderUtil;
 import javafx.stage.Stage;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class AdminDashboardController extends BaseDashboardController {
@@ -27,24 +34,28 @@ public class AdminDashboardController extends BaseDashboardController {
     @FXML private Label overdueBooksLabel;
     @FXML private Label totalFinesLabel;
     
-    @FXML private TableView<?> recentActivityTable;
-    @FXML private TableColumn<?, ?> userColumn;
-    @FXML private TableColumn<?, ?> actionColumn;
-    @FXML private TableColumn<?, ?> timestampColumn;
+    @FXML private TableView<Activity> recentActivityTable;
+    @FXML private TableColumn<Activity, String> userColumn;
+    @FXML private TableColumn<Activity, String> actionColumn;
+    @FXML private TableColumn<Activity, LocalDateTime> timestampColumn;
     
-    @FXML private TableView<?> recentUsersTable;
-    @FXML private TableColumn<?, ?> usernameColumn;
-    @FXML private TableColumn<?, ?> emailColumn;
-    @FXML private TableColumn<?, ?> roleColumn;
-    @FXML private TableColumn<?, ?> joinedDateColumn;
+    @FXML private TableView<User> recentUsersTable;
+    @FXML private TableColumn<User, String> usernameColumn;
+    @FXML private TableColumn<User, String> emailColumn;
+    @FXML private TableColumn<User, String> roleColumn;
+    @FXML private TableColumn<User, LocalDateTime> joinedDateColumn;
     
     private final BookService bookService;
     private final BorrowService BorrowService;
+    private final ActivityService activityService;
+    private final DatabaseService databaseService;
     
-    public AdminDashboardController(UserService userService, BookService bookService, BorrowService BorrowService) {
+    public AdminDashboardController(UserService userService, BookService bookService, BorrowService BorrowService, ActivityService activityService, DatabaseService databaseService) {
         super(userService);
         this.bookService = bookService;
         this.BorrowService = BorrowService;
+        this.activityService = activityService;
+        this.databaseService = databaseService;
     }
     
     @Override
@@ -94,14 +105,14 @@ public class AdminDashboardController extends BaseDashboardController {
     
     private void loadRecentActivity() {
         try {
-            // Initialize table columns
-            userColumn.setCellValueFactory(new PropertyValueFactory<>("user"));
+            // Initialize table columns to match Activity model
+            userColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUser().getUsername()));
             actionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
             timestampColumn.setCellValueFactory(new PropertyValueFactory<>("timestamp"));
             
-            // Load recent activity (last 20 actions)
-            var recentActivity = userService.getRecentActivity(20);
-            recentActivityTable.getItems().setAll(recentActivity);
+            // Load recent activity (last 20 actions) using ActivityService
+            List<Activity> recentActivities = activityService.getRecentActivities(20);
+            recentActivityTable.getItems().setAll(recentActivities);
             
         } catch (Exception e) {
             showError("Erreur", "Impossible de charger l'activité récente");
@@ -117,8 +128,16 @@ public class AdminDashboardController extends BaseDashboardController {
             roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
             joinedDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
             
-            // Load recent users (last 10 registrations)
-            var recentUsers = userService.getRecentUsers(10);
+            // Get recent user activities (e.g., user registration activities)
+            List<Activity> recentActivities = activityService.getActivitiesByAction("USER_REGISTERED", 10);
+            
+            // Extract users from activities
+            List<User> recentUsers = recentActivities.stream()
+                .map(Activity::getUser)
+                .distinct() // Ensure unique users
+                .collect(Collectors.toList());
+            
+            // Update the table
             recentUsersTable.getItems().setAll(recentUsers);
             
         } catch (Exception e) {
@@ -192,7 +211,7 @@ public class AdminDashboardController extends BaseDashboardController {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    boolean success = userService.backupDatabase();
+                    boolean success = databaseService.backupDatabase();
                     if (success) {
                         showSuccess("Succès", "Sauvegarde effectuée avec succès!");
                     } else {

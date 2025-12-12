@@ -87,4 +87,24 @@ public class UserService {
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
+
+    public long countActiveMembers() {
+        return userRepository.countByActiveTrue();
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+//    public List<UserActivity> getRecentActivity(int limit) {
+//        // This might be better in a separate ActivityService
+//        Pageable pageable = PageRequest.of(0, limit, Sort.by("lastLogin").descending());
+//        return userRepository.findRecentActiveUsers(pageable);
+//    }
+//
+//    // OR if you have a separate Activity entity:
+//    public List<Activity> getRecentActivity(int limit) {
+//        Pageable pageable = PageRequest.of(0, limit, Sort.by("timestamp").descending());
+//        return activityRepository.findAll(pageable).getContent();
+//    }
 }

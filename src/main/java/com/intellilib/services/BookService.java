@@ -58,4 +58,17 @@ public class BookService {
         }
         return false;
     }
+
+    public long getTotalBooksCount() {
+        return bookRepository.count();
+    }
+
+    // Optional: If you want to count only available books
+    public long getAvailableBooksCount() {
+        return bookRepository.countByAvailableTrue();
+    }
+
+    public long getUnavailableBooksCount() {
+        return bookRepository.countByAvailableFalse();
+    }
 }

@@ -60,4 +60,18 @@ public class BorrowService {
     public List<Borrow> getActiveBorrows() {
         return borrowRepository.findByReturnedFalse();
     }
+
+    public long countActiveBorrowings() {
+        return borrowRepository.countByReturnedFalse();
+    }
+
+    public long countOverdueBooks() {
+        return borrowRepository.findOverdueBorrows(LocalDate.now()).size();
+    }
+
+    public double calculateTotalFines() {
+        return borrowRepository.findAll().stream()
+            .mapToDouble(Borrow::getFineAmount)
+            .sum();
+    }
 }

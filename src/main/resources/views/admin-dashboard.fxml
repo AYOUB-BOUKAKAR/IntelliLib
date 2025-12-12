@@ -1,61 +1,188 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
 
-<VBox spacing="20.0" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/21" 
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/21" 
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.intellilib.controllers.AdminDashboardController">
-    <stylesheets>
-        <URL value="@/css/dashboard.css" />
-    </stylesheets>
+      fx:controller="com.intellilib.controllers.AdminDashboardController"
+      style="-fx-padding: 20;">
+
     
-    <Label text="Admin Dashboard" styleClass="dashboard-title" />
-    
-    <HBox spacing="20" alignment="CENTER_LEFT">
-        <VBox styleClass="info-card" spacing="10">
-            <Label text="Welcome, Administrator" styleClass="welcome-text" />
-            <Label fx:id="adminNameLabel" styleClass="user-name" />
+    <!-- Header Section -->
+    <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 0 0 20 0;">
+        <VBox>
+            <Label text="Tableau de Bord Administrateur" 
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+            <Label fx:id="welcomeLabel" 
+                   style="-fx-font-size: 16px; -fx-text-fill: #7f8c8d;" />
         </VBox>
-        
-        <VBox styleClass="stats-card" spacing="10">
-            <Label text="Library Overview" styleClass="section-title" />
+    </HBox>
+    
+    <!-- Statistics Cards -->
+    <HBox spacing="20" alignment="TOP_CENTER">
+        <!-- Left Statistics -->
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+            <Label text="Statistiques Générales" 
+                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+            
             <GridPane hgap="20" vgap="15">
-                <Label text="Total Books:" styleClass="stat-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <Label fx:id="totalBooksLabel" styleClass="stat-value" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Livres Totaux:" 
+                       GridPane.rowIndex="0" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
+                <Label fx:id="totalBooksLabel" 
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #3498db;" />
                 
-                <Label text="Active Members:" styleClass="stat-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <Label fx:id="totalMembersLabel" styleClass="stat-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Membres Actifs:" 
+                       GridPane.rowIndex="1" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
+                <Label fx:id="activeMembersLabel" 
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;" />
                 
-                <Label text="Active Borrows:" styleClass="stat-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <Label fx:id="activeBorrowsLabel" styleClass="stat-value" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Emprunts Actifs:" 
+                       GridPane.rowIndex="2" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
+                <Label fx:id="activeBorrowingsLabel" 
+                       GridPane.rowIndex="2" GridPane.columnIndex="1"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e67e22;" />
                 
-                <Label text="Overdue Books:" styleClass="stat-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <Label fx:id="overdueBooksLabel" styleClass="stat-value warning" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Label text="Livres en Retard:" 
+                       GridPane.rowIndex="3" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
+                <Label fx:id="overdueBooksLabel" 
+                       GridPane.rowIndex="3" GridPane.columnIndex="1"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" />
+                
+                <Label text="Amendes Total:" 
+                       GridPane.rowIndex="4" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
+                <Label fx:id="totalFinesLabel" 
+                       GridPane.rowIndex="4" GridPane.columnIndex="1"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;" />
             </GridPane>
         </VBox>
+        
+        <!-- Right Statistics - Quick Actions -->
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+            <Label text="Actions Rapides" 
+                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+            
+            <VBox spacing="10">
+                <Button text="📚 Gérer les Livres" 
+                        onAction="#manageBooks"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
+                
+                <Button text="👥 Gérer les Utilisateurs" 
+                        onAction="#manageUsers"
+                        style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
+                
+                <Button text="📖 Gérer les Emprunts" 
+                        onAction="#manageBorrowings"
+                        style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
+                
+                <Button text="📊 Voir les Rapports" 
+                        onAction="#viewReports"
+                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
+                
+                <Button text="⚙️ Paramètres Système" 
+                        onAction="#systemSettings"
+                        style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
+                
+                <Button text="💾 Sauvegarder Base de Données" 
+                        onAction="#backupDatabase"
+                        style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
+            </VBox>
+        </VBox>
     </HBox>
-
-    <HBox spacing="20" alignment="CENTER">
-        <VBox styleClass="chart-card" spacing="10">
-            <Label text="Borrows This Month" styleClass="section-title" />
-            <LineChart fx:id="borrowsChart" legendVisible="false" />
+    
+    <!-- Tables Section -->
+    <HBox spacing="20" alignment="TOP_CENTER">
+        <!-- Recent Activity Table -->
+        <VBox spacing="10" VBox.vgrow="ALWAYS" 
+              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Activité Récente" 
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+            </HBox>
+            
+            <TableView fx:id="recentActivityTable" style="-fx-pref-height: 250;">
+                <columns>
+                    <TableColumn text="Utilisateur" fx:id="userColumn" 
+                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="user.username" />
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Action" fx:id="actionColumn" 
+                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="action" />
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Date/Heure" fx:id="timestampColumn" 
+                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="timestamp" />
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
         </VBox>
         
-        <VBox styleClass="chart-card" spacing="10">
-            <Label text="Popular Categories" styleClass="section-title" />
-            <PieChart fx:id="categoriesChart" legendVisible="true" />
+        <!-- Recent Users Table -->
+        <VBox spacing="10" VBox.vgrow="ALWAYS" 
+              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Utilisateurs Récents" 
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+            </HBox>
+            
+            <TableView fx:id="recentUsersTable" style="-fx-pref-height: 250;">
+                <columns>
+                    <TableColumn text="Nom d'utilisateur" fx:id="usernameColumn" 
+                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="username" />
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Email" fx:id="emailColumn" 
+                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="email" />
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Rôle" fx:id="roleColumn" 
+                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="role" />
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Date d'inscription" fx:id="joinedDateColumn" 
+                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="createdAt" />
+                        </cellValueFactory>
+                    </TableColumn>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
         </VBox>
     </HBox>
-
-    <VBox styleClass="section" spacing="10">
-        <Label text="Recent Activities" styleClass="section-title" />
-        <TableView fx:id="activitiesTable" styleClass="data-table">
-            <columns>
-                <TableColumn text="Date/Time" fx:id="activityDateColumn" />
-                <TableColumn text="User" fx:id="userColumn" />
-                <TableColumn text="Action" fx:id="actionColumn" />
-                <TableColumn text="Details" fx:id="detailsColumn" />
-            </columns>
-        </TableView>
-    </VBox>
+    
+    <!-- Footer Section -->
+    <HBox spacing="20" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
+        <Button text="Se Déconnecter" 
+                onAction="#logout"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 150; -fx-pref-height: 40;" />
+    </HBox>
+    
 </VBox>
