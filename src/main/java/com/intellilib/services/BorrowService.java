@@ -19,6 +19,24 @@ public class BorrowService {
     private final BorrowRepository borrowRepository;
     private final BookRepository bookRepository;
     private final MemberRepository memberRepository;
+
+    public List<Borrow> getAllBorrows(){
+        return borrowRepository.findAll();
+    }
+    
+    public Borrow saveBorrow(Borrow borrow) {
+        Optional<Book> book = bookRepository.findById(borrow.getBook().getId());
+        Optional<Member> member = memberRepository.findById(borrow.getMember().getId());
+        
+        if (book.isEmpty() || member.isEmpty() || !book.get().isAvailable()) {
+            throw new RuntimeException("Cannot borrow book");
+        }
+        return borrowRepository.save(borrow);
+    }
+    
+    public void deleteBorrow(Long borrowId){
+        borrowRepository.deleteById(borrowId);
+    }
     
     public Borrow borrowBook(Long bookId, Long memberId, LocalDate dueDate) {
         Optional<Book> book = bookRepository.findById(bookId);
@@ -35,7 +53,7 @@ public class BorrowService {
         Borrow borrow = new Borrow(bookToBorrow, member.get(), dueDate);
         return borrowRepository.save(borrow);
     }
-    
+
     public boolean returnBook(Long borrowId) {
         Optional<Borrow> borrow = borrowRepository.findById(borrowId);
         if (borrow.isPresent() && !borrow.get().isReturned()) {
@@ -52,7 +70,7 @@ public class BorrowService {
         }
         return false;
     }
-    
+
     public List<Borrow> getBorrowsByMember(Long memberId) {
         return borrowRepository.findByMemberId(memberId);
     }

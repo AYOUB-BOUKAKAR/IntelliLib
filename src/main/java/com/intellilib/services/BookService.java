@@ -71,4 +71,8 @@ public class BookService {
     public long getUnavailableBooksCount() {
         return bookRepository.countByAvailableFalse();
     }
+
+    public List<Book> findAvailableBooks(){
+        return bookRepository.findByAvailableTrue();
+    }
 }

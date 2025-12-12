@@ -27,6 +27,8 @@ public class Book {
     private Integer publicationYear;
     
     private String publisher;
+
+    private Integer quantity;
     
     @ManyToOne
     @JoinColumn(name = "category_id")

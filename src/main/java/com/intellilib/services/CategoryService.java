@@ -59,7 +59,7 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Optional<Category> getCategoryByName(String name) {
+    public Category getCategoryByName(String name) {
         return categoryRepository.findByName(name);
     }
 

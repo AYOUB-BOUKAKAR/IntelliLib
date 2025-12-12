@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="10" style="-fx-background-color: #f4f4f4;" xmlns:fx="http://javafx.com/fxml" fx:controller="com.intellilib.controllers.ManageBookController">
+    <padding>
+        <Insets bottom="10" left="10" right="10" top="10"/>
+    </padding>
+    
+    <!-- Header -->
+    <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Book Management"/>
+    
+    <!-- Search Bar -->
+    <HBox spacing="10">
+        <TextField fx:id="searchField" promptText="Search books..." HBox.hgrow="ALWAYS"/>
+    </HBox>
+    
+    <!-- Main Content -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Book Table -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <Label style="-fx-font-weight: bold;" text="Book List"/>
+            <TableView fx:id="bookTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="isbnColumn" prefWidth="120" text="ISBN"/>
+                    <TableColumn fx:id="titleColumn" prefWidth="200" text="Title"/>
+                    <TableColumn fx:id="authorColumn" prefWidth="150" text="Author"/>
+                    <TableColumn fx:id="yearColumn" prefWidth="80" text="Year"/>
+                    <TableColumn fx:id="categoryColumn" prefWidth="150" text="Category"/>
+                    <TableColumn fx:id="quantityColumn" prefWidth="80" text="Qty"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+        
+        <!-- Book Form -->
+        <VBox spacing="10" style="-fx-min-width: 300; -fx-pref-width: 300;">
+            <Label style="-fx-font-weight: bold;" text="Book Details"/>
+            <VBox style="-fx-background-color: white; -fx-padding: 15; -fx-spacing: 10; -fx-background-radius: 5;">
+                <Label text="ISBN"/>
+                <TextField fx:id="isbnField" promptText="Enter ISBN"/>
+                
+                <Label text="Title"/>
+                <TextField fx:id="titleField" promptText="Enter title"/>
+                
+                <Label text="Author"/>
+                <TextField fx:id="authorField" promptText="Enter author"/>
+                
+                <Label text="Publication Year"/>
+                <TextField fx:id="yearField" promptText="e.g., 2023"/>
+                
+                <Label text="Category"/>
+                <TextField fx:id="categoryField" promptText="Enter category"/>
+                
+                <Label text="Quantity"/>
+                <TextField fx:id="quantityField" promptText="Enter quantity"/>
+                
+                <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
+                    <Button fx:id="addButton" text="Add" onAction="#handleAddBook" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="updateButton" text="Update" onAction="#handleUpdateBook" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Button fx:id="deleteButton" text="Delete" onAction="#handleDeleteBook" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="clearButton" text="Clear" onAction="#handleClearForm" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </HBox>
+    
+    <!-- Status Bar -->
+    <Label fx:id="statusLabel" style="-fx-text-fill: #2e7d32; -fx-font-style: italic;"/>
+</VBox>

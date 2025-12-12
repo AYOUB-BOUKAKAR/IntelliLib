@@ -149,7 +149,7 @@ public class AdminDashboardController extends BaseDashboardController {
     @FXML
     private void manageBooks() {
         try {
-            Stage stage = FXMLLoaderUtil.loadStage("/views/manage-books.fxml", "Gérer les Livres", true);
+            Stage stage = FXMLLoaderUtil.loadStage("/views/admin/manage-books.fxml", "Gérer les Livres", true);
             stage.show();
         } catch (Exception e) {
             showError("Erreur", "Impossible d'ouvrir la gestion des livres");
@@ -158,9 +158,9 @@ public class AdminDashboardController extends BaseDashboardController {
     }
     
     @FXML
-    private void manageUsers() {
+    private void manageMembers() {
         try {
-            Stage stage = FXMLLoaderUtil.loadStage("/views/manage-users.fxml", "Gérer les Utilisateurs", true);
+            Stage stage = FXMLLoaderUtil.loadStage("/views/admin/manage-members.fxml", "Gérer les Membres", true);
             stage.show();
         } catch (Exception e) {
             showError("Erreur", "Impossible d'ouvrir la gestion des utilisateurs");
@@ -171,10 +171,21 @@ public class AdminDashboardController extends BaseDashboardController {
     @FXML
     private void manageBorrowings() {
         try {
-            Stage stage = FXMLLoaderUtil.loadStage("/views/manage-borrowings.fxml", "Gérer les Emprunts", true);
+            Stage stage = FXMLLoaderUtil.loadStage("/views/admin/manage-borrows.fxml", "Gérer les Emprunts", true);
             stage.show();
         } catch (Exception e) {
             showError("Erreur", "Impossible d'ouvrir la gestion des emprunts");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void manageCategories() {
+        try {
+            Stage stage = FXMLLoaderUtil.loadStage("/views/admin/manage-categories.fxml", "Gérer les Categories", true);
+            stage.show();
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir la gestion des categories");
             e.printStackTrace();
         }
     }
