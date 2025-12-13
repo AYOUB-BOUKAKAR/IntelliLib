@@ -42,6 +42,19 @@ public class Book {
     @Column(name = "added_date")
     private LocalDate addedDate = LocalDate.now();
     
+    // NEW: PDF file path
+    @Column(name = "file_path")
+    private String filePath;
+    
+    @Column(name = "original_file_name")
+    private String originalFileName;
+    
+    @Column(name = "file_size")
+    private Long fileSize; // in bytes
+    
+    @Column(name = "file_type")
+    private String fileType = "pdf"; // default to pdf
+    
     // Custom constructor
     public Book(String title, String author, String isbn) {
         this.title = title;
@@ -49,5 +62,6 @@ public class Book {
         this.isbn = isbn;
         this.available = true;
         this.addedDate = LocalDate.now();
+        this.quantity = 1;
     }
 }

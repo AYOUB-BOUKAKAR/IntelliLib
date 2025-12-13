@@ -5,73 +5,121 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="10" style="-fx-background-color: #f4f4f4;" xmlns:fx="http://javafx.com/fxml" fx:controller="com.intellilib.controllers.ManageBookController">
-    <padding>
-        <Insets bottom="10" left="10" right="10" top="10"/>
-    </padding>
+<VBox spacing="0" 
+        styleClass="root" 
+        stylesheets="@/css/style.css" 
+        xmlns:fx="http://javafx.com/fxml" 
+        fx:controller="com.intellilib.controllers.ManageBookController">
     
     <!-- Header -->
-    <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Book Management"/>
-    
-    <!-- Search Bar -->
-    <HBox spacing="10">
-        <TextField fx:id="searchField" promptText="Search books..." HBox.hgrow="ALWAYS"/>
-    </HBox>
-    
-    <!-- Main Content -->
-    <HBox spacing="20" VBox.vgrow="ALWAYS">
-        <!-- Book Table -->
-        <VBox spacing="10" HBox.hgrow="ALWAYS">
-            <Label style="-fx-font-weight: bold;" text="Book List"/>
-            <TableView fx:id="bookTable" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="isbnColumn" prefWidth="120" text="ISBN"/>
-                    <TableColumn fx:id="titleColumn" prefWidth="200" text="Title"/>
-                    <TableColumn fx:id="authorColumn" prefWidth="150" text="Author"/>
-                    <TableColumn fx:id="yearColumn" prefWidth="80" text="Year"/>
-                    <TableColumn fx:id="categoryColumn" prefWidth="150" text="Category"/>
-                    <TableColumn fx:id="quantityColumn" prefWidth="80" text="Qty"/>
-                </columns>
-                <columnResizePolicy>
-                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                </columnResizePolicy>
-            </TableView>
-        </VBox>
-        
-        <!-- Book Form -->
-        <VBox spacing="10" style="-fx-min-width: 300; -fx-pref-width: 300;">
-            <Label style="-fx-font-weight: bold;" text="Book Details"/>
-            <VBox style="-fx-background-color: white; -fx-padding: 15; -fx-spacing: 10; -fx-background-radius: 5;">
-                <Label text="ISBN"/>
-                <TextField fx:id="isbnField" promptText="Enter ISBN"/>
-                
-                <Label text="Title"/>
-                <TextField fx:id="titleField" promptText="Enter title"/>
-                
-                <Label text="Author"/>
-                <TextField fx:id="authorField" promptText="Enter author"/>
-                
-                <Label text="Publication Year"/>
-                <TextField fx:id="yearField" promptText="e.g., 2023"/>
-                
-                <Label text="Category"/>
-                <TextField fx:id="categoryField" promptText="Enter category"/>
-                
-                <Label text="Quantity"/>
-                <TextField fx:id="quantityField" promptText="Enter quantity"/>
-                
-                <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
-                    <Button fx:id="addButton" text="Add" onAction="#handleAddBook" HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="updateButton" text="Update" onAction="#handleUpdateBook" HBox.hgrow="ALWAYS"/>
-                </HBox>
-                <HBox spacing="10">
-                    <Button fx:id="deleteButton" text="Delete" onAction="#handleDeleteBook" HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="clearButton" text="Clear" onAction="#handleClearForm" HBox.hgrow="ALWAYS"/>
-                </HBox>
-            </VBox>
+    <HBox styleClass="site-header" alignment="CENTER_LEFT">
+        <VBox spacing="4">
+            <Label styleClass="page-title" text="Book Management"/>
+            <Label styleClass="page-subtitle" text="Add, edit, and manage your library collection"/>
         </VBox>
     </HBox>
     
-    <!-- Status Bar -->
-    <Label fx:id="statusLabel" style="-fx-text-fill: #2e7d32; -fx-font-style: italic;"/>
+    <!-- Content Area -->
+    <ScrollPane styleClass="content-scroll" fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox styleClass="content-container" spacing="24">
+            
+            <!-- Search Bar -->
+            <TextField fx:id="searchField" promptText="Search books by title, author, or ISBN..." 
+                       style="-fx-background-color: #111111; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 16; -fx-font-size: 14px;"/>
+            
+            <!-- Main Content -->
+            <HBox spacing="24" VBox.vgrow="ALWAYS">
+                <!-- Book Table -->
+                <VBox spacing="16" HBox.hgrow="ALWAYS">
+                    <Label styleClass="section-title" text="Book List"/>
+                    <TableView fx:id="bookTable" styleClass="data-table" VBox.vgrow="ALWAYS" style="-fx-min-height: 400;">
+                        <columns>
+                            <TableColumn fx:id="isbnColumn" prefWidth="120" text="ISBN" styleClass="table-column"/>
+                            <TableColumn fx:id="titleColumn" prefWidth="200" text="Title" styleClass="table-column"/>
+                            <TableColumn fx:id="authorColumn" prefWidth="150" text="Author" styleClass="table-column"/>
+                            <TableColumn fx:id="yearColumn" prefWidth="80" text="Year" styleClass="table-column"/>
+                            <TableColumn fx:id="categoryColumn" prefWidth="150" text="Category" styleClass="table-column"/>
+                            <TableColumn fx:id="quantityColumn" prefWidth="80" text="Qty" styleClass="table-column"/>
+                            <TableColumn fx:id="fileColumn" prefWidth="150" text="PDF File" styleClass="table-column"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+                
+                <!-- Book Form -->
+                <VBox spacing="16" style="-fx-min-width: 320; -fx-pref-width: 320;">
+                    <Label styleClass="section-title" text="Book Details"/>
+                    <VBox styleClass="chart-section" spacing="16">
+                        <VBox spacing="8">
+                            <Label styleClass="stat-label" text="ISBN"/>
+                            <TextField fx:id="isbnField" promptText="Enter ISBN" 
+                                       style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="stat-label" text="Title"/>
+                            <TextField fx:id="titleField" promptText="Enter title" 
+                                       style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="stat-label" text="Author"/>
+                            <TextField fx:id="authorField" promptText="Enter author" 
+                                       style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="stat-label" text="Publication Year"/>
+                            <TextField fx:id="yearField" promptText="e.g., 2023" 
+                                       style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="stat-label" text="Category"/>
+                            <TextField fx:id="categoryField" promptText="Enter category" 
+                                       style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="stat-label" text="Quantity"/>
+                            <TextField fx:id="quantityField" promptText="Enter quantity" 
+                                       style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
+                        </VBox>
+
+                        <!-- PDF File Upload Section -->
+                        <VBox spacing="8">
+                            <Label styleClass="stat-label" text="PDF File (Optional)"/>
+                            <HBox spacing="8">
+                                <Button fx:id="uploadButton" text="Upload PDF" 
+                                        styleClass="header-button"
+                                        onAction="#handleUploadButton" HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="viewFileButton" text="View" 
+                                        styleClass="header-button"
+                                        onAction="#handleViewFile" disable="true"/>
+                                <Button fx:id="clearFileButton" text="Clear" 
+                                        styleClass="header-button"
+                                        onAction="#handleClearFile" disable="true"/>
+                            </HBox>
+                            <Label fx:id="fileNameLabel" text="No file selected" 
+                                   styleClass="stat-change"/>
+                        </VBox>
+                        
+                        <HBox spacing="10">
+                            <Button fx:id="addButton" text="Add" styleClass="header-button" onAction="#handleAddBook" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="updateButton" text="Update" styleClass="header-button" onAction="#handleUpdateBook" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="deleteButton" text="Delete" styleClass="header-button" onAction="#handleDeleteBook" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <HBox spacing="10">
+                            <Button fx:id="clearButton" text="Clear" styleClass="header-button" onAction="#handleClearForm" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </HBox>
+            
+            <!-- Status Bar -->
+            <Label fx:id="statusLabel" styleClass="stat-change-positive"/>
+        </VBox>
+    </ScrollPane>
 </VBox>

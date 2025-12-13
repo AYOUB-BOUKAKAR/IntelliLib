@@ -149,3 +149,9 @@ launch.json
 
 # VS Code workspace settings
 *.code-workspace
+
+# pdfjs
+pdfjs
+
+#uploads
+uploads

@@ -54,8 +54,6 @@
                             style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
                     <Button fx:id="updateButton" text="Update" onAction="#handleUpdateCategory" HBox.hgrow="ALWAYS" 
                             style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
-                </HBox>
-                <HBox spacing="10">
                     <Button fx:id="deleteButton" text="Delete" onAction="#handleDeleteCategory" HBox.hgrow="ALWAYS" 
                             style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
                     <Button fx:id="clearButton" text="Clear" onAction="#handleClearForm" HBox.hgrow="ALWAYS"/>

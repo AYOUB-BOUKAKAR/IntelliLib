@@ -1,192 +1,168 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.control.cell.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<VBox spacing="20.0" xmlns="http://javafx.com/javafx/21" 
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.intellilib.controllers.AdminDashboardController"
-      style="-fx-padding: 20;">
+<BorderPane xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intellilib.controllers.AdminDashboardController"
+            stylesheets="@/css/style.css"
+            styleClass="root">
 
-    
-    <!-- Header Section -->
-    <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 0 0 20 0;">
-        <VBox>
-            <Label text="Tableau de Bord Administrateur" 
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-            <Label fx:id="welcomeLabel" 
-                   style="-fx-font-size: 16px; -fx-text-fill: #7f8c8d;" />
-        </VBox>
-    </HBox>
-    
-    <!-- Statistics Cards -->
-    <HBox spacing="20" alignment="TOP_CENTER">
-        <!-- Left Statistics -->
-        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
-            <Label text="Statistiques Générales" 
-                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+    <!-- Sidebar -->
+    <left>
+        <VBox styleClass="sidebar" spacing="0">
+            <!-- Sidebar Header -->
+            <VBox styleClass="sidebar-header">
+                <Label text="IntelliLib" styleClass="sidebar-title" />
+                <Label text="Admin Dashboard" styleClass="sidebar-subtitle" />
+            </VBox>
             
-            <GridPane hgap="20" vgap="15">
-                <Label text="Livres Totaux:" 
-                       GridPane.rowIndex="0" GridPane.columnIndex="0"
-                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
-                <Label fx:id="totalBooksLabel" 
-                       GridPane.rowIndex="0" GridPane.columnIndex="1"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #3498db;" />
+            <!-- Sidebar Navigation -->
+            <VBox styleClass="sidebar-nav" spacing="4" VBox.vgrow="ALWAYS">
+                <!-- <Button text="Dashboard" styleClass="nav-button, nav-button-active" onAction="#showDashboard" /> -->
+                <Button text="Books" styleClass="nav-button" onAction="#manageBooks" />
+                <Button text="Members" styleClass="nav-button" onAction="#manageMembers" />
+                <Button text="Borrowings" styleClass="nav-button" onAction="#manageBorrowings" />
+                <Button text="Categories" styleClass="nav-button" onAction="#manageCategories" />
+                <Button text="Reports" styleClass="nav-button" onAction="#viewReports" />
+                <Button text="Settings" styleClass="nav-button" onAction="#systemSettings" />
                 
-                <Label text="Membres Actifs:" 
-                       GridPane.rowIndex="1" GridPane.columnIndex="0"
-                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
-                <Label fx:id="activeMembersLabel" 
-                       GridPane.rowIndex="1" GridPane.columnIndex="1"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;" />
+                <!-- Spacer -->
+                <Region VBox.vgrow="ALWAYS" />
                 
-                <Label text="Emprunts Actifs:" 
-                       GridPane.rowIndex="2" GridPane.columnIndex="0"
-                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
-                <Label fx:id="activeBorrowingsLabel" 
-                       GridPane.rowIndex="2" GridPane.columnIndex="1"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e67e22;" />
-                
-                <Label text="Livres en Retard:" 
-                       GridPane.rowIndex="3" GridPane.columnIndex="0"
-                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
-                <Label fx:id="overdueBooksLabel" 
-                       GridPane.rowIndex="3" GridPane.columnIndex="1"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" />
-                
-                <Label text="Amendes Total:" 
-                       GridPane.rowIndex="4" GridPane.columnIndex="0"
-                       style="-fx-font-size: 14px; -fx-text-fill: #34495e;" />
-                <Label fx:id="totalFinesLabel" 
-                       GridPane.rowIndex="4" GridPane.columnIndex="1"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;" />
-            </GridPane>
-        </VBox>
-        
-        <!-- Right Statistics - Quick Actions -->
-        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
-            <Label text="Actions Rapides" 
-                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-            
-            <VBox spacing="10">
-                <Button text="Gérer les Livres" 
-                        onAction="#manageBooks"
-                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
-                
-                <Button text="Gérer les Membres" 
-                        onAction="#manageMembers"
-                        style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
-                
-                <Button text="Gérer les Emprunts" 
-                        onAction="#manageBorrowings"
-                        style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
-                
-                <Button text="Gérer les Categories" 
-                        onAction="#manageCategories"
-                        style="-fx-background-color: #ec736bff; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
-                
-                <Button text="Voir les Rapports" 
-                        onAction="#viewReports"
-                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
-                
-                <Button text="Paramètres Système" 
-                        onAction="#systemSettings"
-                        style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
-                
-                <Button text=" Sauvegarder Base de Données" 
-                        onAction="#backupDatabase"
-                        style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200; -fx-pref-height: 40;" />
+                <Separator styleClass="sidebar-separator" />
+                <Button text="Backup Database" styleClass="nav-button" onAction="#backupDatabase" />
+                <Button text="Logout" styleClass="nav-button, nav-button-logout" onAction="#logout" />
             </VBox>
         </VBox>
-    </HBox>
-    
-    <!-- Tables Section -->
-    <HBox spacing="20" alignment="TOP_CENTER">
-        <!-- Recent Activity Table -->
-        <VBox spacing="10" VBox.vgrow="ALWAYS" 
-              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Activité Récente" 
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+    </left>
+
+    <!-- Main Content -->
+    <center>
+        <VBox styleClass="main-content">
+            <!-- Header -->
+            <HBox styleClass="site-header" alignment="CENTER_LEFT">
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label text="Dashboard" styleClass="page-title" />
+                    <Label fx:id="welcomeLabel" styleClass="page-subtitle" />
+                </VBox>
+                <Button text="User Profile" styleClass="header-button" />
             </HBox>
             
-            <TableView fx:id="recentActivityTable" style="-fx-pref-height: 250;">
-                <columns>
-                    <TableColumn text="Utilisateur" fx:id="userColumn" 
-                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="user.username" />
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Action" fx:id="actionColumn" 
-                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="action" />
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Date/Heure" fx:id="timestampColumn" 
-                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="timestamp" />
-                        </cellValueFactory>
-                    </TableColumn>
-                </columns>
-                <columnResizePolicy>
-                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                </columnResizePolicy>
-            </TableView>
+            <!-- Scrollable Content -->
+            <ScrollPane styleClass="content-scroll" fitToWidth="true" VBox.vgrow="ALWAYS">
+                <VBox styleClass="content-container" spacing="24">
+                    <!-- Statistics Cards -->
+                    <GridPane styleClass="stats-grid" hgap="16" vgap="16">
+                        <!-- Card 1 -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                            <Label text="Total Books" styleClass="stat-label" />
+                            <Label fx:id="totalBooksLabel" text="0" styleClass="stat-value" />
+                            <Label text="+12% from last month" styleClass="stat-change" />
+                        </VBox>
+                        
+                        <!-- Card 2 -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                            <Label text="Active Members" styleClass="stat-label" />
+                            <Label fx:id="activeMembersLabel" text="0" styleClass="stat-value" />
+                            <Label text="+8% from last month" styleClass="stat-change" />
+                        </VBox>
+                        
+                        <!-- Card 3 -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="2">
+                            <Label text="Active Borrowings" styleClass="stat-label" />
+                            <Label fx:id="activeBorrowingsLabel" text="0" styleClass="stat-value" />
+                            <Label text="+23% from last month" styleClass="stat-change" />
+                        </VBox>
+                        
+                        <!-- Card 4 -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                            <Label text="Overdue Books" styleClass="stat-label" />
+                            <Label fx:id="overdueBooksLabel" text="0" styleClass="stat-value" />
+                            <Label text="-5% from last month" styleClass="stat-change, stat-change-positive" />
+                        </VBox>
+                        
+                        <!-- Card 5: Total Fines Card (ADDED) -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                            <Label text="Total Fines" styleClass="stat-label" />
+                            <Label fx:id="totalFinesLabel" text="0.00 €" styleClass="stat-value" />
+                            <Label text="Current outstanding fines" styleClass="stat-change" />
+                        </VBox>
+                    </GridPane>
+                    
+                    <!-- Chart Section -->
+                    <VBox styleClass="chart-section">
+                        <Label text="Activity Overview" styleClass="section-title" />
+                        <StackPane styleClass="chart-container" minHeight="300">
+                            <Label text="Chart Area - Interactive Chart Here" styleClass="chart-placeholder" />
+                        </StackPane>
+                    </VBox>
+                    
+                    <!-- Data Tables -->
+                    <VBox styleClass="table-section" spacing="24">
+                        <!-- Recent Activity Table -->
+                        <VBox spacing="12">
+                            <Label text="Recent Activity" styleClass="section-title" />
+                            <TableView fx:id="recentActivityTable" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="userColumn" text="User" prefWidth="200" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="user.username" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="actionColumn" text="Action" prefWidth="300" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="action" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="timestampColumn" text="Timestamp" prefWidth="200" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="timestamp" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn text="Status" prefWidth="150" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="status" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        
+                        <!-- Recent Users Table -->
+                        <VBox spacing="12">
+                            <Label text="Recent Users" styleClass="section-title" />
+                            <TableView fx:id="recentUsersTable" styleClass="data-table">
+                                <columns>
+                                    <TableColumn fx:id="usernameColumn" text="Username" prefWidth="200" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="username" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="emailColumn" text="Email" prefWidth="250" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="email" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="roleColumn" text="Role" prefWidth="150" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="role" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="joinedDateColumn" text="Joined Date" prefWidth="200" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="createdAt" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </VBox>
+                </VBox>
+            </ScrollPane>
         </VBox>
-        
-        <!-- Recent Users Table -->
-        <VBox spacing="10" VBox.vgrow="ALWAYS" 
-              style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="Utilisateurs Récents" 
-                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-            </HBox>
-            
-            <TableView fx:id="recentUsersTable" style="-fx-pref-height: 250;">
-                <columns>
-                    <TableColumn text="Nom d'utilisateur" fx:id="usernameColumn" 
-                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="username" />
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Email" fx:id="emailColumn" 
-                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="email" />
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Rôle" fx:id="roleColumn" 
-                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="role" />
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Date d'inscription" fx:id="joinedDateColumn" 
-                                 style="-fx-font-size: 12px; -fx-alignment: CENTER_LEFT;">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="createdAt" />
-                        </cellValueFactory>
-                    </TableColumn>
-                </columns>
-                <columnResizePolicy>
-                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                </columnResizePolicy>
-            </TableView>
-        </VBox>
-    </HBox>
-    
-    <!-- Footer Section -->
-    <HBox spacing="20" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
-        <Button text="Se Déconnecter" 
-                onAction="#logout"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 150; -fx-pref-height: 40;" />
-    </HBox>
-    
-</VBox>
+    </center>
+
+</BorderPane>
