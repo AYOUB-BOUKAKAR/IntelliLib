@@ -24,7 +24,9 @@
                 <!-- <Button text="Dashboard" styleClass="nav-button, nav-button-active" onAction="#showDashboard" /> -->
                 <Button text="Books" styleClass="nav-button" onAction="#manageBooks" />
                 <Button text="Members" styleClass="nav-button" onAction="#manageMembers" />
+                <Button text="Users" styleClass="nav-button" onAction="#manageUsers" />
                 <Button text="Borrowings" styleClass="nav-button" onAction="#manageBorrowings" />
+                <Button text="Fines" styleClass="nav-button" onAction="#manageFines" />
                 <Button text="Categories" styleClass="nav-button" onAction="#manageCategories" />
                 <Button text="Reports" styleClass="nav-button" onAction="#viewReports" />
                 <Button text="Settings" styleClass="nav-button" onAction="#systemSettings" />

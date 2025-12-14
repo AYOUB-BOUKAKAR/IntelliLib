@@ -316,3 +316,206 @@
     -fx-background-color: #1a1a1a;
     -fx-border-color: #2a2a2a;
 }
+
+/* Form Styles */
+.form-field {
+    -fx-background-color: #0a0a0a;
+    -fx-border-color: #1f1f1f;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-padding: 10 12 10 12;
+    -fx-pref-height: 40;
+}
+
+.form-field:focused {
+    -fx-border-color: #3a3a3a;
+    -fx-background-color: #0a0a0a;
+}
+
+.form-label {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 0 0 4 0;
+}
+
+.form-hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6b7280;
+}
+
+.form-button-primary {
+    -fx-background-color: #3a3a3a;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.form-button-primary:hover {
+    -fx-background-color: #4a4a4a;
+}
+
+.form-button-secondary {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.form-button-secondary:hover {
+    -fx-background-color: #2a2a2a;
+}
+
+/* Error and Success Messages */
+.error-label {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 13px;
+}
+
+.success-label {
+    -fx-text-fill: #10b981;
+    -fx-font-size: 13px;
+}
+
+/* ComboBox Styling */
+.combo-box {
+    -fx-background-color: #0a0a0a;
+    -fx-border-color: #1f1f1f;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-text-fill: #ffffff;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #0a0a0a;
+    -fx-text-fill: #ffffff;
+}
+
+.combo-box .list-view {
+    -fx-background-color: #111111;
+    -fx-border-color: #1f1f1f;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: #1a1a1a;
+}
+
+/* ScrollPane for forms */
+.content-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+/* DatePicker Styling */
+.date-picker {
+    -fx-background-color: #0a0a0a;
+    -fx-border-color: #1f1f1f;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #1f1f1f;
+}
+
+.date-picker .arrow-button:hover {
+    -fx-background-color: #2a2a2a;
+}
+
+.date-picker-popup {
+    -fx-background-color: #111111;
+    -fx-border-color: #1f1f1f;
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #0a0a0a;
+}
+
+.date-picker-popup .month-year-label {
+    -fx-text-fill: #ffffff;
+}
+
+.date-picker-popup .day-name-cell {
+    -fx-background-color: #0a0a0a;
+    -fx-text-fill: #6b7280;
+}
+
+.date-picker-popup .day-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffffff;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #1a1a1a;
+}
+
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: #3a3a3a;
+}
+
+/* TextArea Styling */
+.text-area {
+    -fx-background-color: #0a0a0a;
+    -fx-border-color: #1f1f1f;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+}
+
+.text-area .content {
+    -fx-background-color: #0a0a0a;
+    -fx-text-fill: #ffffff;
+}
+
+.text-area:focused {
+    -fx-border-color: #3a3a3a;
+}
+
+/* Scrollbars for TextArea */
+.text-area .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-bar:vertical .thumb {
+    -fx-background-color: #2a2a2a;
+    -fx-background-radius: 4;
+}
+
+.text-area .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.stat-value-warning {
+    -fx-text-fill: #e7874f;
+}
+
+.stat-value-success{
+    -fx-text-fill: #51c9a1;
+}
+
+.stat-value-info{
+    -fx-text-fill: #6b7280;
+}
+
+.stat-value-error{
+    -fx-text-fill: #e75757;
+}
+
+.stat-value-purpleP{
+    -fx-text-fill: #a06ece;
+}

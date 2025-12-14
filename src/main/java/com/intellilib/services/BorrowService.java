@@ -93,7 +93,9 @@ public class BorrowService {
             .sum();
     }
 
-    // NEW IMPLEMENTATIONS FOR MEMBER DASHBOARD
+    public List<Borrow> getOverdueBorrows() {
+        return borrowRepository.findOverdueBorrows(LocalDate.now());
+    }
 
     public long countActiveBorrowingsForMember(Long memberId) {
         return borrowRepository.countByMemberIdAndReturnedFalse(memberId);

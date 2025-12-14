@@ -64,4 +64,8 @@ public class Book {
         this.addedDate = LocalDate.now();
         this.quantity = 1;
     }
+
+    public String toText () {
+        return title + " - " + author + " - " + isbn;
+    }
 }

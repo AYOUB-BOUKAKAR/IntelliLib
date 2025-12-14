@@ -2,17 +2,37 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/21" 
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.intellilib.controllers.LoginController"
-      style="-fx-padding: 20; -fx-background-color: #f5f5f5;">
+<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/21" 
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.intellilib.controllers.LoginController"
+           stylesheets="@/css/style.css">
     
-    <Label text="Connexion" style="-fx-font-size: 20; -fx-font-weight: bold;" />
-    <TextField fx:id="usernameField" promptText="Nom d'utilisateur" />
-    <PasswordField fx:id="passwordField" promptText="Mot de passe" />
-    <Button fx:id="loginButton" text="Se connecter" onAction="#login" defaultButton="true" />
-    <Label fx:id="errorLabel" style="-fx-text-fill: red;" />
-    <Button text="Retour" onAction="#backToMain" style="-fx-background-color: #e0e0e0;" />
-    
-</VBox>
+    <center>
+        <VBox alignment="CENTER" spacing="25.0" styleClass="stat-card" 
+              style="-fx-padding: 40; -fx-max-width: 400; -fx-max-height: 500;">
+            
+            <Label text="Connexion" styleClass="page-title" 
+                   style="-fx-font-size: 28px; -fx-padding: 0 0 10 0;" />
+            
+            <VBox spacing="20" style="-fx-min-width: 300;">
+                <TextField fx:id="usernameField" promptText="Nom d'utilisateur" 
+                          styleClass="form-field" />
+                <PasswordField fx:id="passwordField" promptText="Mot de passe" 
+                              styleClass="form-field" />
+                
+                <Label fx:id="errorLabel" styleClass="error-label" 
+                       style="-fx-padding: 10 0 0 0;" />
+                
+                <HBox spacing="15" alignment="CENTER">
+                    <Button fx:id="loginButton" text="Se connecter" onAction="#login" 
+                           defaultButton="true" styleClass="form-button-primary" 
+                           style="-fx-font-weight: bold; -fx-pref-width: 150;" />
+                    <Button text="Retour" onAction="#backToMain" 
+                           styleClass="form-button-secondary" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

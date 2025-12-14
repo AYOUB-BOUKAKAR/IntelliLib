@@ -4,58 +4,95 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21" 
+<VBox spacing="0" 
+      styleClass="root" 
+      stylesheets="@/css/style.css" 
+      xmlns="http://javafx.com/javafx/21" 
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.intellilib.controllers.ManageBorrowController"
-      spacing="10"
-      style="-fx-padding: 20;">
+      fx:controller="com.intellilib.controllers.ManageBorrowController">
     
-    <!-- Title -->
-    <Label text="Gestion des Emprunts" 
-           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-    
-    <!-- Form Section -->
-    <GridPane hgap="10" vgap="10">
-        <Label text="Livre:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <ComboBox fx:id="bookCombo" GridPane.rowIndex="0" GridPane.columnIndex="1" 
-                  prefWidth="300" />
-        
-        <Label text="Membre:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <ComboBox fx:id="memberCombo" GridPane.rowIndex="1" GridPane.columnIndex="1" 
-                  prefWidth="300" />
-        
-        <Label text="Date de retour:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <DatePicker fx:id="dueDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1" 
-                    prefWidth="300" />
-    </GridPane>
-    
-    <!-- Form Buttons -->
-    <HBox spacing="10">
-        <Button fx:id="saveButton" text="Enregistrer" onAction="#handleSave" 
-                style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
-        <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel" 
-                style="-fx-background-color: #f44336; -fx-text-fill: white;" />
+    <!-- Header -->
+    <HBox styleClass="site-header" alignment="CENTER_LEFT">
+        <VBox spacing="4">
+            <Label styleClass="page-title" text="Borrow Management"/>
+            <Label styleClass="page-subtitle" text="Manage book borrows, returns, and fines"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <HBox spacing="10">
+            <Button fx:id="cancelButton" text="Close" styleClass="header-button" onAction="#handleCancel" />
+        </HBox>
     </HBox>
     
-    <!-- Table Section -->
-    <TableView fx:id="borrowTable" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn text="ID" fx:id="idColumn" />
-            <TableColumn text="Livre" fx:id="bookTitleColumn" />
-            <TableColumn text="Membre" fx:id="memberNameColumn" />
-            <TableColumn text="Date emprunt" fx:id="borrowDateColumn" />
-            <TableColumn text="Date retour" fx:id="dueDateColumn" />
-            <TableColumn text="Date retour réel" fx:id="returnDateColumn" />
-            <TableColumn text="Retourné" fx:id="returnedColumn" />
-        </columns>
-    </TableView>
-    
-    <!-- Table Action Buttons -->
-    <HBox spacing="10">
-        <Button fx:id="returnButton" text="Marquer comme retourné" onAction="#handleReturn" 
-                style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
-        <Button text="Supprimer" onAction="#handleDelete" 
-                style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
-    </HBox>
-    
+    <!-- Content Area -->
+    <ScrollPane styleClass="content-scroll" fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox styleClass="content-container" spacing="24">
+            
+            <!-- Form Section -->
+            <VBox styleClass="table-section" spacing="16">
+                <Label styleClass="section-title" text="New Borrow"/>
+                <GridPane hgap="16" vgap="12" style="-fx-padding: 20;">
+                    <Label text="Book *" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <ComboBox fx:id="bookCombo" styleClass="form-field" GridPane.rowIndex="0" GridPane.columnIndex="1" 
+                              prefWidth="400" />
+                    
+                    <Label text="Member *" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                    <ComboBox fx:id="memberCombo" styleClass="form-field" GridPane.rowIndex="1" GridPane.columnIndex="1" 
+                              prefWidth="400" />
+                    
+                    <Label text="Due Date *" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                    <DatePicker fx:id="dueDatePicker" styleClass="form-field" GridPane.rowIndex="2" GridPane.columnIndex="1" 
+                                prefWidth="400" />
+                    
+                    <HBox spacing="10" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                        <Button fx:id="saveButton" text="Save Borrow" 
+                                styleClass="form-button-primary" onAction="#handleSave" />
+                    </HBox>
+                </GridPane>
+            </VBox>
+            
+            <!-- Fine Management Section -->
+            <VBox styleClass="table-section" spacing="16">
+                <Label styleClass="section-title" text="Fine Management"/>
+                <HBox spacing="10" style="-fx-padding: 0 0 0 20;">
+                    <Button fx:id="returnButton" text="Return Book" 
+                            styleClass="form-button-secondary" onAction="#handleReturn" />
+                    <Button fx:id="viewFineButton" text="View Fine Details" 
+                            styleClass="form-button-secondary" onAction="#handleViewFine" />
+                    <Button fx:id="payFineButton" text="Pay Fine" 
+                            styleClass="form-button-secondary" onAction="#handlePayFine" />
+                    <Button text="Calculate Fines" 
+                            styleClass="form-button-secondary" onAction="#handleCalculateFines" />
+                </HBox>
+            </VBox>
+            
+            <!-- Table Section -->
+            <VBox styleClass="table-section" spacing="16">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label styleClass="section-title" text="Current Borrows"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Delete Selected" styleClass="header-button" onAction="#handleDelete" />
+                </HBox>
+                <TableView fx:id="borrowTable" styleClass="data-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="idColumn" text="ID" styleClass="table-column" minWidth="60"/>
+                        <TableColumn fx:id="bookTitleColumn" text="Book" styleClass="table-column" minWidth="200"/>
+                        <TableColumn fx:id="memberNameColumn" text="Member" styleClass="table-column" minWidth="150"/>
+                        <TableColumn fx:id="borrowDateColumn" text="Borrow Date" styleClass="table-column" minWidth="100"/>
+                        <TableColumn fx:id="dueDateColumn" text="Due Date" styleClass="table-column" minWidth="100"/>
+                        <TableColumn fx:id="returnDateColumn" text="Return Date" styleClass="table-column" minWidth="100"/>
+                        <TableColumn fx:id="returnedColumn" text="Status" styleClass="table-column" minWidth="80"/>
+                        
+                        <!-- Fine columns -->
+                        <TableColumn fx:id="daysOverdueColumn" text="Days Overdue" styleClass="table-column" minWidth="100"/>
+                        <TableColumn fx:id="fineAmountColumn" text="Fine Amount" styleClass="table-column" minWidth="100"/>
+                        <TableColumn fx:id="fineStatusColumn" text="Fine Status" styleClass="table-column" minWidth="100"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+            
+        </VBox>
+    </ScrollPane>
 </VBox>

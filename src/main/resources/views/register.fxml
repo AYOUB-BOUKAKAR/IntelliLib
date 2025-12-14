@@ -3,51 +3,68 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.intellilib.controllers.RegisterController">
+<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/21" 
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intellilib.controllers.RegisterController"
+            stylesheets="@/css/style.css">
     
     <center>
-        <VBox alignment="CENTER" spacing="20" style="-fx-padding: 40;">
-            <Label text="Inscription" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-            
-            <VBox spacing="10" style="-fx-min-width: 300;">
-                <!-- Username -->
-                <Label text="Nom d'utilisateur *" />
-                <TextField fx:id="usernameField" promptText="Entrez votre nom d'utilisateur" />
-                
-                <!-- Email -->
-                <Label text="Email (optionnel)" />
-                <TextField fx:id="emailField" promptText="exemple@domaine.com" />
-                
-                <!-- Password -->
-                <Label text="Mot de passe *" />
-                <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères" />
-                
-                <!-- Confirm Password -->
-                <Label text="Confirmer le mot de passe *" />
-                <PasswordField fx:id="confirmPasswordField" promptText="Retapez votre mot de passe" />
-                
-                <!-- Role -->
-                <Label text="Rôle" />
-                <ComboBox fx:id="roleComboBox" />
-                
-                <!-- Messages -->
-                <Label fx:id="errorLabel" style="-fx-text-fill: red;" />
-                <Label fx:id="successLabel" style="-fx-text-fill: green;" />
-                
-                <!-- Buttons -->
-                <HBox spacing="10" alignment="CENTER">
-                    <Button fx:id="backButton" text="Retour" onAction="#goToLogin" 
-                            style="-fx-background-color: #cccccc;" />
-                    <Button fx:id="registerButton" text="S'inscrire" onAction="#register" 
-                            style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
-                </HBox>
-                
-                <Label text="* Champs obligatoires" style="-fx-font-size: 10px; -fx-text-fill: gray;" />
+        <ScrollPane styleClass="content-scroll" fitToWidth="true">
+            <VBox alignment="CENTER" spacing="20" styleClass="content-container" 
+                  style="-fx-padding: 40;">
+                <VBox styleClass="chart-section" 
+                      style="-fx-padding: 40; -fx-max-width: 500;">
+                    <Label text="Inscription" styleClass="section-title" 
+                           style="-fx-font-size: 24px; -fx-padding: 0 0 20 0;" />
+                    
+                    <VBox spacing="15" style="-fx-min-width: 400;">
+                        <!-- Username -->
+                        <Label text="Nom d'utilisateur *" styleClass="form-label" />
+                        <TextField fx:id="usernameField" promptText="Entrez votre nom d'utilisateur" 
+                                  styleClass="form-field" />
+                        
+                        <!-- Email -->
+                        <Label text="Email (optionnel)" styleClass="form-label" />
+                        <TextField fx:id="emailField" promptText="exemple@domaine.com" 
+                                  styleClass="form-field" />
+                        
+                        <!-- Password -->
+                        <Label text="Mot de passe *" styleClass="form-label" />
+                        <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères" 
+                                      styleClass="form-field" />
+                        
+                        <!-- Confirm Password -->
+                        <Label text="Confirmer le mot de passe *" styleClass="form-label" />
+                        <PasswordField fx:id="confirmPasswordField" promptText="Retapez votre mot de passe" 
+                                      styleClass="form-field" />
+                        
+                        <!-- Role -->
+                        <Label text="Rôle" styleClass="form-label" />
+                        <ComboBox fx:id="roleComboBox" styleClass="form-field" 
+                                  style="-fx-padding: 8 12 8 12;" />
+                        
+                        <!-- Messages -->
+                        <VBox spacing="5" style="-fx-padding: 10 0 10 0;">
+                            <Label fx:id="errorLabel" styleClass="error-label" />
+                            <Label fx:id="successLabel" styleClass="success-label" />
+                        </VBox>
+                        
+                        <!-- Buttons -->
+                        <HBox spacing="15" alignment="CENTER">
+                            <Button fx:id="backButton" text="Retour" onAction="#goToLogin" 
+                                   styleClass="form-button-secondary" 
+                                   style="-fx-pref-width: 100;" />
+                            <Button fx:id="registerButton" text="S'inscrire" onAction="#register" 
+                                   styleClass="form-button-primary" 
+                                   style="-fx-font-weight: bold; -fx-pref-width: 120;" />
+                        </HBox>
+                        
+                        <Label text="* Champs obligatoires" styleClass="form-hint" 
+                               style="-fx-padding: 20 0 0 0;" />
+                    </VBox>
+                </VBox>
             </VBox>
-        </VBox>
+        </ScrollPane>
     </center>
-    
 </BorderPane>

@@ -75,11 +75,12 @@
                             <TextField fx:id="yearField" promptText="e.g., 2023" 
                                        style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
                         </VBox>
-                        
+
                         <VBox spacing="8">
                             <Label styleClass="stat-label" text="Category"/>
-                            <TextField fx:id="categoryField" promptText="Enter category" 
-                                       style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"/>
+                            <ComboBox fx:id="categoryComboBox" promptText="Select category..." 
+                                    style="-fx-background-color: #0a0a0a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #6b7280; -fx-border-color: #1f1f1f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 12; -fx-font-size: 13px;"
+                                    editable="true"/>
                         </VBox>
                         
                         <VBox spacing="8">

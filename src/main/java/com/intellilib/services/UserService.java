@@ -96,6 +96,18 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public User addUser(User user) {
+        return userRepository.save(user);
+    }
+    
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
 //    public List<UserActivity> getRecentActivity(int limit) {
 //        // This might be better in a separate ActivityService
 //        Pageable pageable = PageRequest.of(0, limit, Sort.by("lastLogin").descending());

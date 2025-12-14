@@ -2,6 +2,8 @@ package com.intellilib.repositories;
 
 import com.intellilib.models.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -30,4 +32,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     
     // Check if phone exists
     boolean existsByPhone(String phone);
+
+    @Query("SELECT m FROM Member m WHERE m.isBanned = true")
+    List<Member> findBannedMembers();
+    
+    @Query("SELECT m FROM Member m WHERE m.currentFinesDue > :minAmount")
+    List<Member> findMembersWithHighFines(@Param("minAmount") Double minAmount);
+    
+    @Query("SELECT m FROM Member m WHERE m.active = true AND m.isBanned = false")
+    List<Member> findActiveMembers();
 }

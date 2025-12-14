@@ -4,26 +4,21 @@ import com.intellilib.models.Book;
 import com.intellilib.models.Category;
 import com.intellilib.services.BookService;
 import com.intellilib.services.CategoryService;
-import com.intellilib.services.FileStorageService;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.web.WebView;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.time.Year;
-import java.net.URL;
+import java.util.Comparator;
 
 @Controller
 public class ManageBookController {
@@ -37,50 +32,51 @@ public class ManageBookController {
     @FXML private TableColumn<Book, Integer> quantityColumn;
     @FXML private TableColumn<Book, String> fileColumn;
     
+    @FXML private TextField searchField;
     @FXML private TextField isbnField;
     @FXML private TextField titleField;
     @FXML private TextField authorField;
     @FXML private TextField yearField;
-    @FXML private TextField categoryField;
     @FXML private TextField quantityField;
-    @FXML private TextField searchField;
+    @FXML private ComboBox<Category> categoryComboBox;
     
+    @FXML private Button uploadButton;
+    @FXML private Button viewFileButton;
+    @FXML private Button clearFileButton;
     @FXML private Button addButton;
     @FXML private Button updateButton;
     @FXML private Button deleteButton;
     @FXML private Button clearButton;
-    @FXML private Button uploadButton;
-    @FXML private Button viewFileButton;
-    @FXML private Button clearFileButton;
     
-    @FXML private Label statusLabel;
     @FXML private Label fileNameLabel;
+    @FXML private Label statusLabel;
     
     private final BookService bookService;
     private final CategoryService categoryService;
-    private final FileStorageService fileStorageService;
     private final ObservableList<Book> bookList = FXCollections.observableArrayList();
-    
+    private final ObservableList<Category> categoryList = FXCollections.observableArrayList();
     private File selectedFile;
-    private Book currentBook;
     
     @Autowired
-    public ManageBookController(BookService bookService, CategoryService categoryService, FileStorageService fileStorageService) {
+    public ManageBookController(BookService bookService, CategoryService categoryService) {
         this.bookService = bookService;
         this.categoryService = categoryService;
-        this.fileStorageService = fileStorageService;
     }
     
     @FXML
     public void initialize() {
         setupTableColumns();
+        loadCategories();
+        setupCategoryComboBox();
         loadBooks();
         setupTableSelection();
         setupSearch();
-        disableForm(false);
+        
+        // Initial button states
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
-        clearFileSelection();
+        viewFileButton.setDisable(true);
+        clearFileButton.setDisable(true);
     }
     
     private void setupTableColumns() {
@@ -88,14 +84,56 @@ public class ManageBookController {
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
         yearColumn.setCellValueFactory(new PropertyValueFactory<>("publicationYear"));
-        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        categoryColumn.setCellValueFactory(cellData -> {
+            Category category = cellData.getValue().getCategory();
+            return new javafx.beans.property.SimpleStringProperty(
+                category != null ? category.getName() : "No Category"
+            );
+        });
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        fileColumn.setCellValueFactory(new PropertyValueFactory<>("originalFileName"));
+        fileColumn.setCellValueFactory(cellData -> 
+            new javafx.beans.property.SimpleStringProperty(
+                cellData.getValue().getOriginalFileName() != null ? 
+                cellData.getValue().getOriginalFileName() : "No File"
+            )
+        );
+    }
+    
+    private void loadCategories() {
+        try {
+            categoryList.setAll(categoryService.getAllCategories());
+            // Sort categories by name
+            categoryList.sort(Comparator.comparing(Category::getName));
+        } catch (Exception e) {
+            showStatus("Error loading categories: " + e.getMessage());
+        }
+    }
+    
+    private void setupCategoryComboBox() {
+        categoryComboBox.setItems(categoryList);
+        
+        categoryComboBox.setConverter(new javafx.util.StringConverter<Category>() {
+            @Override
+            public String toString(Category category) {
+                return category == null ? "" : category.getName();
+            }
+            
+            @Override
+            public Category fromString(String string) {
+                return null;
+            }
+        });
+        
+        categoryComboBox.setEditable(false);
     }
     
     private void loadBooks() {
-        bookList.setAll(bookService.getAllBooks());
-        bookTable.setItems(bookList);
+        try {
+            bookList.setAll(bookService.getAllBooks());
+            bookTable.setItems(bookList);
+        } catch (Exception e) {
+            showStatus("Error loading books: " + e.getMessage());
+        }
     }
     
     private void setupTableSelection() {
@@ -125,22 +163,58 @@ public class ManageBookController {
                 
                 String lowerCaseFilter = newValue.toLowerCase();
                 
-                if (book.getTitle().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (book.getAuthor().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (book.getIsbn().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (book.getCategory() != null && book.getCategory().getName().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }
-                return false;
+                return book.getTitle().toLowerCase().contains(lowerCaseFilter) ||
+                       book.getAuthor().toLowerCase().contains(lowerCaseFilter) ||
+                       (book.getIsbn() != null && book.getIsbn().toLowerCase().contains(lowerCaseFilter));
             });
         });
         
-        SortedList<Book> sortedData = new SortedList<>(filteredData);
+        javafx.collections.transformation.SortedList<Book> sortedData = new javafx.collections.transformation.SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(bookTable.comparatorProperty());
         bookTable.setItems(sortedData);
+    }
+    
+    private void populateForm(Book book) {
+        isbnField.setText(book.getIsbn());
+        titleField.setText(book.getTitle());
+        authorField.setText(book.getAuthor());
+        yearField.setText(book.getPublicationYear() != null ? 
+                         book.getPublicationYear().toString() : "");
+        quantityField.setText(book.getQuantity() != null ? 
+                            book.getQuantity().toString() : "1");
+        
+        // Set category in ComboBox
+        if (book.getCategory() != null) {
+            categoryComboBox.setValue(book.getCategory());
+        } else {
+            categoryComboBox.setValue(null);
+        }
+        
+        // Set file info
+        if (book.getOriginalFileName() != null) {
+            fileNameLabel.setText(book.getOriginalFileName());
+            viewFileButton.setDisable(false);
+            clearFileButton.setDisable(false);
+        } else {
+            fileNameLabel.setText("No file selected");
+            viewFileButton.setDisable(true);
+            clearFileButton.setDisable(true);
+        }
+    }
+    
+    private void clearForm() {
+        isbnField.clear();
+        titleField.clear();
+        authorField.clear();
+        yearField.clear();
+        quantityField.clear();
+        categoryComboBox.setValue(null);
+        categoryComboBox.getEditor().clear();
+        fileNameLabel.setText("No file selected");
+        selectedFile = null;
+        viewFileButton.setDisable(true);
+        clearFileButton.setDisable(true);
+        bookTable.getSelectionModel().clearSelection();
     }
     
     @FXML
@@ -152,87 +226,41 @@ public class ManageBookController {
             new FileChooser.ExtensionFilter("All Files", "*.*")
         );
         
-        selectedFile = fileChooser.showOpenDialog(uploadButton.getScene().getWindow());
+        Stage stage = (Stage) bookTable.getScene().getWindow();
+        File file = fileChooser.showOpenDialog(stage);
+        
+        if (file != null) {
+            try {
+                selectedFile = file;
+                fileNameLabel.setText(file.getName());
+                viewFileButton.setDisable(false);
+                clearFileButton.setDisable(false);
+                showStatus("File selected: " + file.getName());
+            } catch (Exception e) {
+                showStatus("Error: " + e.getMessage());
+            }
+        }
+    }
+    
+    @FXML
+    private void handleViewFile() {
+        // Implementation for viewing file
+        // You can open the file with system default program
         if (selectedFile != null) {
-            fileNameLabel.setText(selectedFile.getName());
-            viewFileButton.setDisable(false);
-            clearFileButton.setDisable(false);
-            showStatus("File selected: " + selectedFile.getName(), false);
+            try {
+                java.awt.Desktop.getDesktop().open(selectedFile);
+            } catch (IOException e) {
+                showStatus("Error opening file: " + e.getMessage());
+            }
         }
     }
     
     @FXML
     private void handleClearFile() {
-        clearFileSelection();
-    }
-    
-    @FXML
-    private void handleViewFile() {
-        if (currentBook == null) {
-            showStatus("No book selected!", true);
-            return;
-        }
-        
-        String filePath = currentBook.getFilePath();
-        if (filePath == null || filePath.isEmpty()) {
-            showStatus("No PDF file associated with this book", true);
-            return;
-        }
-        
-        try {
-            java.nio.file.Path actualPath = fileStorageService.loadFile(filePath);
-            if (actualPath == null) {
-                showStatus("File path is invalid: " + filePath, true);
-                return;
-            }
-            
-            if (!Files.exists(actualPath)) {
-                showStatus("File not found at: " + actualPath.toString(), true);
-                return;
-            }
-            
-            // Open PDF in JavaFX window
-            openPdfInWindow(actualPath.toFile(), currentBook.getTitle());
-            
-        } catch (Exception e) {
-            showStatus("Cannot open file: " + e.getMessage(), true);
-            e.printStackTrace();
-        }
-    }
-
-    private void openPdfInWindow(File pdfFile, String title) {
-        try {
-            // Create a new stage (window)
-            Stage pdfStage = new Stage();
-            pdfStage.setTitle("PDF Viewer - " + title);
-            
-            // Create WebView
-            WebView webView = new WebView();
-            
-            // Get the PDF.js viewer.html file path
-            URL pdfJsViewerUrl = getClass().getResource("/pdfjs/web/viewer.html");
-            
-            if (pdfJsViewerUrl != null) {
-                // Build URL with file parameter
-                String viewerUrl = pdfJsViewerUrl.toExternalForm() + "?file=" + 
-                                pdfFile.toURI().toString();
-                webView.getEngine().load(viewerUrl);
-            } else {
-                // Fallback: Use browser's built-in PDF viewer (if available)
-                webView.getEngine().load(pdfFile.toURI().toString());
-            }
-            
-            // Create scene and show stage
-            Scene scene = new Scene(webView, 1024, 768);
-            pdfStage.setScene(scene);
-            pdfStage.show();
-            
-            showStatus("Opening PDF in viewer...", false);
-            
-        } catch (Exception e) {
-            showStatus("Error opening PDF viewer: " + e.getMessage(), true);
-            e.printStackTrace();
-        }
+        selectedFile = null;
+        fileNameLabel.setText("No file selected");
+        viewFileButton.setDisable(true);
+        clearFileButton.setDisable(true);
     }
     
     @FXML
@@ -240,19 +268,13 @@ public class ManageBookController {
         if (validateInput()) {
             try {
                 Book book = createBookFromForm();
-                
-                // Convert JavaFX File to MultipartFile
-                org.springframework.web.multipart.MultipartFile multipartFile = null;
-                if (selectedFile != null) {
-                    multipartFile = createMultipartFile(selectedFile);
-                }
-                
-                bookService.saveBook(book, multipartFile);
+                // Note: You'll need to handle file upload separately in your service
+                bookService.saveBook(book, null); // Pass null for file or modify as needed
                 loadBooks();
                 clearForm();
-                showStatus("Book added successfully!", false);
+                showStatus("Book added successfully!");
             } catch (Exception e) {
-                showStatus("Error adding book: " + e.getMessage(), true);
+                showStatus("Error: " + e.getMessage());
             }
         }
     }
@@ -262,21 +284,12 @@ public class ManageBookController {
         Book selectedBook = bookTable.getSelectionModel().getSelectedItem();
         if (selectedBook != null && validateInput()) {
             try {
-                Book bookDetails = createBookFromForm();
-                bookDetails.setId(selectedBook.getId());
-                
-                // Convert JavaFX File to MultipartFile
-                org.springframework.web.multipart.MultipartFile multipartFile = null;
-                if (selectedFile != null) {
-                    multipartFile = createMultipartFile(selectedFile);
-                }
-                
-                bookService.updateBook(selectedBook.getId(), bookDetails, multipartFile);
+                updateBookFromForm(selectedBook);
+                bookService.updateBook(selectedBook.getId(), selectedBook, null);
                 loadBooks();
-                clearForm();
-                showStatus("Book updated successfully!", false);
+                showStatus("Book updated successfully!");
             } catch (Exception e) {
-                showStatus("Error updating book: " + e.getMessage(), true);
+                showStatus("Error: " + e.getMessage());
             }
         }
     }
@@ -288,7 +301,7 @@ public class ManageBookController {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Delete Book");
             alert.setHeaderText("Delete " + selectedBook.getTitle());
-            alert.setContentText("Are you sure you want to delete this book? This will also delete the associated PDF file.");
+            alert.setContentText("Are you sure you want to delete this book?");
             
             alert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
@@ -296,9 +309,9 @@ public class ManageBookController {
                         bookService.deleteBook(selectedBook.getId());
                         loadBooks();
                         clearForm();
-                        showStatus("Book deleted successfully!", false);
+                        showStatus("Book deleted successfully!");
                     } catch (Exception e) {
-                        showStatus("Error deleting book: " + e.getMessage(), true);
+                        showStatus("Error: " + e.getMessage());
                     }
                 }
             });
@@ -308,87 +321,39 @@ public class ManageBookController {
     @FXML
     private void handleClearForm() {
         clearForm();
-        bookTable.getSelectionModel().clearSelection();
-    }
-    
-    private void populateForm(Book book) {
-        currentBook = book;
-        
-        isbnField.setText(book.getIsbn());
-        titleField.setText(book.getTitle());
-        authorField.setText(book.getAuthor());
-        yearField.setText(String.valueOf(book.getPublicationYear()));
-        
-        if (book.getCategory() != null) {
-            categoryField.setText(book.getCategory().getName());
-        } else {
-            categoryField.clear();
-        }
-        
-        quantityField.setText(String.valueOf(book.getQuantity()));
-        disableForm(false);
-        
-        // Handle file display
-        if (book.getOriginalFileName() != null && !book.getOriginalFileName().isEmpty()) {
-            fileNameLabel.setText(book.getOriginalFileName());
-            viewFileButton.setDisable(false);
-            clearFileButton.setDisable(false);
-            selectedFile = null; // Don't override existing file
-        } else {
-            clearFileSelection();
-        }
-    }
-    
-    private void clearForm() {
-        isbnField.clear();
-        titleField.clear();
-        authorField.clear();
-        yearField.clear();
-        categoryField.clear();
-        quantityField.clear();
-        disableForm(false);
-        addButton.setDisable(false);
-        updateButton.setDisable(true);
-        deleteButton.setDisable(true);
-        clearFileSelection();
-        currentBook = null;
-        statusLabel.setText("");
-    }
-    
-    private void clearFileSelection() {
-        selectedFile = null;
-        fileNameLabel.setText("No file selected");
-        viewFileButton.setDisable(true);
-        clearFileButton.setDisable(true);
-    }
-    
-    private void disableForm(boolean disable) {
-        isbnField.setDisable(disable);
-        titleField.setDisable(disable);
-        authorField.setDisable(disable);
-        yearField.setDisable(disable);
-        categoryField.setDisable(disable);
-        quantityField.setDisable(disable);
     }
     
     private Book createBookFromForm() {
         Book book = new Book();
+        updateBookFromForm(book);
+        return book;
+    }
+    
+    private void updateBookFromForm(Book book) {
         book.setIsbn(isbnField.getText().trim());
         book.setTitle(titleField.getText().trim());
         book.setAuthor(authorField.getText().trim());
-        book.setPublicationYear(Integer.parseInt(yearField.getText().trim()));
         
-        String categoryName = categoryField.getText().trim();
-        Category category = categoryService.getCategoryByName(categoryName);
-        if (category == null) {
-            category = new Category(categoryName);
-            categoryService.createCategory(category);
+        if (!yearField.getText().isEmpty()) {
+            try {
+                book.setPublicationYear(Integer.parseInt(yearField.getText().trim()));
+            } catch (NumberFormatException e) {
+                book.setPublicationYear(null);
+            }
         }
-        book.setCategory(category);
         
-        book.setQuantity(Integer.parseInt(quantityField.getText().trim()));
+        if (!quantityField.getText().isEmpty()) {
+            try {
+                book.setQuantity(Integer.parseInt(quantityField.getText().trim()));
+            } catch (NumberFormatException e) {
+                book.setQuantity(1);
+            }
+        } else {
+            book.setQuantity(1);
+        }
         
-        return book;
+        // Set category
+        book.setCategory(categoryComboBox.getValue());
     }
     
     private boolean validateInput() {
@@ -406,90 +371,29 @@ public class ManageBookController {
             errorMessage.append("Author is required!\n");
         }
         
-        try {
-            int year = Integer.parseInt(yearField.getText().trim());
-            int currentYear = Year.now().getValue();
-            if (year < 1000 || year > currentYear + 1) {
-                errorMessage.append("Please enter a valid publication year!\n");
-            }
-        } catch (NumberFormatException e) {
-            errorMessage.append("Please enter a valid year!\n");
-        }
-        
-        if (categoryField.getText() == null || categoryField.getText().trim().isEmpty()) {
+        if (categoryComboBox.getValue() == null && 
+            (categoryComboBox.getEditor().getText() == null || 
+             categoryComboBox.getEditor().getText().trim().isEmpty())) {
             errorMessage.append("Category is required!\n");
         }
         
-        try {
-            int quantity = Integer.parseInt(quantityField.getText().trim());
-            if (quantity < 0) {
-                errorMessage.append("Quantity cannot be negative!\n");
-            }
-        } catch (NumberFormatException e) {
-            errorMessage.append("Please enter a valid quantity!\n");
-        }
-        
-        // File validation is optional - files are optional
-        
         if (errorMessage.length() > 0) {
-            showStatus(errorMessage.toString(), true);
+            showStatus(errorMessage.toString());
             return false;
         }
         
         return true;
     }
     
-    private void showStatus(String message, boolean isError) {
+    private void showStatus(String message) {
         statusLabel.setText(message);
-        if (isError) {
-            statusLabel.setStyle("-fx-text-fill: #c62828;"); // Red color for errors
+        
+        if (message.toLowerCase().contains("success")) {
+            statusLabel.setStyle("-fx-text-fill: #2e7d32;"); // Green
+        } else if (message.toLowerCase().contains("error") || message.toLowerCase().contains("required")) {
+            statusLabel.setStyle("-fx-text-fill: #c62828;"); // Red
         } else {
-            statusLabel.setStyle("-fx-text-fill: #2e7d32;"); // Green color for success
+            statusLabel.setStyle("-fx-text-fill: #1565c0;"); // Blue for info
         }
-    }
-    
-    // Helper method to convert JavaFX File to Spring MultipartFile
-    private org.springframework.web.multipart.MultipartFile createMultipartFile(File file) {
-        return new org.springframework.web.multipart.MultipartFile() {
-            @Override
-            public String getName() {
-                return "file";
-            }
-            
-            @Override
-            public String getOriginalFilename() {
-                return file.getName();
-            }
-            
-            @Override
-            public String getContentType() {
-                return "application/pdf";
-            }
-            
-            @Override
-            public boolean isEmpty() {
-                return file.length() == 0;
-            }
-            
-            @Override
-            public long getSize() {
-                return file.length();
-            }
-            
-            @Override
-            public byte[] getBytes() throws IOException {
-                return Files.readAllBytes(file.toPath());
-            }
-            
-            @Override
-            public java.io.InputStream getInputStream() throws IOException {
-                return new java.io.FileInputStream(file);
-            }
-            
-            @Override
-            public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
-                Files.copy(file.toPath(), dest.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            }
-        };
     }
 }

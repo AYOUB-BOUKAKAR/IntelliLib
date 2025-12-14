@@ -21,6 +21,9 @@ public class ManageMemberController {
     @FXML private TableColumn<Member, String> nameColumn;
     @FXML private TableColumn<Member, String> emailColumn;
     @FXML private TableColumn<Member, String> phoneColumn;
+    @FXML private TableColumn<Member, String> addressColumn;
+    @FXML private TableColumn<Member, String> membershipDateColumn;
+    @FXML private TableColumn<Member, String> membershipExpiryColumn;
     @FXML private TableColumn<Member, String> statusColumn;
     
     @FXML private TextField nameField;
@@ -65,6 +68,9 @@ public class ManageMemberController {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        membershipDateColumn.setCellValueFactory(new PropertyValueFactory<>("membershipDate"));
+        membershipExpiryColumn.setCellValueFactory(new PropertyValueFactory<>("membershipExpiry"));
         statusColumn.setCellValueFactory(cellData -> 
             cellData.getValue().isActive() ? 
                 new javafx.beans.property.SimpleStringProperty("Active") : 

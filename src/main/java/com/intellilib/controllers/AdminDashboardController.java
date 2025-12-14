@@ -169,6 +169,17 @@ public class AdminDashboardController extends BaseDashboardController {
     }
     
     @FXML
+    private void manageUsers() {
+        try {
+            Stage stage = FXMLLoaderUtil.loadStage("/views/admin/manage-users.fxml", "Gérer les Utilisateurs", true);
+            stage.show();
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir la gestion des utilisateurs");
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
     private void manageBorrowings() {
         try {
             Stage stage = FXMLLoaderUtil.loadStage("/views/admin/manage-borrows.fxml", "Gérer les Emprunts", true);
@@ -186,6 +197,17 @@ public class AdminDashboardController extends BaseDashboardController {
             stage.show();
         } catch (Exception e) {
             showError("Erreur", "Impossible d'ouvrir la gestion des categories");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void manageFines() {
+        try {
+            Stage stage = FXMLLoaderUtil.loadStage("/views/admin/manage-fines.fxml", "Gérer les Pénalités", true);
+            stage.show();
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir la gestion des pénalités");
             e.printStackTrace();
         }
     }

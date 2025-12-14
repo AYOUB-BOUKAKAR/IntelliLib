@@ -5,84 +5,115 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="10" style="-fx-background-color: #f4f4f4;" xmlns:fx="http://javafx.com/fxml" fx:controller="com.intellilib.controllers.ManageMemberController">
-    <padding>
-        <Insets bottom="10" left="10" right="10" top="10"/>
-    </padding>
+<VBox spacing="0" 
+      styleClass="root" 
+      stylesheets="@/css/style.css" 
+      xmlns:fx="http://javafx.com/fxml" 
+      fx:controller="com.intellilib.controllers.ManageMemberController">
     
     <!-- Header -->
-    <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Member Management"/>
-    
-    <!-- Search Bar -->
-    <HBox spacing="10">
-        <TextField fx:id="searchField" promptText="Search members..." HBox.hgrow="ALWAYS">
-            <padding>
-                <Insets bottom="5" left="5" right="5" top="5"/>
-            </padding>
-        </TextField>
-    </HBox>
-    
-    <!-- Main Content -->
-    <HBox spacing="20" VBox.vgrow="ALWAYS">
-        <!-- Member Table -->
-        <VBox spacing="10" HBox.hgrow="ALWAYS">
-            <Label style="-fx-font-weight: bold;" text="Member List"/>
-            <TableView fx:id="memberTable" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="nameColumn" prefWidth="200" text="Full Name"/>
-                    <TableColumn fx:id="emailColumn" prefWidth="200" text="Email"/>
-                    <TableColumn fx:id="phoneColumn" prefWidth="120" text="Phone"/>
-                    <TableColumn fx:id="statusColumn" prefWidth="80" text="Status"/>
-                </columns>
-                <columnResizePolicy>
-                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                </columnResizePolicy>
-            </TableView>
-        </VBox>
-        
-        <!-- Member Form -->
-        <VBox spacing="10" style="-fx-min-width: 300; -fx-pref-width: 300;">
-            <Label style="-fx-font-weight: bold;" text="Member Details"/>
-            <VBox style="-fx-background-color: white; -fx-padding: 15; -fx-spacing: 10; -fx-background-radius: 5;">
-                <Label text="Full Name*"/>
-                <TextField fx:id="nameField" promptText="Enter full name"/>
-                
-                <Label text="Email*"/>
-                <TextField fx:id="emailField" promptText="Enter email"/>
-                
-                <Label text="Phone*"/>
-                <TextField fx:id="phoneField" promptText="Enter phone number"/>
-                
-                <Label text="Address"/>
-                <TextField fx:id="addressField" promptText="Enter address"/>
-                
-                <HBox spacing="10">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Membership Date*"/>
-                        <DatePicker fx:id="membershipDateField"/>
-                    </VBox>
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Expiry Date"/>
-                        <DatePicker fx:id="expiryDateField">
-                            <tooltip>
-                                <Tooltip text="Optional"/>
-                            </tooltip>
-                        </DatePicker>
-                    </VBox>
-                </HBox>
-                
-                <CheckBox fx:id="activeCheckBox" text="Active Member" selected="true"/>
-                
-                <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
-                    <Button fx:id="addButton" text="Add" onAction="#handleAddMember" HBox.hgrow="ALWAYS" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
-                    <Button fx:id="updateButton" text="Update" onAction="#handleUpdateMember" HBox.hgrow="ALWAYS" style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
-                    <Button fx:id="deleteButton" text="Delete" onAction="#handleDeleteMember" HBox.hgrow="ALWAYS" style="-fx-background-color: #f44336; -fx-text-fill: white;"/>
-                    <Button fx:id="clearButton" text="Clear" onAction="#handleClearForm" HBox.hgrow="ALWAYS"/>
-                </HBox>
-            </VBox>
+    <HBox styleClass="site-header" alignment="CENTER_LEFT">
+        <VBox spacing="4">
+            <Label styleClass="page-title" text="Member Management"/>
+            <Label styleClass="page-subtitle" text="Add, edit, and manage library members"/>
         </VBox>
     </HBox>
     
-    <!-- Status Bar -->
-    <Label fx:id="statusLabel" style="-fx-text-fill: #2e7d32; -fx-font-style: italic; -fx-padding: 5 0 0 0;"/>
+    <!-- Content Area -->
+    <ScrollPane styleClass="content-scroll" fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox styleClass="content-container" spacing="24">
+            
+            <!-- Search Bar -->
+            <TextField fx:id="searchField" promptText="Search members by name, email, or phone..." 
+                       styleClass="form-field" HBox.hgrow="ALWAYS"/>
+            
+            <!-- Main Content -->
+            <HBox spacing="24" VBox.vgrow="ALWAYS">
+                <!-- Member Table -->
+                <VBox spacing="16" HBox.hgrow="ALWAYS">
+                    <Label styleClass="section-title" text="Member List"/>
+                    <TableView fx:id="memberTable" styleClass="data-table" VBox.vgrow="ALWAYS" style="-fx-min-height: 400;">
+                        <columns>
+                            <TableColumn fx:id="nameColumn" prefWidth="200" text="Full Name" styleClass="table-column"/>
+                            <TableColumn fx:id="emailColumn" prefWidth="200" text="Email" styleClass="table-column"/>
+                            <TableColumn fx:id="phoneColumn" prefWidth="120" text="Phone" styleClass="table-column"/>
+                            <TableColumn fx:id="addressColumn" prefWidth="120" text="Address" styleClass="table-column"/>
+                            <TableColumn fx:id="membershipDateColumn" prefWidth="120" text="Membership Date" styleClass="table-column"/>
+                            <TableColumn fx:id="membershipExpiryColumn" prefWidth="120" text="Membership Expiry" styleClass="table-column"/>
+                            <TableColumn fx:id="statusColumn" prefWidth="80" text="Status" styleClass="table-column"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+                
+                <!-- Member Form -->
+                <VBox spacing="16" style="-fx-min-width: 320; -fx-pref-width: 320;">
+                    <Label styleClass="section-title" text="Member Details"/>
+                    <VBox styleClass="chart-section" spacing="16">
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Full Name *"/>
+                            <TextField fx:id="nameField" promptText="Enter full name" 
+                                       styleClass="form-field"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Email *"/>
+                            <TextField fx:id="emailField" promptText="Enter email address" 
+                                       styleClass="form-field"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Phone *"/>
+                            <TextField fx:id="phoneField" promptText="Enter phone number" 
+                                       styleClass="form-field"/>
+                        </VBox>
+                        
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Address"/>
+                            <TextField fx:id="addressField" promptText="Enter address (optional)" 
+                                       styleClass="form-field"/>
+                        </VBox>
+                        
+                        <HBox spacing="10">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label styleClass="form-label" text="Membership Date *"/>
+                                <DatePicker fx:id="membershipDateField" styleClass="form-field"/>
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label styleClass="form-label" text="Expiry Date"/>
+                                <DatePicker fx:id="expiryDateField" styleClass="form-field">
+                                    <tooltip>
+                                        <Tooltip text="Optional"/>
+                                    </tooltip>
+                                </DatePicker>
+                            </VBox>
+                        </HBox>
+                        
+                        <VBox spacing="8">
+                            <CheckBox fx:id="activeCheckBox" text="Active Member" selected="true" 
+                                      style="-fx-text-fill: #9ca3af;"/>
+                        </VBox>
+                        
+                        <HBox spacing="10">
+                            <Button fx:id="addButton" text="Add" styleClass="header-button" 
+                                    onAction="#handleAddMember" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="updateButton" text="Update" styleClass="header-button" 
+                                    onAction="#handleUpdateMember" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="deleteButton" text="Delete" styleClass="header-button" 
+                                    onAction="#handleDeleteMember" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <HBox spacing="10">
+                            <Button fx:id="clearButton" text="Clear" styleClass="header-button" 
+                                    onAction="#handleClearForm" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </HBox>
+            
+            <!-- Status Bar -->
+            <Label fx:id="statusLabel" styleClass="stat-change-positive"/>
+        </VBox>
+    </ScrollPane>
 </VBox>
