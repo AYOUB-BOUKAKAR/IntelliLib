@@ -92,4 +92,41 @@ public class BorrowService {
             .mapToDouble(Borrow::getFineAmount)
             .sum();
     }
+
+    // NEW IMPLEMENTATIONS FOR MEMBER DASHBOARD
+
+    public long countActiveBorrowingsForMember(Long memberId) {
+        return borrowRepository.countByMemberIdAndReturnedFalse(memberId);
+    }
+
+    public long countOverdueBooksForMember(Long memberId) {
+        LocalDate today = LocalDate.now();
+        List<Borrow> memberBorrows = borrowRepository.findByMemberId(memberId);
+
+        return memberBorrows.stream()
+            .filter(borrow -> !borrow.isReturned() && borrow.getDueDate().isBefore(today))
+            .count();
+    }
+
+    public double calculateFinesForMember(Long memberId) {
+        List<Borrow> memberBorrows = borrowRepository.findByMemberId(memberId);
+
+        return memberBorrows.stream()
+            .mapToDouble(Borrow::getFineAmount)
+            .sum();
+    }
+
+    public List<Borrow> getRecentBorrowingsForMember(Long memberId, int limit) {
+        List<Borrow> allMemberBorrows = borrowRepository.findByMemberId(memberId);
+
+        // Sort by borrow date descending and limit
+        return allMemberBorrows.stream()
+            .sorted((b1, b2) -> b2.getBorrowDate().compareTo(b1.getBorrowDate()))
+            .limit(limit)
+            .toList();
+    }
+
+    public long countTotalBorrowsForMember(Long memberId) {
+        return borrowRepository.countByMemberId(memberId);
+    }
 }

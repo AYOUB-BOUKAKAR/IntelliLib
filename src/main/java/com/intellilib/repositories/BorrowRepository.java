@@ -33,4 +33,12 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     List<Borrow> findByMemberId(Long memberId);
 
     long countByReturnedFalse();
+
+    // NEW METHODS NEEDED FOR BORROWSERVICE
+
+    // Count active borrows for a specific member
+    long countByMemberIdAndReturnedFalse(Long memberId);
+
+    // Count total borrows for a specific member
+    long countByMemberId(Long memberId);
 }

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<VBox spacing="20" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.member.RecommendationsController"
+      styleClass="recommendations-container">
+
+    <HBox spacing="20" alignment="CENTER_LEFT" styleClass="header-section">
+        <Button text="← Retour" onAction="#goBack" styleClass="back-button" />
+        <Label text="Recommandations Personnalisées" styleClass="page-title" />
+        <Button text="Actualiser" onAction="#refreshRecommendations" styleClass="refresh-button" />
+    </HBox>
+
+    <!-- Based on your preferences -->
+    <VBox spacing="15" styleClass="recommendation-section">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Basé sur vos préférences" styleClass="section-title" />
+            <ProgressIndicator fx:id="preferencesProgress" visible="false" />
+        </HBox>
+        <HBox fx:id="preferencesContainer" spacing="20" styleClass="books-container" />
+    </VBox>
+
+    <!-- Based on your reading history -->
+    <VBox spacing="15" styleClass="recommendation-section">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Basé sur votre historique" styleClass="section-title" />
+            <ProgressIndicator fx:id="historyProgress" visible="false" />
+        </HBox>
+        <HBox fx:id="historyContainer" spacing="20" styleClass="books-container" />
+    </VBox>
+
+    <!-- Popular in your favorite categories -->
+    <VBox spacing="15" styleClass="recommendation-section">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Populaire dans vos catégories" styleClass="section-title" />
+            <ProgressIndicator fx:id="categoriesProgress" visible="false" />
+        </HBox>
+        <HBox fx:id="categoriesContainer" spacing="20" styleClass="books-container" />
+    </VBox>
+
+    <!-- Recently added books -->
+    <VBox spacing="15" styleClass="recommendation-section">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Nouveautés" styleClass="section-title" />
+            <ProgressIndicator fx:id="newBooksProgress" visible="false" />
+        </HBox>
+        <HBox fx:id="newBooksContainer" spacing="20" styleClass="books-container" />
+    </VBox>
+
+    <!-- Settings -->
+    <VBox spacing="15" styleClass="settings-section">
+        <Label text="Paramètres des recommandations" styleClass="section-title" />
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <CheckBox fx:id="showPreferencesCheck" text="Basé sur les préférences" selected="true" />
+            <CheckBox fx:id="showHistoryCheck" text="Basé sur l'historique" selected="true" />
+            <CheckBox fx:id="showCategoriesCheck" text="Par catégories" selected="true" />
+            <CheckBox fx:id="showNewBooksCheck" text="Nouveautés" selected="true" />
+            <Spinner fx:id="limitSpinner" min="1" max="20" initialValue="5" editable="true" />
+            <Label text="livres par section" />
+        </HBox>
+    </VBox>
+</VBox>

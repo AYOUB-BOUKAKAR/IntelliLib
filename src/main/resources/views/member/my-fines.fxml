@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<VBox spacing="20" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.member.MyFinesController"
+      styleClass="fines-container">
+
+    <HBox spacing="20" alignment="CENTER_LEFT" styleClass="header-section">
+        <Button text="← Retour" onAction="#goBack" styleClass="back-button" />
+        <Label text="Mes Amendes" styleClass="page-title" />
+    </HBox>
+
+    <VBox styleClass="summary-card" spacing="10">
+        <Label text="Résumé des Amendes" styleClass="section-title" />
+        <HBox spacing="30" alignment="CENTER">
+            <VBox styleClass="amount-card">
+                <Label text="Amende Totale" styleClass="amount-label" />
+                <Label fx:id="totalFineAmount" styleClass="total-amount" />
+            </VBox>
+            <VBox styleClass="amount-card">
+                <Label text="Amendes Payées" styleClass="amount-label" />
+                <Label fx:id="paidFineAmount" styleClass="paid-amount" />
+            </VBox>
+            <VBox styleClass="amount-card">
+                <Label text="Amendes en Attente" styleClass="amount-label" />
+                <Label fx:id="pendingFineAmount" styleClass="pending-amount" />
+            </VBox>
+            <VBox styleClass="amount-card">
+                <Label text="Livres en Retard" styleClass="amount-label" />
+                <Label fx:id="overdueBooksCount" styleClass="overdue-count" />
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <TabPane fx:id="finesTabPane" styleClass="fines-tabs">
+        <Tab text="Amendes en Cours">
+            <TableView fx:id="currentFinesTable" styleClass="data-table">
+                <columns>
+                    <TableColumn text="Livre" fx:id="fineBookColumn" prefWidth="200" />
+                    <TableColumn text="Date d'Emprunt" fx:id="fineBorrowDateColumn" prefWidth="120" />
+                    <TableColumn text="Date de Retour Prévue" fx:id="fineDueDateColumn" prefWidth="140" />
+                    <TableColumn text="Jours de Retard" fx:id="lateDaysColumn" prefWidth="100" />
+                    <TableColumn text="Amende/Jour" fx:id="rateColumn" prefWidth="100" />
+                    <TableColumn text="Amende Totale" fx:id="fineTotalColumn" prefWidth="120" />
+                    <TableColumn text="Actions" fx:id="payActionColumn" prefWidth="120" />
+                </columns>
+            </TableView>
+        </Tab>
+        <Tab text="Historique des Paiements">
+            <TableView fx:id="paymentHistoryTable" styleClass="data-table">
+                <columns>
+                    <TableColumn text="Date de Paiement" fx:id="paymentDateColumn" prefWidth="120" />
+                    <TableColumn text="Montant" fx:id="paymentAmountColumn" prefWidth="100" />
+                    <TableColumn text="Méthode" fx:id="paymentMethodColumn" prefWidth="120" />
+                    <TableColumn text="Référence" fx:id="paymentRefColumn" prefWidth="150" />
+                    <TableColumn text="Statut" fx:id="paymentStatusColumn" prefWidth="100" />
+                </columns>
+            </TableView>
+        </Tab>
+    </TabPane>
+
+    <HBox spacing="20" alignment="CENTER" styleClass="action-section">
+        <Button text="Payer Toutes les Amendes" onAction="#payAllFines" styleClass="pay-all-button" />
+        <Button text="Actualiser" onAction="#refreshData" styleClass="refresh-button" />
+        <Button text="Imprimer Reçu" onAction="#printReceipt" styleClass="print-button" />
+    </HBox>
+</VBox>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.intellilib.controllers.member.UpdateProfileController"
+           styleClass="profile-container">
+
+    <VBox spacing="25" alignment="TOP_CENTER" styleClass="profile-form">
+        <HBox spacing="20" alignment="CENTER_LEFT" styleClass="header-section">
+            <Button text="← Retour" onAction="#goBack" styleClass="back-button" />
+            <Label text="Modifier Mon Profil" styleClass="page-title" />
+        </HBox>
+
+        <VBox spacing="20" styleClass="form-section">
+            <GridPane hgap="15" vgap="15" styleClass="form-grid">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" prefWidth="150" />
+                    <ColumnConstraints prefWidth="300" />
+                </columnConstraints>
+
+                <!-- Personal Information -->
+                <Label text="Informations Personnelles" GridPane.columnSpan="2"
+                       styleClass="section-subtitle" GridPane.rowIndex="0" />
+
+                <Label text="Nom d'utilisateur:" GridPane.rowIndex="1" />
+                <TextField fx:id="usernameField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                          editable="false" styleClass="disabled-field" />
+
+                <Label text="Email:" GridPane.rowIndex="2" />
+                <TextField fx:id="emailField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <Label text="Nom complet:" GridPane.rowIndex="3" />
+                <TextField fx:id="fullNameField" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                <Label text="Téléphone:" GridPane.rowIndex="4" />
+                <TextField fx:id="phoneField" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                <Label text="Adresse:" GridPane.rowIndex="5" />
+                <TextArea fx:id="addressField" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                         prefRowCount="3" wrapText="true" />
+
+                <!-- Password Change -->
+                <Label text="Changement de Mot de Passe" GridPane.columnSpan="2"
+                       styleClass="section-subtitle" GridPane.rowIndex="6" />
+
+                <Label text="Mot de passe actuel:" GridPane.rowIndex="7" />
+                <PasswordField fx:id="currentPasswordField" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+
+                <Label text="Nouveau mot de passe:" GridPane.rowIndex="8" />
+                <PasswordField fx:id="newPasswordField" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+
+                <Label text="Confirmer mot de passe:" GridPane.rowIndex="9" />
+                <PasswordField fx:id="confirmPasswordField" GridPane.rowIndex="9" GridPane.columnIndex="1" />
+
+                <!-- Preferences -->
+                <Label text="Préférences" GridPane.columnSpan="2"
+                       styleClass="section-subtitle" GridPane.rowIndex="10" />
+
+                <Label text="Notifications par email:" GridPane.rowIndex="11" />
+                <CheckBox fx:id="emailNotificationsCheck" text="Activer"
+                         GridPane.rowIndex="11" GridPane.columnIndex="1" />
+
+                <Label text="Langue:" GridPane.rowIndex="12" />
+                <ComboBox fx:id="languageCombo" GridPane.rowIndex="12" GridPane.columnIndex="1"
+                         prefWidth="200" />
+
+                <Label text="Catégories préférées:" GridPane.rowIndex="13" />
+                <ListView fx:id="preferredCategoriesList" GridPane.rowIndex="13" GridPane.columnIndex="1"
+                         prefHeight="100" styleClass="categories-list" />
+            </GridPane>
+        </VBox>
+
+        <!-- Status Messages -->
+        <VBox spacing="10" fx:id="statusContainer" styleClass="status-section">
+            <Label fx:id="statusLabel" styleClass="status-message" />
+            <ProgressIndicator fx:id="progressIndicator" visible="false" />
+        </VBox>
+
+        <!-- Action Buttons -->
+        <HBox spacing="20" alignment="CENTER" styleClass="action-buttons">
+            <Button text="Enregistrer les modifications" onAction="#saveProfile"
+                   styleClass="save-button" />
+            <Button text="Annuler" onAction="#resetForm" styleClass="cancel-button" />
+            <Button text="Supprimer le compte" onAction="#deleteAccount"
+                   styleClass="delete-button" />
+        </HBox>
+
+        <!-- Account Information -->
+        <VBox spacing="10" styleClass="account-info">
+            <Label text="Informations du Compte" styleClass="info-title" />
+            <HBox spacing="30">
+                <VBox>
+                    <Label text="Date d'inscription:" styleClass="info-label" />
+                    <Label fx:id="registrationDateLabel" styleClass="info-value" />
+                </VBox>
+                <VBox>
+                    <Label text="Dernière connexion:" styleClass="info-label" />
+                    <Label fx:id="lastLoginLabel" styleClass="info-value" />
+                </VBox>
+                <VBox>
+                    <Label text="Statut:" styleClass="info-label" />
+                    <Label fx:id="accountStatusLabel" styleClass="info-value" />
+                </VBox>
+            </HBox>
+        </VBox>
+    </VBox>
+</ScrollPane>

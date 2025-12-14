@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intellilib.controllers.member.BrowseBooksController"
+            styleClass="browse-container">
+
+
+    <top>
+        <VBox spacing="10" styleClass="header-section">
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <Button text="← Retour" onAction="#goBack" styleClass="back-button" />
+                <Label text="Parcourir les Livres" styleClass="page-title" />
+            </HBox>
+
+            <HBox spacing="15" alignment="CENTER">
+                <TextField fx:id="searchField" promptText="Rechercher un livre..." prefWidth="300" />
+                <Button text="🔍 Rechercher" onAction="#searchBooks" styleClass="search-button" />
+                <ComboBox fx:id="categoryFilter" promptText="Catégorie" prefWidth="150" />
+                <ComboBox fx:id="availabilityFilter" promptText="Disponibilité" prefWidth="150" />
+                <Button text="Réinitialiser" onAction="#resetFilters" styleClass="reset-button" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="booksTable" styleClass="books-table">
+            <columns>
+                <TableColumn text="Titre" fx:id="titleColumn" prefWidth="250" />
+                <TableColumn text="Auteur" fx:id="authorColumn" prefWidth="150" />
+                <TableColumn text="Catégorie" fx:id="categoryColumn" prefWidth="120" />
+                <TableColumn text="Année" fx:id="yearColumn" prefWidth="80" />
+                <TableColumn text="Disponible" fx:id="availableColumn" prefWidth="100" />
+                <TableColumn text="Actions" fx:id="actionsColumn" prefWidth="150" />
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <HBox spacing="20" alignment="CENTER" styleClass="pagination-section">
+            <Button text="Précédent" onAction="#previousPage" styleClass="pagination-button" />
+            <Label fx:id="pageInfoLabel" styleClass="page-info" />
+            <Button text="Suivant" onAction="#nextPage" styleClass="pagination-button" />
+            <Label text="Livres par page:" styleClass="page-label" />
+            <ComboBox fx:id="pageSizeCombo" prefWidth="80">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="10" />
+                        <String fx:value="20" />
+                        <String fx:value="50" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intellilib.controllers.member.MyBorrowingsController"
+            styleClass="borrowings-container">
+
+    <top>
+        <VBox spacing="10" styleClass="header-section">
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <Button text="← Retour" onAction="#goBack" styleClass="back-button" />
+                <Label text="Mes Emprunts" styleClass="page-title" />
+            </HBox>
+
+            <TabPane fx:id="borrowingsTabPane" styleClass="borrowings-tabs">
+                <Tab text="Emprunts Actifs">
+                    <TableView fx:id="activeBorrowingsTable" styleClass="data-table">
+                        <columns>
+                            <TableColumn text="Livre" fx:id="activeBookColumn" prefWidth="200" />
+                            <TableColumn text="Date d'Emprunt" fx:id="borrowDateColumn" prefWidth="120" />
+                            <TableColumn text="Date de Retour Prévue" fx:id="dueDateColumn" prefWidth="140" />
+                            <TableColumn text="Jours Restants" fx:id="daysLeftColumn" prefWidth="100" />
+                            <TableColumn text="Actions" fx:id="returnActionColumn" prefWidth="100" />
+                        </columns>
+                    </TableView>
+                </Tab>
+                <Tab text="Historique">
+                    <TableView fx:id="historyBorrowingsTable" styleClass="data-table">
+                        <columns>
+                            <TableColumn text="Livre" fx:id="historyBookColumn" prefWidth="200" />
+                            <TableColumn text="Date d'Emprunt" fx:id="historyBorrowDateColumn" prefWidth="120" />
+                            <TableColumn text="Date de Retour" fx:id="returnDateColumn" prefWidth="120" />
+                            <TableColumn text="Statut" fx:id="historyStatusColumn" prefWidth="100" />
+                        </columns>
+                    </TableView>
+                </Tab>
+                <Tab text="En Retard">
+                    <TableView fx:id="overdueBorrowingsTable" styleClass="data-table">
+                        <columns>
+                            <TableColumn text="Livre" fx:id="overdueBookColumn" prefWidth="200" />
+                            <TableColumn text="Date d'Emprunt" fx:id="overdueBorrowDateColumn" prefWidth="120" />
+                            <TableColumn text="Date de Retour Prévue" fx:id="overdueDueDateColumn" prefWidth="140" />
+                            <TableColumn text="Jours de Retard" fx:id="overdueDaysColumn" prefWidth="100" />
+                            <TableColumn text="Amende" fx:id="fineColumn" prefWidth="100" />
+                        </columns>
+                    </TableView>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </top>
+
+    <bottom>
+        <HBox spacing="20" alignment="CENTER" styleClass="summary-section">
+            <VBox styleClass="summary-card">
+                <Label text="Total Emprunts Actifs" styleClass="summary-label" />
+                <Label fx:id="activeCountLabel" styleClass="summary-value" />
+            </VBox>
+            <VBox styleClass="summary-card">
+                <Label text="Livres En Retard" styleClass="summary-label" />
+                <Label fx:id="overdueCountLabel" styleClass="summary-value warning" />
+            </VBox>
+            <VBox styleClass="summary-card">
+                <Label text="Amende Totale" styleClass="summary-label" />
+                <Label fx:id="totalFineLabel" styleClass="summary-value" />
+            </VBox>
+            <Button text="Actualiser" onAction="#refreshData" styleClass="refresh-button" />
+        </HBox>
+    </bottom>
+</BorderPane>
