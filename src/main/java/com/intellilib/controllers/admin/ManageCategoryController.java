@@ -1,7 +1,9 @@
-package com.intellilib.controllers;
+package com.intellilib.controllers.admin;
 
 import com.intellilib.models.Category;
 import com.intellilib.services.CategoryService;
+import com.intellilib.session.SessionManager;
+import com.intellilib.util.ActivityLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -31,11 +33,15 @@ public class ManageCategoryController {
     @FXML private Label statusLabel;
     
     private final CategoryService categoryService;
+    private final SessionManager sessionManager;
+    private final ActivityLogger activityLogger;
     private final ObservableList<Category> categoryList = FXCollections.observableArrayList();
     
     @Autowired
-    public ManageCategoryController(CategoryService categoryService) {
+    public ManageCategoryController(CategoryService categoryService, SessionManager sessionManager, ActivityLogger activityLogger) {
         this.categoryService = categoryService;
+        this.sessionManager = sessionManager;
+        this.activityLogger = activityLogger;
     }
     
     @FXML
@@ -102,6 +108,7 @@ public class ManageCategoryController {
             try {
                 Category category = createCategoryFromForm();
                 categoryService.createCategory(category);
+                activityLogger.logCategoryAdd(sessionManager.getCurrentUser(), category.getName());
                 loadCategories();
                 clearForm();
                 showStatus("Category added successfully!");
@@ -118,6 +125,7 @@ public class ManageCategoryController {
             try {
                 updateCategoryFromForm(selectedCategory);
                 categoryService.updateCategory(selectedCategory.getId(), selectedCategory);
+                activityLogger.logCategoryUpdate(sessionManager.getCurrentUser(), selectedCategory.getName());
                 loadCategories();
                 showStatus("Category updated successfully!");
             } catch (Exception e) {
@@ -139,6 +147,7 @@ public class ManageCategoryController {
                 if (response == ButtonType.OK) {
                     try {
                         categoryService.deleteCategory(selectedCategory.getId());
+                        activityLogger.logCategoryDelete(sessionManager.getCurrentUser(), selectedCategory.getName());
                         loadCategories();
                         clearForm();
                         showStatus("Category deleted successfully!");

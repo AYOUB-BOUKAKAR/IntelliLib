@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.chart.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" 
             xmlns:fx="http://javafx.com/fxml/1"
@@ -50,7 +51,10 @@
                     <Label text="Dashboard" styleClass="page-title" />
                     <Label fx:id="welcomeLabel" styleClass="page-subtitle" />
                 </VBox>
-                <Button text="User Profile" styleClass="header-button" />
+                <HBox spacing="8">
+                    <Button text="Refresh" styleClass="header-button" onAction="#refreshDashboard" />
+                    <Button text="User Profile" styleClass="header-button" />
+                </HBox>
             </HBox>
             
             <!-- Scrollable Content -->
@@ -86,7 +90,7 @@
                             <Label text="-5% from last month" styleClass="stat-change, stat-change-positive" />
                         </VBox>
                         
-                        <!-- Card 5: Total Fines Card (ADDED) -->
+                        <!-- Card 5: Total Fines Card -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="0">
                             <Label text="Total Fines" styleClass="stat-label" />
                             <Label fx:id="totalFinesLabel" text="0.00 €" styleClass="stat-value" />
@@ -95,11 +99,67 @@
                     </GridPane>
                     
                     <!-- Chart Section -->
-                    <VBox styleClass="chart-section">
+                    <VBox styleClass="chart-section" spacing="16">
                         <Label text="Activity Overview" styleClass="section-title" />
-                        <StackPane styleClass="chart-container" minHeight="300">
-                            <Label text="Chart Area - Interactive Chart Here" styleClass="chart-placeholder" />
-                        </StackPane>
+                        
+                        <!-- Chart Tabs for different views -->
+                        <TabPane styleClass="chart-tabs">
+                            <Tab text="Daily Activity">
+                                <LineChart fx:id="dailyActivityChart" title="Daily Activity Trend">
+                                    <xAxis>
+                                        <CategoryAxis fx:id="xAxisDaily" label="Date" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis fx:id="yAxisDaily" label="Number of Activities" />
+                                    </yAxis>
+                                </LineChart>
+                            </Tab>
+                            
+                            <Tab text="Activity Types">
+                                <BarChart fx:id="activityTypeChart" title="Activities by Type">
+                                    <xAxis>
+                                        <CategoryAxis fx:id="xAxisTypes" label="Activity Type" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis fx:id="yAxisTypes" label="Count" />
+                                    </yAxis>
+                                </BarChart>
+                            </Tab>
+                            
+                            <Tab text="User Activity">
+                                <BarChart fx:id="userActivityChart" title="Most Active Users">
+                                    <xAxis>
+                                        <CategoryAxis fx:id="xAxisUsers" label="Username" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis fx:id="yAxisUsers" label="Activities Count" />
+                                    </yAxis>
+                                </BarChart>
+                            </Tab>
+                        </TabPane>
+                        
+                        <!-- Quick Stats under the charts -->
+                        <GridPane hgap="16" vgap="8" styleClass="chart-stats">
+                            <Label text="Total Activities (7 days):" GridPane.rowIndex="0" GridPane.columnIndex="0" 
+                                   styleClass="chart-stat-label" />
+                            <Label fx:id="totalActivitiesLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1" 
+                                   styleClass="chart-stat-value" />
+                            
+                            <Label text="Average Daily:" GridPane.rowIndex="1" GridPane.columnIndex="0" 
+                                   styleClass="chart-stat-label" />
+                            <Label fx:id="avgDailyActivitiesLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1" 
+                                   styleClass="chart-stat-value" />
+                            
+                            <Label text="Most Active Day:" GridPane.rowIndex="0" GridPane.columnIndex="2" 
+                                   styleClass="chart-stat-label" />
+                            <Label fx:id="mostActiveDayLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="3" 
+                                   styleClass="chart-stat-value" />
+                            
+                            <Label text="Most Active User:" GridPane.rowIndex="1" GridPane.columnIndex="2" 
+                                   styleClass="chart-stat-label" />
+                            <Label fx:id="mostActiveUserLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="3" 
+                                   styleClass="chart-stat-value" />
+                        </GridPane>
                     </VBox>
                     
                     <!-- Data Tables -->
@@ -109,24 +169,24 @@
                             <Label text="Recent Activity" styleClass="section-title" />
                             <TableView fx:id="recentActivityTable" styleClass="data-table">
                                 <columns>
-                                    <TableColumn fx:id="userColumn" text="User" prefWidth="200" styleClass="table-column">
+                                    <TableColumn fx:id="userColumn" text="User" prefWidth="150" styleClass="table-column">
                                         <cellValueFactory>
                                             <PropertyValueFactory property="user.username" />
                                         </cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="actionColumn" text="Action" prefWidth="300" styleClass="table-column">
+                                    <TableColumn fx:id="actionColumn" text="Action" prefWidth="150" styleClass="table-column">
                                         <cellValueFactory>
                                             <PropertyValueFactory property="action" />
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="300" styleClass="table-column">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="description" />
                                         </cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="timestampColumn" text="Timestamp" prefWidth="200" styleClass="table-column">
                                         <cellValueFactory>
                                             <PropertyValueFactory property="timestamp" />
-                                        </cellValueFactory>
-                                    </TableColumn>
-                                    <TableColumn text="Status" prefWidth="150" styleClass="table-column">
-                                        <cellValueFactory>
-                                            <PropertyValueFactory property="status" />
                                         </cellValueFactory>
                                     </TableColumn>
                                 </columns>

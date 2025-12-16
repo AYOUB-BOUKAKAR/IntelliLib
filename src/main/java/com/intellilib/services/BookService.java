@@ -135,6 +135,12 @@ public class BookService {
     public List<Book> findAvailableBooks(){
         return bookRepository.findByAvailableTrue();
     }
+
+    public List<Book> getRecentBooks(int limit) {
+        return bookRepository.findTop10ByOrderByAddedDateDesc();
+    }
+
+
     
     // Get file path for book
     public java.nio.file.Path getBookFilePath(Long bookId) {

@@ -9,6 +9,7 @@ import com.intellilib.services.ActivityService;
 import com.intellilib.services.DatabaseService;
 import com.intellilib.util.FXMLLoaderUtil;
 import javafx.stage.Stage;
+import javafx.scene.chart.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -20,9 +21,10 @@ import javafx.scene.control.TableView;
 
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Controller
 public class AdminDashboardController extends BaseDashboardController {
@@ -34,26 +36,49 @@ public class AdminDashboardController extends BaseDashboardController {
     @FXML private Label overdueBooksLabel;
     @FXML private Label totalFinesLabel;
     
+    // Chart labels
+    @FXML private Label totalActivitiesLabel;
+    @FXML private Label avgDailyActivitiesLabel;
+    @FXML private Label mostActiveDayLabel;
+    @FXML private Label mostActiveUserLabel;
+    
+    // Charts
+    @FXML private LineChart<String, Number> dailyActivityChart;
+    @FXML private CategoryAxis xAxisDaily;
+    @FXML private NumberAxis yAxisDaily;
+    
+    @FXML private BarChart<String, Number> activityTypeChart;
+    @FXML private CategoryAxis xAxisTypes;
+    @FXML private NumberAxis yAxisTypes;
+    
+    @FXML private BarChart<String, Number> userActivityChart;
+    @FXML private CategoryAxis xAxisUsers;
+    @FXML private NumberAxis yAxisUsers;
+    
+    // Tables
     @FXML private TableView<Activity> recentActivityTable;
     @FXML private TableColumn<Activity, String> userColumn;
     @FXML private TableColumn<Activity, String> actionColumn;
-    @FXML private TableColumn<Activity, LocalDateTime> timestampColumn;
+    @FXML private TableColumn<Activity, String> descriptionColumn;
+    @FXML private TableColumn<Activity, String> timestampColumn;
     
     @FXML private TableView<User> recentUsersTable;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> emailColumn;
     @FXML private TableColumn<User, String> roleColumn;
-    @FXML private TableColumn<User, LocalDateTime> joinedDateColumn;
+    @FXML private TableColumn<User, String> joinedDateColumn;
     
     private final BookService bookService;
-    private final BorrowService BorrowService;
+    private final BorrowService borrowService;
     private final ActivityService activityService;
     private final DatabaseService databaseService;
     
-    public AdminDashboardController(UserService userService, BookService bookService, BorrowService BorrowService, ActivityService activityService, DatabaseService databaseService) {
+    public AdminDashboardController(UserService userService, BookService bookService, 
+                                  BorrowService borrowService, ActivityService activityService, 
+                                  DatabaseService databaseService) {
         super(userService);
         this.bookService = bookService;
-        this.BorrowService = BorrowService;
+        this.borrowService = borrowService;
         this.activityService = activityService;
         this.databaseService = databaseService;
     }
@@ -67,6 +92,9 @@ public class AdminDashboardController extends BaseDashboardController {
         
         // Load dashboard statistics
         loadDashboardStatistics();
+        
+        // Load all charts
+        loadActivityCharts();
         
         // Load recent activity
         loadRecentActivity();
@@ -86,15 +114,15 @@ public class AdminDashboardController extends BaseDashboardController {
             activeMembersLabel.setText(String.valueOf(activeMembers));
             
             // Get active borrowings count
-            long activeBorrowings = BorrowService.countActiveBorrowings();
+            long activeBorrowings = borrowService.countActiveBorrowings();
             activeBorrowingsLabel.setText(String.valueOf(activeBorrowings));
             
             // Get overdue books count
-            long overdueBooks = BorrowService.countOverdueBooks();
+            long overdueBooks = borrowService.countOverdueBooks();
             overdueBooksLabel.setText(String.valueOf(overdueBooks));
             
             // Calculate total fines
-            double totalFines = BorrowService.calculateTotalFines();
+            double totalFines = borrowService.calculateTotalFines();
             totalFinesLabel.setText(String.format("%.2f €", totalFines));
             
         } catch (Exception e) {
@@ -103,17 +131,147 @@ public class AdminDashboardController extends BaseDashboardController {
         }
     }
     
+    @SuppressWarnings("unchecked")
+    private void loadActivityCharts() {
+    try {
+        // Get chart data for last 7 days
+        Map<String, Object> chartData = activityService.getActivityChartData(7);
+        
+        // Extract data with null checks
+        List<String> labels = (List<String>) chartData.getOrDefault("labels", new ArrayList<String>());
+        List<Long> dailyActivity = (List<Long>) chartData.getOrDefault("dailyActivity", new ArrayList<Long>());
+        List<String> activityTypes = (List<String>) chartData.getOrDefault("activityTypes", new ArrayList<String>());
+        List<Long> typeCounts = (List<Long>) chartData.getOrDefault("typeCounts", new ArrayList<Long>());
+        List<String> topUsers = (List<String>) chartData.getOrDefault("topUsers", new ArrayList<String>());
+        List<Long> userActivityCounts = (List<Long>) chartData.getOrDefault("userActivityCounts", new ArrayList<Long>());
+        
+        // Update statistics labels with safe defaults
+        long totalActivities = chartData.get("totalActivities") != null ? 
+            ((Number) chartData.get("totalActivities")).longValue() : 0;
+        long averageDaily = chartData.get("averageDaily") != null ? 
+            ((Number) chartData.get("averageDaily")).longValue() : 0;
+        
+        totalActivitiesLabel.setText(String.valueOf(totalActivities));
+        avgDailyActivitiesLabel.setText(String.valueOf(averageDaily));
+            
+            // Find most active day
+            if (!dailyActivity.isEmpty()) {
+                long maxActivity = 0;
+                int maxIndex = 0;
+                for (int i = 0; i < dailyActivity.size(); i++) {
+                    if (dailyActivity.get(i) > maxActivity) {
+                        maxActivity = dailyActivity.get(i);
+                        maxIndex = i;
+                    }
+                }
+                mostActiveDayLabel.setText(labels.get(maxIndex) + " (" + maxActivity + ")");
+            }
+            
+            // Find most active user
+            if (!userActivityCounts.isEmpty() && !topUsers.isEmpty()) {
+                mostActiveUserLabel.setText(topUsers.get(0) + " (" + userActivityCounts.get(0) + ")");
+            }
+            
+            // 1. Load Daily Activity Chart (Line Chart)
+            loadDailyActivityChart(labels, dailyActivity);
+            
+            // 2. Load Activity Types Chart (Bar Chart)
+            loadActivityTypesChart(activityTypes, typeCounts);
+            
+            // 3. Load User Activity Chart (Bar Chart)
+            loadUserActivityChart(topUsers, userActivityCounts);
+            
+        } catch (Exception e) {
+            showError("Erreur", "Impossible de charger les graphiques des activités");
+            e.printStackTrace();
+        }
+    }
+    
+    private void loadDailyActivityChart(List<String> labels, List<Long> dailyActivity) {
+        dailyActivityChart.getData().clear();
+        
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Daily Activities");
+        
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i);
+            Long count = dailyActivity.get(i);
+            series.getData().add(new XYChart.Data<>(label, count));
+        }
+        
+        dailyActivityChart.getData().add(series);
+        
+        // Style the chart
+        dailyActivityChart.setAnimated(true);
+        dailyActivityChart.setLegendVisible(true);
+        dailyActivityChart.getStyleClass().add("line-chart");
+    }
+    
+    private void loadActivityTypesChart(List<String> types, List<Long> counts) {
+        activityTypeChart.getData().clear();
+        
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Activity Types");
+        
+        for (int i = 0; i < Math.min(types.size(), 8); i++) { // Show top 8 types
+            String type = types.get(i);
+            Long count = counts.get(i);
+            series.getData().add(new XYChart.Data<>(type, count));
+        }
+        
+        activityTypeChart.getData().add(series);
+        
+        // Style the chart
+        activityTypeChart.setAnimated(true);
+        activityTypeChart.setLegendVisible(false);
+        activityTypeChart.getStyleClass().add("bar-chart");
+    }
+    
+    private void loadUserActivityChart(List<String> users, List<Long> counts) {
+        userActivityChart.getData().clear();
+        
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("User Activity");
+        
+        for (int i = 0; i < Math.min(users.size(), 10); i++) { // Show top 10 users
+            String user = users.get(i);
+            Long count = counts.get(i);
+            series.getData().add(new XYChart.Data<>(user, count));
+        }
+        
+        userActivityChart.getData().add(series);
+        
+        // Style the chart
+        userActivityChart.setAnimated(true);
+        userActivityChart.setLegendVisible(false);
+        userActivityChart.getStyleClass().add("bar-chart");
+    }
+
     private void loadRecentActivity() {
         try {
             // Initialize table columns to match Activity model
-            userColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUser().getUsername()));
+            userColumn.setCellValueFactory(cellData -> {
+                User user = cellData.getValue().getUser();
+                if (user != null && user.getUsername() != null) {
+                    return new SimpleStringProperty(user.getUsername());
+                }
+                return new SimpleStringProperty("System");
+            });
+
             actionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
-            timestampColumn.setCellValueFactory(new PropertyValueFactory<>("timestamp"));
-            
-            // Load recent activity (last 20 actions) using ActivityService
+            descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+
+            timestampColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(
+                            cellData.getValue().getTimestamp()
+                                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                    )
+            );
+
+            // Load recent activity (last 20 actions)
             List<Activity> recentActivities = activityService.getRecentActivities(20);
             recentActivityTable.getItems().setAll(recentActivities);
-            
+
         } catch (Exception e) {
             showError("Erreur", "Impossible de charger l'activité récente");
             e.printStackTrace();
@@ -125,23 +283,47 @@ public class AdminDashboardController extends BaseDashboardController {
             // Initialize table columns
             usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
             emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-            roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
-            joinedDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+            roleColumn.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(cellData.getValue().getRole().toString()));
+            joinedDateColumn.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(
+                    cellData.getValue().getCreatedAt()
+                        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                )
+            );
             
-            // Get recent user activities (e.g., user registration activities)
-            List<Activity> recentActivities = activityService.getActivitiesByAction("USER_REGISTERED", 10);
+            // Get recent registered users
+            List<User> recentUsers = activityService.getRecentRegisteredUsers(10);
             
-            // Extract users from activities
-            List<User> recentUsers = recentActivities.stream()
-                .map(Activity::getUser)
-                .distinct() // Ensure unique users
-                .collect(Collectors.toList());
+            // If no users from activities, get from user service
+            if (recentUsers.isEmpty()) {
+                // Fallback: get users sorted by creation date
+                recentUsers = userService.getAllUsers().stream()
+                    .sorted((u1, u2) -> u2.getCreatedAt().compareTo(u1.getCreatedAt()))
+                    .limit(10)
+                    .toList();
+            }
             
             // Update the table
             recentUsersTable.getItems().setAll(recentUsers);
             
         } catch (Exception e) {
             showError("Erreur", "Impossible de charger les utilisateurs récents");
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    private void refreshDashboard() {
+        try {
+            loadDashboardData();
+            
+            // Log activity
+            activityService.logActivity(currentUser, "DASHBOARD_REFRESH", "Dashboard refreshed");
+            
+            showSuccess("Actualisation", "Dashboard actualisé avec succès");
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'actualiser le dashboard");
             e.printStackTrace();
         }
     }

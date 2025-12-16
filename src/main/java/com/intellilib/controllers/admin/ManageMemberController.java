@@ -1,7 +1,9 @@
-package com.intellilib.controllers;
+package com.intellilib.controllers.admin;
 
 import com.intellilib.models.Member;
 import com.intellilib.services.MemberService;
+import com.intellilib.session.SessionManager;
+import com.intellilib.util.ActivityLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -43,11 +45,15 @@ public class ManageMemberController {
     @FXML private Label statusLabel;
     
     private final MemberService memberService;
+    private final ActivityLogger activityLogger;
+    private final SessionManager sessionManager;
     private final ObservableList<Member> memberList = FXCollections.observableArrayList();
     
     @Autowired
-    public ManageMemberController(MemberService memberService) {
+    public ManageMemberController(MemberService memberService, ActivityLogger activityLogger, SessionManager sessionManager) {
         this.memberService = memberService;
+        this.activityLogger = activityLogger;
+        this.sessionManager = sessionManager;
     }
     
     @FXML
@@ -127,6 +133,7 @@ public class ManageMemberController {
             try {
                 Member member = createMemberFromForm();
                 memberService.createMember(member);
+                activityLogger.logMemberAdd(sessionManager.getCurrentUser(), member.getFullName());
                 loadMembers();
                 clearForm();
                 showStatus("Member added successfully!");
@@ -143,6 +150,7 @@ public class ManageMemberController {
             try {
                 updateMemberFromForm(selectedMember);
                 memberService.updateMember(selectedMember.getId(), selectedMember);
+                activityLogger.logMemberUpdate(sessionManager.getCurrentUser(), selectedMember.getFullName());
                 loadMembers();
                 showStatus("Member updated successfully!");
             } catch (Exception e) {
@@ -164,6 +172,7 @@ public class ManageMemberController {
                 if (response == ButtonType.OK) {
                     try {
                         memberService.deleteMember(selectedMember.getId());
+                        activityLogger.logMemberDelete(sessionManager.getCurrentUser(), selectedMember.getFullName());
                         loadMembers();
                         clearForm();
                         showStatus("Member deleted successfully!");

@@ -25,6 +25,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     long countByAvailableTrue();
     long countByAvailableFalse();
+    List<Book> findTop10ByOrderByAddedDateDesc();
     
     // Search by file type
     List<Book> findByFileType(String fileType);

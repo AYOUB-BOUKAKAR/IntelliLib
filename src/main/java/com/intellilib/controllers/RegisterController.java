@@ -2,6 +2,7 @@ package com.intellilib.controllers;
 
 import com.intellilib.models.User;
 import com.intellilib.services.UserService;
+import com.intellilib.util.ActivityLogger;
 import com.intellilib.util.FXMLLoaderUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -28,6 +29,9 @@ public class RegisterController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private ActivityLogger activityLogger;
+
     
     private static final Pattern EMAIL_PATTERN = 
         Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
@@ -76,6 +80,7 @@ public class RegisterController {
             
             User newUser = new User(username, password, email, role);
             User savedUser = userService.registerUser(newUser);
+            activityLogger.logRegister(savedUser);
             
             if (savedUser != null) {
                 successLabel.setText("Compte créé avec succès! Redirection...");

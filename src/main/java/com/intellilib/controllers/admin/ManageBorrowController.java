@@ -1,7 +1,9 @@
-package com.intellilib.controllers;
+package com.intellilib.controllers.admin;
 
 import com.intellilib.models.*;
 import com.intellilib.services.*;
+import com.intellilib.session.SessionManager;
+import com.intellilib.util.ActivityLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -45,6 +47,9 @@ public class ManageBorrowController {
     private final BookService bookService;
     private final MemberService memberService;
     private final FineService fineService;
+    private final SessionManager sessionManager;
+    private final ActivityLogger activityLogger;
+
     
     private final ObservableList<Borrow> borrowList = FXCollections.observableArrayList();
     private final ObservableList<Book> availableBooks = FXCollections.observableArrayList();
@@ -53,11 +58,14 @@ public class ManageBorrowController {
     private Borrow currentBorrow;
     
     public ManageBorrowController(BorrowService borrowService, BookService bookService, 
-                                MemberService memberService, FineService fineService) {
+                                MemberService memberService, FineService fineService,
+                                SessionManager sessionManager, ActivityLogger activityLogger) {
         this.borrowService = borrowService;
         this.bookService = bookService;
         this.memberService = memberService;
         this.fineService = fineService;
+        this.sessionManager = sessionManager;
+        this.activityLogger = activityLogger;
     }
     
     @FXML
@@ -242,6 +250,7 @@ public class ManageBorrowController {
                 }
                 
                 borrowService.saveBorrow(borrow);
+                activityLogger.logBookBorrow(sessionManager.getCurrentUser(), borrow.getBook().getTitle());
                 clearForm();
                 loadBorrows();
                 
@@ -277,6 +286,7 @@ public class ManageBorrowController {
                     selectedBorrow.setReturned(true);
                     selectedBorrow.setReturnDate(LocalDate.now());
                     borrowService.saveBorrow(selectedBorrow);
+                    activityLogger.logBookReturn(sessionManager.getCurrentUser(), selectedBorrow.getBook().getTitle());
                     
                     // Update member's overdue count
                     Member member = selectedBorrow.getMember();
@@ -358,6 +368,7 @@ public class ManageBorrowController {
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 try {
                     borrowService.deleteBorrow(selectedBorrow.getId());
+                    activityLogger.logBorrowDelete(sessionManager.getCurrentUser(), selectedBorrow.getBook().getTitle());
                     loadBorrows();
                     clearForm();
                     

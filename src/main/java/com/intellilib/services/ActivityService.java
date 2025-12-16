@@ -8,8 +8,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -22,13 +27,8 @@ public class ActivityService {
 
     /**
      * Log a new activity
-     * @param username The username of the user performing the action
-     * @param action The type of action (e.g., 'LOGIN', 'LOGOUT', 'BOOK_BORROWED')
-     * @param description Detailed description of the activity
-     * @param ipAddress The IP address of the user (optional)
      */
     public void logActivity(String username, String action, String description, String ipAddress) {
-        // Find user by username
         Optional<User> userOpt = userService.findByUsername(username);
         if (userOpt.isEmpty()) {
             throw new RuntimeException("User not found: " + username);
@@ -47,47 +47,138 @@ public class ActivityService {
     /**
      * Simplified version without IP address
      */
-    public void logActivity(String username, String action, String description) {
-        logActivity(username, action, description, null);
+    public void logActivity(User user, String action, String description) {
+        logActivity(user, action, description, null);
+    }
+
+    /**
+     * Log activity using User object
+     */
+    public void logActivity(User user, String action, String description, String ipAddress) {
+        Activity activity = Activity.builder()
+                .user(user)
+                .action(action)
+                .description(description)
+                .ipAddress(ipAddress)
+                .build();
+        activityRepository.save(activity);
     }
 
     /**
      * Get recent activities for the admin dashboard
-     * @param limit Maximum number of activities to return
-     * @return List of recent activities
      */
     public List<Activity> getRecentActivities(int limit) {
         return activityRepository.findAllByOrderByTimestampDesc(PageRequest.of(0, limit));
     }
 
     /**
-     * Get recent activities for a specific user
-     * @param username The username of the user
-     * @param limit Maximum number of activities to return
-     * @return List of user's recent activities
+     * Get activities for chart - last 7 days
      */
-    public List<Activity> getUserActivities(String username, int limit) {
-        Optional<User> userOpt = userService.findByUsername(username);
-        if (userOpt.isEmpty()) {
-            throw new RuntimeException("User not found: " + username);
+
+    /**
+     * Get activities for chart - last 7 days
+     */
+    public Map<String, Object> getActivityChartData(int days) {
+        Map<String, Object> chartData = new HashMap<>();
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusDays(days - 1).truncatedTo(ChronoUnit.DAYS);
+
+        // Get daily activity counts
+        List<Object[]> dailyCounts = activityRepository.countActivitiesByDay(startDate, endDate);
+
+        List<String> labels = new ArrayList<>();
+        List<Long> data = new ArrayList<>();
+
+        // Generate labels for all days
+        for (int i = 0; i < days; i++) {
+            LocalDate date = LocalDate.now().minusDays(days - 1 - i);
+            labels.add(date.toString());
+            data.add(0L); // Initialize with 0
         }
-        return activityRepository.findRecentByUserId(userOpt.get().getId(), PageRequest.of(0, limit));
+
+        // Fill in actual data with null checks
+        if (dailyCounts != null) {
+            for (Object[] count : dailyCounts) {
+                // Add null checks to prevent NPE
+                if (count != null && count.length >= 2 && count[0] != null && count[1] != null) {
+                    LocalDate date = (LocalDate) count[0];
+                    Long activityCount = (Long) count[1];
+
+                    String dateString = date.toString();
+                    int index = labels.indexOf(dateString);
+                    if (index != -1) {
+                        data.set(index, activityCount);
+                    }
+                }
+            }
+        }
+
+        // Get activity by type with null checks
+        List<Object[]> byType = activityRepository.countActivitiesByType(startDate, endDate);
+        List<String> types = new ArrayList<>();
+        List<Long> typeCounts = new ArrayList<>();
+
+        if (byType != null) {
+            for (Object[] typeCount : byType) {
+                // Add null checks for type data
+                if (typeCount != null && typeCount.length >= 2 && typeCount[0] != null && typeCount[1] != null) {
+                    types.add((String) typeCount[0]);
+                    typeCounts.add((Long) typeCount[1]);
+                }
+            }
+        }
+
+        // Get top users with activity counts (add this missing feature)
+        List<Object[]> topUserData = activityRepository.findTopActiveUsers(startDate, endDate, PageRequest.of(0, 5));
+        List<String> topUsers = new ArrayList<>();
+        List<Long> userActivityCounts = new ArrayList<>();
+
+        if (topUserData != null) {
+            for (Object[] userData : topUserData) {
+                if (userData != null && userData.length >= 2 && userData[0] != null && userData[1] != null) {
+                    topUsers.add((String) userData[0]);
+                    userActivityCounts.add((Long) userData[1]);
+                }
+            }
+        }
+
+        // Calculate total activities and average with null safety
+        Long totalActivities = activityRepository.countByTimestampBetween(startDate, endDate);
+        if (totalActivities == null) {
+            totalActivities = 0L;
+        }
+
+        long averageDaily = days > 0 ? totalActivities / days : 0;
+
+        chartData.put("labels", labels);
+        chartData.put("dailyActivity", data);
+        chartData.put("activityTypes", types);
+        chartData.put("typeCounts", typeCounts);
+        chartData.put("topUsers", topUsers);
+        chartData.put("userActivityCounts", userActivityCounts);
+        chartData.put("totalActivities", totalActivities);
+        chartData.put("averageDaily", averageDaily);
+
+        return chartData;
     }
 
     /**
      * Get activities by action type
-     * @param action The action type to filter by
-     * @param limit Maximum number of activities to return
-     * @return List of activities matching the action type
      */
     public List<Activity> getActivitiesByAction(String action, int limit) {
         return activityRepository.findByAction(action, PageRequest.of(0, limit));
     }
 
     /**
+     * Get recent registered users (last 30 days)
+     */
+    public List<User> getRecentRegisteredUsers(int limit) {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        return activityRepository.findRecentRegisteredUsers(thirtyDaysAgo, PageRequest.of(0, limit));
+    }
+
+    /**
      * Clean up old activities
-     * @param olderThan Delete activities older than this date
-     * @return Number of activities deleted
      */
     public int cleanupOldActivities(LocalDateTime olderThan) {
         return activityRepository.deleteByTimestampBefore(olderThan);

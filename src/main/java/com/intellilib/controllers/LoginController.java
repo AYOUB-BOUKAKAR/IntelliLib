@@ -2,6 +2,8 @@ package com.intellilib.controllers;
 
 import com.intellilib.models.User;
 import com.intellilib.services.UserService;
+import com.intellilib.session.SessionManager;
+import com.intellilib.util.ActivityLogger;
 import com.intellilib.util.FXMLLoaderUtil;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -19,6 +21,10 @@ public class LoginController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private SessionManager sessionManager;
+    @Autowired
+    private ActivityLogger activityLogger;
 
     public LoginController() {
         // No-arg constructor for FXML compatibility
@@ -48,6 +54,8 @@ public class LoginController {
                 }
                 
                 errorLabel.setText("");
+                sessionManager.login(user);
+                activityLogger.logLogin(user);
                 openDashboard(user);
             } else {
                 errorLabel.setText("Nom d'utilisateur ou mot de passe incorrect");

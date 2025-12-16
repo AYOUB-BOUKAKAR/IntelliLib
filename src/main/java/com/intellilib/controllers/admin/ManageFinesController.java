@@ -1,4 +1,4 @@
-package com.intellilib.controllers;
+package com.intellilib.controllers.admin;
 
 import com.intellilib.models.*;
 import com.intellilib.services.*;

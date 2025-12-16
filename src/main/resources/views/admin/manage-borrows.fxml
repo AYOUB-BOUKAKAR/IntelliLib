@@ -9,7 +9,7 @@
       stylesheets="@/css/style.css" 
       xmlns="http://javafx.com/javafx/21" 
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.intellilib.controllers.ManageBorrowController">
+      fx:controller="com.intellilib.controllers.admin.ManageBorrowController">
     
     <!-- Header -->
     <HBox styleClass="site-header" alignment="CENTER_LEFT">

@@ -15,7 +15,7 @@ public class MainController {
     @FXML private Button registerButton;
     
     public MainController() {
-        // No-arg constructor for FXML compatibility
+
     }
     
     @FXML

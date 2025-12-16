@@ -1,10 +1,14 @@
-package com.intellilib.controllers;
+package com.intellilib.controllers.admin;
 
 import com.intellilib.models.Book;
 import com.intellilib.models.Category;
+import com.intellilib.models.User;
+import com.intellilib.services.ActivityService;
 import com.intellilib.services.BookService;
 import com.intellilib.services.CategoryService;
 
+import com.intellilib.session.SessionManager;
+import com.intellilib.util.ActivityLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -53,14 +57,22 @@ public class ManageBookController {
     
     private final BookService bookService;
     private final CategoryService categoryService;
+    private final ActivityLogger activityLogger;
+    private final SessionManager sessionManager;
     private final ObservableList<Book> bookList = FXCollections.observableArrayList();
     private final ObservableList<Category> categoryList = FXCollections.observableArrayList();
     private File selectedFile;
     
     @Autowired
-    public ManageBookController(BookService bookService, CategoryService categoryService) {
+    public ManageBookController(BookService bookService,
+                                CategoryService categoryService,
+                                ActivityLogger activityLogger,
+                                SessionManager sessionManager
+    ) {
         this.bookService = bookService;
         this.categoryService = categoryService;
+        this.activityLogger = activityLogger;
+        this.sessionManager = sessionManager;
     }
     
     @FXML
@@ -269,7 +281,9 @@ public class ManageBookController {
             try {
                 Book book = createBookFromForm();
                 // Note: You'll need to handle file upload separately in your service
-                bookService.saveBook(book, null); // Pass null for file or modify as needed
+                bookService.saveBook(book, null); //TODO: Handle file upload
+                User user = sessionManager.getCurrentUser();
+                activityLogger.logBookAdd(user, book.getTitle());
                 loadBooks();
                 clearForm();
                 showStatus("Book added successfully!");
@@ -286,6 +300,8 @@ public class ManageBookController {
             try {
                 updateBookFromForm(selectedBook);
                 bookService.updateBook(selectedBook.getId(), selectedBook, null);
+                User user = sessionManager.getCurrentUser();
+                activityLogger.logBookUpdate(user, selectedBook.getTitle());
                 loadBooks();
                 showStatus("Book updated successfully!");
             } catch (Exception e) {
@@ -307,6 +323,8 @@ public class ManageBookController {
                 if (response == ButtonType.OK) {
                     try {
                         bookService.deleteBook(selectedBook.getId());
+                        User user = sessionManager.getCurrentUser();
+                        activityLogger.logBookDelete(user, selectedBook.getTitle());
                         loadBooks();
                         clearForm();
                         showStatus("Book deleted successfully!");

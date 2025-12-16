@@ -1,7 +1,9 @@
-package com.intellilib.controllers;
+package com.intellilib.controllers.admin;
 
 import com.intellilib.models.User;
 import com.intellilib.services.UserService;
+import com.intellilib.session.SessionManager;
+import com.intellilib.util.ActivityLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -42,15 +44,20 @@ public class ManageUserController {
     @FXML private Label statusLabel;
     
     private final UserService userService;
+    private final SessionManager sessionManager;
+    private final ActivityLogger activityLogger;
+
     private final PasswordEncoder passwordEncoder;
     private final ObservableList<User> userList = FXCollections.observableArrayList();
     private User currentUser;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     
     @Autowired
-    public ManageUserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public ManageUserController(UserService userService, PasswordEncoder passwordEncoder, ActivityLogger activityLogger, SessionManager sessionManager) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.activityLogger = activityLogger;
+        this.sessionManager = sessionManager;
     }
     
     @FXML
@@ -154,6 +161,7 @@ public class ManageUserController {
             try {
                 User user = createUserFromForm();
                 userService.registerUser(user);
+                activityLogger.logUserAdd(sessionManager.getCurrentUser(), user.getUsername());
                 loadUsers();
                 clearForm();
                 showStatus("User added successfully!", false);
@@ -180,6 +188,7 @@ public class ManageUserController {
                     userDetails.setPassword(passwordEncoder.encode(passwordField.getText()));
                 }
                 userService.updateUser(userDetails);
+                activityLogger.logUserUpdate(sessionManager.getCurrentUser(), userDetails.getUsername());
                 loadUsers();
                 clearForm();
                 showStatus("User updated successfully!", false);
@@ -203,6 +212,7 @@ public class ManageUserController {
                     try {
                         userService.logout();
                         userService.deleteUser(selectedUser.getId());
+                        activityLogger.logUserDelete(sessionManager.getCurrentUser(), selectedUser.getUsername());
                         loadUsers();
                         clearForm();
                         showStatus("User deleted successfully!", false);

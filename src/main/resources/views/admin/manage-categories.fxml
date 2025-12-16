@@ -9,7 +9,7 @@
       styleClass="root" 
       stylesheets="@/css/style.css" 
       xmlns:fx="http://javafx.com/fxml" 
-      fx:controller="com.intellilib.controllers.ManageCategoryController">
+      fx:controller="com.intellilib.controllers.admin.ManageCategoryController">
     
     <!-- Header -->
     <HBox styleClass="site-header" alignment="CENTER_LEFT">
