@@ -54,38 +54,38 @@ public class BrowseBooksController {
 
     @FXML
     public void initialize() {
-        setupTableColumns();
+        // setupTableColumns();
         loadBooks();
         setupFilters();
         setupPagination();
     }
 
-    private void setupTableColumns() {
-        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-        authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
-        categoryColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getCategory() != null ?
-                cellData.getValue().getCategory().getName() : ""));
-        yearColumn.setCellValueFactory(new PropertyValueFactory<>("publicationYear"));
-        availableColumn.setCellValueFactory(new PropertyValueFactory<>("available"));
+    // private void setupTableColumns() {
+    //     titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+    //     authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
+    //     categoryColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(cellData.getValue().getCategory() != null ?
+    //             cellData.getValue().getCategory().getName() : ""));
+    //     yearColumn.setCellValueFactory(new PropertyValueFactory<>("publicationYear"));
+    //     availableColumn.setCellValueFactory(new PropertyValueFactory<>("available"));
 
-        // Actions column with borrow button
-        actionsColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button borrowButton = new Button("Emprunter");
+    //     // Actions column with borrow button
+    //     actionsColumn.setCellFactory(col -> new TableCell<>() {
+    //         private final Button borrowButton = new Button("Emprunter");
 
-            @Override
-            protected void updateItem(Book book, boolean empty) {
-                super.updateItem(book, empty);
-                if (empty || book == null) {
-                    setGraphic(null);
-                } else {
-                    borrowButton.setDisable(!book.isAvailable());
-                    borrowButton.setOnAction(e -> borrowBook(book));
-                    setGraphic(borrowButton);
-                }
-            }
-        });
-    }
+    //         @Override
+    //         protected void updateItem(Book book, boolean empty) {
+    //             super.updateItem(book, empty);
+    //             if (empty || book == null) {
+    //                 setGraphic(null);
+    //             } else {
+    //                 borrowButton.setDisable(!book.isAvailable());
+    //                 borrowButton.setOnAction(e -> borrowBook(book));
+    //                 setGraphic(borrowButton);
+    //             }
+    //         }
+    //     });
+    // }
 
     private void loadBooks() {
         allBooks.setAll(bookService.getAllBooks());

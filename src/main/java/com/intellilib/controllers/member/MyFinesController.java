@@ -88,51 +88,51 @@ public class MyFinesController {
             return;
         }
 
-        setupTables();
+        // setupTables();
         loadData();
         updateSummary();
         loadPaymentHistory();
     }
 
-    private void setupTables() {
-        // Current fines table
-        fineBookColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
-        fineBorrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
-        fineDueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
-        lateDaysColumn.setCellValueFactory(cellData -> {
-            long days = ChronoUnit.DAYS.between(cellData.getValue().getDueDate(), LocalDate.now());
-            return new SimpleStringProperty(String.valueOf(Math.max(0, days)));
-        });
-        rateColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty("0.50 €/jour")); // Fixed rate
-        fineTotalColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(String.format("%.2f €", cellData.getValue().getFineAmount())));
+    // private void setupTables() {
+    //     // Current fines table
+    //     fineBookColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
+    //     fineBorrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
+    //     fineDueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
+    //     lateDaysColumn.setCellValueFactory(cellData -> {
+    //         long days = ChronoUnit.DAYS.between(cellData.getValue().getDueDate(), LocalDate.now());
+    //         return new SimpleStringProperty(String.valueOf(Math.max(0, days)));
+    //     });
+    //     rateColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty("0.50 €/jour")); // Fixed rate
+    //     fineTotalColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(String.format("%.2f €", cellData.getValue().getFineAmount())));
 
-        // Pay action column
-        payActionColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button payButton = new Button("Payer");
+    //     // Pay action column
+    //     payActionColumn.setCellFactory(col -> new TableCell<>() {
+    //         private final Button payButton = new Button("Payer");
 
-            @Override
-            protected void updateItem(Borrow borrow, boolean empty) {
-                super.updateItem(borrow, empty);
-                if (empty || borrow == null) {
-                    setGraphic(null);
-                } else {
-                    payButton.setOnAction(e -> payFine(borrow));
-                    setGraphic(payButton);
-                }
-            }
-        });
+    //         @Override
+    //         protected void updateItem(Borrow borrow, boolean empty) {
+    //             super.updateItem(borrow, empty);
+    //             if (empty || borrow == null) {
+    //                 setGraphic(null);
+    //             } else {
+    //                 payButton.setOnAction(e -> payFine(borrow));
+    //                 setGraphic(payButton);
+    //             }
+    //         }
+    //     });
 
-        // Payment history table
-        paymentDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
-        paymentAmountColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(String.format("%.2f €", cellData.getValue().getAmount())));
-        paymentMethodColumn.setCellValueFactory(new PropertyValueFactory<>("method"));
-        paymentRefColumn.setCellValueFactory(new PropertyValueFactory<>("reference"));
-        paymentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-    }
+    //     // Payment history table
+    //     paymentDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+    //     paymentAmountColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(String.format("%.2f €", cellData.getValue().getAmount())));
+    //     paymentMethodColumn.setCellValueFactory(new PropertyValueFactory<>("method"));
+    //     paymentRefColumn.setCellValueFactory(new PropertyValueFactory<>("reference"));
+    //     paymentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+    // }
 
     private void loadData() {
         List<Borrow> memberBorrowings = borrowService.getBorrowsByMember(currentUser.getId());

@@ -35,6 +35,20 @@ public class AdminDashboardController extends BaseDashboardController {
     @FXML private Label activeBorrowingsLabel;
     @FXML private Label overdueBooksLabel;
     @FXML private Label totalFinesLabel;
+
+    // Statistics change labels
+    @FXML private Label totalBooksChangeLabel;
+    @FXML private Label activeMembersChangeLabel;
+    @FXML private Label activeBorrowingsChangeLabel;
+    @FXML private Label overdueBooksChangeLabel;
+    @FXML private Label totalFinesChangeLabel;
+
+    // Statistics change properties
+    private final SimpleStringProperty totalBooksChange = new SimpleStringProperty("+0%");
+    private final SimpleStringProperty activeMembersChange = new SimpleStringProperty("+0%");
+    private final SimpleStringProperty activeBorrowingsChange = new SimpleStringProperty("+0%");
+    private final SimpleStringProperty overdueBooksChange = new SimpleStringProperty("-0%");
+    private final SimpleStringProperty totalFinesChange = new SimpleStringProperty("+0%");
     
     // Chart labels
     @FXML private Label totalActivitiesLabel;
@@ -86,6 +100,12 @@ public class AdminDashboardController extends BaseDashboardController {
     @Override
     protected void loadDashboardData() {
         if (currentUser == null) return;
+
+        totalBooksChangeLabel.textProperty().bind(totalBooksChange);
+        activeMembersChangeLabel.textProperty().bind(activeMembersChange);
+        activeBorrowingsChangeLabel.textProperty().bind(activeBorrowingsChange);
+        overdueBooksChangeLabel.textProperty().bind(overdueBooksChange);
+        totalFinesChangeLabel.textProperty().bind(totalFinesChange);
         
         // Set welcome message
         welcomeLabel.setText("Tableau de Bord Admin - " + currentUser.getUsername());
@@ -105,25 +125,42 @@ public class AdminDashboardController extends BaseDashboardController {
     
     private void loadDashboardStatistics() {
         try {
-            // Get total books count
+            // Get total books count and change
             long totalBooks = bookService.getTotalBooksCount();
             totalBooksLabel.setText(String.valueOf(totalBooks));
-            
-            // Get active members count
+            double booksChange = bookService.getTotalBooksChangeFromLastMonth();
+            updateChangeLabelStyle(totalBooksChangeLabel, booksChange);
+
+            // Get active members count and change
             long activeMembers = userService.countActiveMembers();
             activeMembersLabel.setText(String.valueOf(activeMembers));
-            
-            // Get active borrowings count
+            double membersChange = userService.getActiveMembersChangeFromLastMonth();
+            updateChangeLabelStyle(activeMembersChangeLabel, membersChange);
+
+            // Get active borrowings count and change
             long activeBorrowings = borrowService.countActiveBorrowings();
             activeBorrowingsLabel.setText(String.valueOf(activeBorrowings));
-            
-            // Get overdue books count
+            double borrowingsChange = borrowService.getActiveBorrowingsChangeFromLastMonth();
+            updateChangeLabelStyle(activeBorrowingsChangeLabel, borrowingsChange);
+
+            // Get overdue books count and change
             long overdueBooks = borrowService.countOverdueBooks();
             overdueBooksLabel.setText(String.valueOf(overdueBooks));
-            
-            // Calculate total fines
+            double overdueChange = borrowService.getOverdueBooksChangeFromLastMonth();
+            updateChangeLabelStyle(overdueBooksChangeLabel, overdueChange);
+
+            // Calculate total fines and change
             double totalFines = borrowService.calculateTotalFines();
             totalFinesLabel.setText(String.format("%.2f €", totalFines));
+            double finesChange = borrowService.getTotalFinesChangeFromLastMonth();
+            updateChangeLabelStyle(totalFinesChangeLabel, finesChange);
+
+            // Update properties instead of directly setting text
+            totalBooksChange.set(String.format("%+.1f%%", booksChange) + " from last month");
+            updateChangeLabelStyle(totalBooksChangeLabel, booksChange);
+
+            activeMembersChange.set(String.format("%+.1f%%", membersChange) + " from last month");
+            updateChangeLabelStyle(activeMembersChangeLabel, membersChange);
             
         } catch (Exception e) {
             showError("Erreur", "Impossible de charger les statistiques");
@@ -474,5 +511,17 @@ public class AdminDashboardController extends BaseDashboardController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void updateChangeLabelStyle(Label label, double change) {
+        label.getStyleClass().removeAll("change-positive", "change-negative", "change-neutral");
+
+        if (change > 0) {
+            label.getStyleClass().add("change-positive");
+        } else if (change < 0) {
+            label.getStyleClass().add("change-negative");
+        } else {
+            label.getStyleClass().add("change-neutral");
+        }
     }
 }

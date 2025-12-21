@@ -4,63 +4,78 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/21" 
+<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.intellilib.controllers.RegisterController"
             stylesheets="@/css/style.css">
-    
+
     <center>
         <ScrollPane styleClass="content-scroll" fitToWidth="true">
-            <VBox alignment="CENTER" spacing="20" styleClass="content-container" 
+            <VBox alignment="CENTER" spacing="20" styleClass="content-container"
                   style="-fx-padding: 40;">
-                <VBox styleClass="chart-section" 
+                <VBox styleClass="chart-section"
                       style="-fx-padding: 40; -fx-max-width: 500;">
-                    <Label text="Inscription" styleClass="section-title" 
+                    <Label text="Inscription" styleClass="section-title"
                            style="-fx-font-size: 24px; -fx-padding: 0 0 20 0;" />
-                    
+
                     <VBox spacing="15" style="-fx-min-width: 400;">
                         <!-- Username -->
                         <Label text="Nom d'utilisateur *" styleClass="form-label" />
-                        <TextField fx:id="usernameField" promptText="Entrez votre nom d'utilisateur" 
-                                  styleClass="form-field" />
-                        
+                        <TextField fx:id="usernameField" promptText="Entrez votre nom d'utilisateur"
+                                   styleClass="form-field" />
+
                         <!-- Email -->
                         <Label text="Email (optionnel)" styleClass="form-label" />
-                        <TextField fx:id="emailField" promptText="exemple@domaine.com" 
-                                  styleClass="form-field" />
-                        
+                        <TextField fx:id="emailField" promptText="exemple@domaine.com"
+                                   styleClass="form-field" />
+
                         <!-- Password -->
                         <Label text="Mot de passe *" styleClass="form-label" />
-                        <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères" 
-                                      styleClass="form-field" />
-                        
+                        <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères"
+                                       styleClass="form-field" />
+
                         <!-- Confirm Password -->
                         <Label text="Confirmer le mot de passe *" styleClass="form-label" />
-                        <PasswordField fx:id="confirmPasswordField" promptText="Retapez votre mot de passe" 
-                                      styleClass="form-field" />
-                        
+                        <PasswordField fx:id="confirmPasswordField" promptText="Retapez votre mot de passe"
+                                       styleClass="form-field" />
+
                         <!-- Role -->
                         <Label text="Rôle" styleClass="form-label" />
-                        <ComboBox fx:id="roleComboBox" styleClass="form-field" 
+                        <ComboBox fx:id="roleComboBox" styleClass="form-field"
                                   style="-fx-padding: 8 12 8 12;" />
-                        
+
+                        <!-- Phone Number (Visible only for MEMBER) -->
+                        <VBox fx:id="phoneContainer" visible="false" managed="false" spacing="5">
+                            <Label text="Numéro de téléphone *" styleClass="form-label" />
+                            <TextField fx:id="phoneField" promptText="+212 6 12 34 56 78"
+                                       styleClass="form-field" />
+                        </VBox>
+
+                        <!-- Address (Visible only for MEMBER) -->
+                        <VBox fx:id="addressContainer" visible="false" managed="false" spacing="5">
+                            <Label text="Adresse" styleClass="form-label" />
+                            <TextArea fx:id="addressField" promptText="Entrez votre adresse complète"
+                                      styleClass="form-field"
+                                      style="-fx-pref-height: 80; -fx-max-height: 80;" />
+                        </VBox>
+
                         <!-- Messages -->
                         <VBox spacing="5" style="-fx-padding: 10 0 10 0;">
                             <Label fx:id="errorLabel" styleClass="error-label" />
                             <Label fx:id="successLabel" styleClass="success-label" />
                         </VBox>
-                        
+
                         <!-- Buttons -->
                         <HBox spacing="15" alignment="CENTER">
-                            <Button fx:id="backButton" text="Retour" onAction="#goToLogin" 
-                                   styleClass="form-button-secondary" 
-                                   style="-fx-pref-width: 100;" />
-                            <Button fx:id="registerButton" text="S'inscrire" onAction="#register" 
-                                   styleClass="form-button-primary" 
-                                   style="-fx-font-weight: bold; -fx-pref-width: 120;" />
+                            <Button fx:id="backButton" text="Retour" onAction="#goToLogin"
+                                    styleClass="form-button-secondary"
+                                    style="-fx-pref-width: 100;" />
+                            <Button fx:id="registerButton" text="S'inscrire" onAction="#register"
+                                    styleClass="form-button-primary"
+                                    style="-fx-font-weight: bold; -fx-pref-width: 120;" />
                         </HBox>
-                        
-                        <Label text="* Champs obligatoires" styleClass="form-hint" 
+
+                        <Label text="* Champs obligatoires" styleClass="form-hint"
                                style="-fx-padding: 20 0 0 0;" />
                     </VBox>
                 </VBox>

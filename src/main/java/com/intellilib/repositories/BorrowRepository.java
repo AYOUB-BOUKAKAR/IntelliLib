@@ -22,8 +22,7 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     
     // Find active borrows (not returned)
     List<Borrow> findByReturnedFalse();
-    
-    
+
     // Find borrows by book ID
     List<Borrow> findByBookId(Long bookId);
     
@@ -57,4 +56,22 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     
     @Query("SELECT b FROM Borrow b WHERE b.member.id = :memberId AND b.returned = false")
     List<Borrow> findActiveBorrowsByMember(@Param("memberId") Long memberId);
+
+    @Query("SELECT COUNT(b) FROM Borrow b WHERE b.borrowDate >= :startDate AND b.borrowDate < :endDate")
+    long countBorrowsBetween(@Param("startDate") LocalDate startDate,
+                             @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT COUNT(b) FROM Borrow b WHERE b.borrowDate >= :startDate AND b.borrowDate < :endDate AND b.returned = false")
+    long countActiveBorrowsBetween(@Param("startDate") LocalDate startDate,
+                                   @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT COUNT(b) FROM Borrow b WHERE b.dueDate < :date AND b.returned = false")
+    long countOverdueBooksByDate(@Param("date") LocalDate date);
+
+    @Query("SELECT SUM(b.fineAmount) FROM Borrow b WHERE b.fineAmount > 0 AND b.fineUpdatedDate >= :startDate AND b.fineUpdatedDate < :endDate")
+    Double sumFinesBetween(@Param("startDate") LocalDate startDate,
+                           @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT SUM(b.fineAmount) FROM Borrow b WHERE b.fineAmount > 0")
+    Double sumAllFines();
 }

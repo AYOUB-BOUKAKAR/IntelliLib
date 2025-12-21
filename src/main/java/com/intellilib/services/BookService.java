@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -140,12 +141,59 @@ public class BookService {
         return bookRepository.findTop10ByOrderByAddedDateDesc();
     }
 
-
-    
-    // Get file path for book
     public java.nio.file.Path getBookFilePath(Long bookId) {
         Optional<Book> book = bookRepository.findById(bookId);
         return book.map(b -> fileStorageService.loadFile(b.getFilePath()))
                   .orElse(null);
+    }
+
+    public double getTotalBooksChangeFromLastMonth() {
+        LocalDate today = LocalDate.now();
+
+        // Get current month start and end
+        LocalDate currentMonthStart = today.withDayOfMonth(1);
+        LocalDate nextMonthStart = currentMonthStart.plusMonths(1);
+
+        // Get previous month start and end
+        LocalDate lastMonthStart = currentMonthStart.minusMonths(1);
+        LocalDate lastMonthEnd = currentMonthStart.minusDays(1);
+
+        // Count books added in current month (up to today)
+        long currentMonthBooks = bookRepository.countByAddedDateBetween(
+                currentMonthStart,
+                today.plusDays(1) // Include today
+        );
+
+        // Count books added in previous month
+        long lastMonthBooks = bookRepository.countByAddedDateBetween(
+                lastMonthStart,
+                lastMonthEnd.plusDays(1) // Include last day
+        );
+
+        // Calculate percentage change
+        return calculatePercentageChange(currentMonthBooks, lastMonthBooks);
+    }
+
+    public long getBooksAddedThisMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.withDayOfMonth(1);
+
+        return bookRepository.countByAddedDateBetween(monthStart, today.plusDays(1));
+    }
+
+    public long getBooksAddedLastMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate currentMonthStart = today.withDayOfMonth(1);
+        LocalDate lastMonthStart = currentMonthStart.minusMonths(1);
+        LocalDate lastMonthEnd = currentMonthStart.minusDays(1);
+
+        return bookRepository.countByAddedDateBetween(lastMonthStart, lastMonthEnd.plusDays(1));
+    }
+
+    private double calculatePercentageChange(double current, double previous) {
+        if (previous == 0) {
+            return current > 0 ? 100.0 : 0.0;
+        }
+        return ((current - previous) / previous) * 100;
     }
 }

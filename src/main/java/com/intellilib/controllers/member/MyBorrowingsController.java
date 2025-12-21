@@ -71,58 +71,58 @@ public class MyBorrowingsController {
             return;
         }
 
-        setupTables();
+        // setupTables();
         loadBorrowings();
         updateSummary();
     }
 
-    private void setupTables() {
-        // Active borrowings table
-        activeBookColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
-        borrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
-        dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
-        daysLeftColumn.setCellValueFactory(cellData -> {
-            long days = ChronoUnit.DAYS.between(LocalDate.now(), cellData.getValue().getDueDate());
-            return new SimpleStringProperty(days >= 0 ? String.valueOf(days) : "En retard");
-        });
+    // private void setupTables() {
+    //     // Active borrowings table
+    //     activeBookColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
+    //     borrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
+    //     dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
+    //     daysLeftColumn.setCellValueFactory(cellData -> {
+    //         long days = ChronoUnit.DAYS.between(LocalDate.now(), cellData.getValue().getDueDate());
+    //         return new SimpleStringProperty(days >= 0 ? String.valueOf(days) : "En retard");
+    //     });
 
-        // Return action column
-        returnActionColumn.setCellFactory(col -> new TableCell<>() {
-            private final Button returnButton = new Button("Retourner");
+    //     // Return action column
+    //     returnActionColumn.setCellFactory(col -> new TableCell<>() {
+    //         private final Button returnButton = new Button("Retourner");
 
-            @Override
-            protected void updateItem(Borrow borrow, boolean empty) {
-                super.updateItem(borrow, empty);
-                if (empty || borrow == null) {
-                    setGraphic(null);
-                } else {
-                    returnButton.setOnAction(e -> returnBook(borrow));
-                    setGraphic(returnButton);
-                }
-            }
-        });
+    //         @Override
+    //         protected void updateItem(Borrow borrow, boolean empty) {
+    //             super.updateItem(borrow, empty);
+    //             if (empty || borrow == null) {
+    //                 setGraphic(null);
+    //             } else {
+    //                 returnButton.setOnAction(e -> returnBook(borrow));
+    //                 setGraphic(returnButton);
+    //             }
+    //         }
+    //     });
 
-        // History table
-        historyBookColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
-        historyBorrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
-        returnDateColumn.setCellValueFactory(new PropertyValueFactory<>("returnDate"));
-        historyStatusColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().isReturned() ? "Retourné" : "Perdu"));
+    //     // History table
+    //     historyBookColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
+    //     historyBorrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
+    //     returnDateColumn.setCellValueFactory(new PropertyValueFactory<>("returnDate"));
+    //     historyStatusColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(cellData.getValue().isReturned() ? "Retourné" : "Perdu"));
 
-        // Overdue table
-        overdueBookColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
-        overdueBorrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
-        overdueDueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
-        overdueDaysColumn.setCellValueFactory(cellData -> {
-            long days = ChronoUnit.DAYS.between(cellData.getValue().getDueDate(), LocalDate.now());
-            return new SimpleStringProperty(String.valueOf(Math.max(0, days)));
-        });
-        fineColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(String.format("%.2f €", cellData.getValue().getFineAmount())));
-    }
+    //     // Overdue table
+    //     overdueBookColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
+    //     overdueBorrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
+    //     overdueDueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
+    //     overdueDaysColumn.setCellValueFactory(cellData -> {
+    //         long days = ChronoUnit.DAYS.between(cellData.getValue().getDueDate(), LocalDate.now());
+    //         return new SimpleStringProperty(String.valueOf(Math.max(0, days)));
+    //     });
+    //     fineColumn.setCellValueFactory(cellData ->
+    //         new SimpleStringProperty(String.format("%.2f €", cellData.getValue().getFineAmount())));
+    // }
 
     private void loadBorrowings() {
         List<Borrow> memberBorrowings = borrowService.getBorrowsByMember(currentUser.getId());

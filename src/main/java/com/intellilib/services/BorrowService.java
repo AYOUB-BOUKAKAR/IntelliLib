@@ -131,4 +131,96 @@ public class BorrowService {
     public long countTotalBorrowsForMember(Long memberId) {
         return borrowRepository.countByMemberId(memberId);
     }
+
+    public double getActiveBorrowingsChangeFromLastMonth() {
+        LocalDate today = LocalDate.now();
+
+        // Get current month start and end
+        LocalDate currentMonthStart = today.withDayOfMonth(1);
+        LocalDate nextMonthStart = currentMonthStart.plusMonths(1);
+
+        // Get previous month start and end
+        LocalDate lastMonthStart = currentMonthStart.minusMonths(1);
+        LocalDate lastMonthEnd = currentMonthStart.minusDays(1);
+
+        // Count active borrows in current month
+        long currentMonthActiveBorrows = borrowRepository.countActiveBorrowsBetween(
+                currentMonthStart,
+                today.plusDays(1) // Include today
+        );
+
+        // Count active borrows in previous month
+        long lastMonthActiveBorrows = borrowRepository.countActiveBorrowsBetween(
+                lastMonthStart,
+                lastMonthEnd.plusDays(1)
+        );
+
+        return calculatePercentageChange(currentMonthActiveBorrows, lastMonthActiveBorrows);
+    }
+
+    public double getOverdueBooksChangeFromLastMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate lastMonthSameDay = today.minusMonths(1);
+
+        // Count overdue books today
+        long currentOverdueBooks = borrowRepository.countOverdueBooksByDate(today);
+
+        // Count overdue books on the same day last month
+        long lastMonthOverdueBooks = borrowRepository.countOverdueBooksByDate(lastMonthSameDay);
+
+        return calculatePercentageChange(currentOverdueBooks, lastMonthOverdueBooks);
+    }
+
+    public double getTotalFinesChangeFromLastMonth() {
+        LocalDate today = LocalDate.now();
+
+        // Get current month start
+        LocalDate currentMonthStart = today.withDayOfMonth(1);
+        LocalDate nextMonthStart = currentMonthStart.plusMonths(1);
+
+        // Get previous month start and end
+        LocalDate lastMonthStart = currentMonthStart.minusMonths(1);
+        LocalDate lastMonthEnd = currentMonthStart.minusDays(1);
+
+        // Sum fines in current month
+        Double currentMonthFines = borrowRepository.sumFinesBetween(
+                currentMonthStart,
+                today.plusDays(1)
+        );
+        if (currentMonthFines == null) currentMonthFines = 0.0;
+
+        // Sum fines in previous month
+        Double lastMonthFines = borrowRepository.sumFinesBetween(
+                lastMonthStart,
+                lastMonthEnd.plusDays(1)
+        );
+        if (lastMonthFines == null) lastMonthFines = 0.0;
+
+        return calculatePercentageChange(currentMonthFines, lastMonthFines);
+    }
+
+    public double getFinesAccumulatedThisMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.withDayOfMonth(1);
+
+        Double fines = borrowRepository.sumFinesBetween(monthStart, today.plusDays(1));
+        return fines != null ? fines : 0.0;
+    }
+
+    public double getFinesAccumulatedLastMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate currentMonthStart = today.withDayOfMonth(1);
+        LocalDate lastMonthStart = currentMonthStart.minusMonths(1);
+        LocalDate lastMonthEnd = currentMonthStart.minusDays(1);
+
+        Double fines = borrowRepository.sumFinesBetween(lastMonthStart, lastMonthEnd.plusDays(1));
+        return fines != null ? fines : 0.0;
+    }
+
+    private double calculatePercentageChange(double current, double previous) {
+        if (previous == 0) {
+            return current > 0 ? 100.0 : 0.0;
+        }
+        return ((current - previous) / previous) * 100;
+    }
 }

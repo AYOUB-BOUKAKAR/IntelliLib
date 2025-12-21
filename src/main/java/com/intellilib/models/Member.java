@@ -67,6 +67,9 @@ public class Member {
     
     @Column(name = "credit_limit")
     private Double creditLimit = 50.0; // Maximum fines before additional restrictions
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private User userAccount; // Link to User entity
     
     // Custom constructor
     public Member(String fullName, String email, String phone) {
@@ -98,7 +101,14 @@ public class Member {
         return LocalDate.now().isAfter(banEndDate);
     }
 
-    public String toText () {
-        return fullName + " - " + email;
+    public boolean hasUserAccount() {
+        return userAccount != null;
+    }
+
+    public void linkUserAccount(User user) {
+        this.userAccount = user;
+        if (user != null) {
+            user.setMember(this);
+        }
     }
 }

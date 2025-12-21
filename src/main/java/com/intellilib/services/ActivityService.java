@@ -74,17 +74,23 @@ public class ActivityService {
     /**
      * Get activities for chart - last 7 days
      */
-
-    /**
-     * Get activities for chart - last 7 days
-     */
     public Map<String, Object> getActivityChartData(int days) {
         Map<String, Object> chartData = new HashMap<>();
-        LocalDateTime endDate = LocalDateTime.now();
-        LocalDateTime startDate = endDate.minusDays(days - 1).truncatedTo(ChronoUnit.DAYS);
+
+        // Use proper date range (start of first day to end of last day)
+        LocalDateTime endDate = LocalDateTime.now()
+                .withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        LocalDateTime startDate = endDate.minusDays(days - 1)
+                .withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        // Debug logging
+        System.out.println("DEBUG: Query range - Start: " + startDate + ", End: " + endDate);
 
         // Get daily activity counts
         List<Object[]> dailyCounts = activityRepository.countActivitiesByDay(startDate, endDate);
+
+        // Debug the results
+        System.out.println("DEBUG: Daily counts from DB: " + dailyCounts);
 
         List<String> labels = new ArrayList<>();
         List<Long> data = new ArrayList<>();
@@ -101,7 +107,18 @@ public class ActivityService {
             for (Object[] count : dailyCounts) {
                 // Add null checks to prevent NPE
                 if (count != null && count.length >= 2 && count[0] != null && count[1] != null) {
-                    LocalDate date = (LocalDate) count[0];
+                    // Convert java.sql.Date to LocalDate properly
+                    LocalDate date;
+                    if (count[0] instanceof java.sql.Date) {
+                        date = ((java.sql.Date) count[0]).toLocalDate();
+                    } else if (count[0] instanceof LocalDate) {
+                        date = (LocalDate) count[0];
+                    } else {
+                        // Handle other date types or skip this entry
+                        System.err.println("Unexpected date type: " + count[0].getClass());
+                        continue;
+                    }
+                    
                     Long activityCount = (Long) count[1];
 
                     String dateString = date.toString();

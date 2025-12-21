@@ -63,38 +63,39 @@
                     <!-- Statistics Cards -->
                     <GridPane styleClass="stats-grid" hgap="16" vgap="16">
                         <!-- Card 1 -->
+                        <!-- Card 1 -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="0">
                             <Label text="Total Books" styleClass="stat-label" />
                             <Label fx:id="totalBooksLabel" text="0" styleClass="stat-value" />
-                            <Label text="+12% from last month" styleClass="stat-change" />
+                            <Label fx:id="totalBooksChangeLabel" text="+0% from last month" styleClass="stat-change" />
                         </VBox>
-                        
+
                         <!-- Card 2 -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="1">
                             <Label text="Active Members" styleClass="stat-label" />
                             <Label fx:id="activeMembersLabel" text="0" styleClass="stat-value" />
-                            <Label text="+8% from last month" styleClass="stat-change" />
+                            <Label fx:id="activeMembersChangeLabel" text="+0% from last month" styleClass="stat-change" />
                         </VBox>
-                        
+
                         <!-- Card 3 -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="2">
                             <Label text="Active Borrowings" styleClass="stat-label" />
                             <Label fx:id="activeBorrowingsLabel" text="0" styleClass="stat-value" />
-                            <Label text="+23% from last month" styleClass="stat-change" />
+                            <Label fx:id="activeBorrowingsChangeLabel" text="+0% from last month" styleClass="stat-change" />
                         </VBox>
-                        
+
                         <!-- Card 4 -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="3">
                             <Label text="Overdue Books" styleClass="stat-label" />
                             <Label fx:id="overdueBooksLabel" text="0" styleClass="stat-value" />
-                            <Label text="-5% from last month" styleClass="stat-change, stat-change-positive" />
+                            <Label fx:id="overdueBooksChangeLabel" text="-0% from last month" styleClass="stat-change" />
                         </VBox>
-                        
-                        <!-- Card 5: Total Fines Card -->
+
+                        <!-- Card 5 -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="0">
                             <Label text="Total Fines" styleClass="stat-label" />
-                            <Label fx:id="totalFinesLabel" text="0.00 €" styleClass="stat-value" />
-                            <Label text="Current outstanding fines" styleClass="stat-change" />
+                            <Label fx:id="totalFinesLabel" text="0.00 $" styleClass="stat-value" />
+                            <Label fx:id="totalFinesChangeLabel" text="+0% from last month" styleClass="stat-change" />
                         </VBox>
                     </GridPane>
                     

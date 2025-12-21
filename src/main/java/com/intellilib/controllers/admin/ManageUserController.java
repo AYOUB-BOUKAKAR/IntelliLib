@@ -1,6 +1,8 @@
 package com.intellilib.controllers.admin;
 
+import com.intellilib.models.Member;
 import com.intellilib.models.User;
+import com.intellilib.services.MemberService;
 import com.intellilib.services.UserService;
 import com.intellilib.session.SessionManager;
 import com.intellilib.util.ActivityLogger;
@@ -14,7 +16,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @Controller
 public class ManageUserController {
@@ -44,16 +49,18 @@ public class ManageUserController {
     @FXML private Label statusLabel;
     
     private final UserService userService;
+    private final MemberService memberService;
     private final SessionManager sessionManager;
     private final ActivityLogger activityLogger;
 
     private final PasswordEncoder passwordEncoder;
     private final ObservableList<User> userList = FXCollections.observableArrayList();
-    private User currentUser;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    
+    private User currentUser;
+
     @Autowired
-    public ManageUserController(UserService userService, PasswordEncoder passwordEncoder, ActivityLogger activityLogger, SessionManager sessionManager) {
+    public ManageUserController(UserService userService, MemberService memberService, PasswordEncoder passwordEncoder, ActivityLogger activityLogger, SessionManager sessionManager) {
+        this.memberService = memberService;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.activityLogger = activityLogger;
@@ -143,10 +150,7 @@ public class ManageUserController {
                     return true;
                 } else if (user.getEmail().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
-                } else if (user.getRole().toString().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }
-                return false;
+                } else return user.getRole().toString().toLowerCase().contains(lowerCaseFilter);
             });
         });
         
@@ -154,14 +158,42 @@ public class ManageUserController {
         sortedData.comparatorProperty().bind(userTable.comparatorProperty());
         userTable.setItems(sortedData);
     }
-    
+
     @FXML
     private void handleAddUser() {
         if (validateInput()) {
             try {
                 User user = createUserFromForm();
+
+                // If role is MEMBER, handle member linking
+                if (user.getRole() == User.UserRole.MEMBER) {
+                    // Check if member already exists with this email
+                    Optional<Member> existingMember = memberService.getMemberByEmail(user.getEmail());
+
+                    if (existingMember.isPresent()) {
+                        Member member = existingMember.get();
+                        // Check if member already has a user account
+                        if (member.hasUserAccount()) {
+                            showStatus("A user account already exists for this member email", true);
+                            return;
+                        }
+                        // Link to existing member
+                        user.setMember(member);
+                    } else {
+                        // Create new member from user details
+                        Member newMember = new Member();
+                        newMember.setFullName(user.getUsername());
+                        newMember.setEmail(user.getEmail());
+                        newMember.setPhone(""); // Consider adding phone field to the form
+                        newMember.setMembershipDate(LocalDate.now());
+                        user.setMember(newMember);
+                    }
+                }
+
+                // Register the user through the service
                 userService.registerUser(user);
                 activityLogger.logUserAdd(sessionManager.getCurrentUser(), user.getUsername());
+
                 loadUsers();
                 clearForm();
                 showStatus("User added successfully!", false);
@@ -170,25 +202,38 @@ public class ManageUserController {
             }
         }
     }
-    
+
     @FXML
     private void handleUpdateUser() {
         User selectedUser = userTable.getSelectionModel().getSelectedItem();
         if (selectedUser != null && validateInput()) {
             try {
+                // Get the existing user from the database
+                User existingUser = userService.findById(selectedUser.getId())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                // Create updated user from form
                 User userDetails = createUserFromForm();
                 userDetails.setId(selectedUser.getId());
                 userDetails.setCreatedAt(selectedUser.getCreatedAt());
                 userDetails.setLastLogin(selectedUser.getLastLogin());
-                
+
+                // Preserve the member relationship if it exists and role is still MEMBER
+                if (existingUser.getMember() != null && userDetails.getRole() == User.UserRole.MEMBER) {
+                    userDetails.setMember(existingUser.getMember());
+                }
+
                 // If password field is empty, keep existing password
                 if (passwordField.getText() == null || passwordField.getText().trim().isEmpty()) {
-                    userDetails.setPassword(selectedUser.getPassword());
+                    userDetails.setPassword(existingUser.getPassword());
                 } else {
-                    userDetails.setPassword(passwordEncoder.encode(passwordField.getText()));
+                    userDetails.setPassword(passwordField.getText().trim());
                 }
+
+                // Update the user using the service
                 userService.updateUser(userDetails);
                 activityLogger.logUserUpdate(sessionManager.getCurrentUser(), userDetails.getUsername());
+
                 loadUsers();
                 clearForm();
                 showStatus("User updated successfully!", false);
@@ -243,6 +288,15 @@ public class ManageUserController {
     private void handleClearForm() {
         clearForm();
         userTable.getSelectionModel().clearSelection();
+    }
+
+    @FXML
+    private void handleLinkToMember() {
+        User selectedUser = userTable.getSelectionModel().getSelectedItem();
+        if (selectedUser != null && selectedUser.getRole() == User.UserRole.MEMBER) {
+            // Show dialog to select member
+            // You would need to implement a dialog to search and select existing members
+        }
     }
     
     private void populateForm(User user) {
@@ -304,7 +358,7 @@ public class ManageUserController {
         }
         
         // Only validate password for new users (when adding)
-        if (addButton.isDisable() == false && 
+        if (!addButton.isDisable() &&
             (passwordField.getText() == null || passwordField.getText().trim().isEmpty())) {
             errorMessage.append("Password is required for new users!\n");
         } else if (passwordField.getText() != null && 
@@ -323,13 +377,13 @@ public class ManageUserController {
         }
         
         // Check for duplicate username (only when adding new user)
-        if (addButton.isDisable() == false && 
+        if (!addButton.isDisable() &&
             userService.usernameExists(usernameField.getText().trim())) {
             errorMessage.append("Username already exists!\n");
         }
         
         // Check for duplicate email (only when adding new user)
-        if (addButton.isDisable() == false && 
+        if (!addButton.isDisable() &&
             userService.emailExists(emailField.getText().trim())) {
             errorMessage.append("Email already exists!\n");
         }

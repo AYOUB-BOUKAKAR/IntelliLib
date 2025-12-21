@@ -36,23 +36,23 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     int deleteByTimestampBefore(@Param("olderThan") LocalDateTime olderThan);
 
     // New queries for chart data
-    @Query("SELECT DATE(a.timestamp) as activityDate, COUNT(a) as count " +
+    @Query("SELECT CAST(a.timestamp AS date) as activityDate, COUNT(a) as count " +
             "FROM Activity a " +
-            "WHERE a.timestamp BETWEEN :startDate AND :endDate " +
-            "GROUP BY DATE(a.timestamp) " +
-            "ORDER BY DATE(a.timestamp)")
+            "WHERE a.timestamp >= :startDate AND a.timestamp < :endDate " +
+            "GROUP BY CAST(a.timestamp AS date) " +
+            "ORDER BY CAST(a.timestamp AS date)")
     List<Object[]> countActivitiesByDay(@Param("startDate") LocalDateTime startDate,
                                         @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT a.action, COUNT(a) as count " +
             "FROM Activity a " +
-            "WHERE a.timestamp BETWEEN :startDate AND :endDate " +
+            "WHERE a.timestamp >= :startDate AND a.timestamp < :endDate " +
             "GROUP BY a.action " +
             "ORDER BY count DESC")
     List<Object[]> countActivitiesByType(@Param("startDate") LocalDateTime startDate,
                                          @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT COUNT(a) FROM Activity a WHERE a.timestamp BETWEEN :startDate AND :endDate")
+    @Query("SELECT COUNT(a) FROM Activity a WHERE a.timestamp >= :startDate AND a.timestamp < :endDate")
     long countByTimestampBetween(@Param("startDate") LocalDateTime startDate,
                                  @Param("endDate") LocalDateTime endDate);
 
@@ -62,9 +62,9 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             "ORDER BY a.timestamp DESC")
     List<User> findRecentRegisteredUsers(@Param("since") LocalDateTime since, Pageable pageable);
 
-    @Query("SELECT u.username, COUNT(a) FROM Activity a JOIN a.user u " +
-            "WHERE a.timestamp BETWEEN :startDate AND :endDate " +
-            "GROUP BY u.username ORDER BY COUNT(a) DESC")
+    @Query("SELECT u.username, COUNT(a) as activityCount FROM Activity a JOIN a.user u " +
+            "WHERE a.timestamp >= :startDate AND a.timestamp < :endDate " +
+            "GROUP BY u.username ORDER BY activityCount DESC")
     List<Object[]> findTopActiveUsers(@Param("startDate") LocalDateTime startDate,
                                       @Param("endDate") LocalDateTime endDate,
                                       Pageable pageable);

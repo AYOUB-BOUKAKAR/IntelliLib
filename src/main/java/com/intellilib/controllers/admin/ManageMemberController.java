@@ -1,20 +1,26 @@
 package com.intellilib.controllers.admin;
 
 import com.intellilib.models.Member;
+import com.intellilib.models.User;
 import com.intellilib.services.MemberService;
+import com.intellilib.services.UserService;
 import com.intellilib.session.SessionManager;
 import com.intellilib.util.ActivityLogger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Controller
 public class ManageMemberController {
@@ -27,6 +33,7 @@ public class ManageMemberController {
     @FXML private TableColumn<Member, String> membershipDateColumn;
     @FXML private TableColumn<Member, String> membershipExpiryColumn;
     @FXML private TableColumn<Member, String> statusColumn;
+    @FXML private TableColumn<Member, String> hasAccountColumn;
     
     @FXML private TextField nameField;
     @FXML private TextField emailField;
@@ -41,17 +48,20 @@ public class ManageMemberController {
     @FXML private Button updateButton;
     @FXML private Button deleteButton;
     @FXML private Button clearButton;
+    @FXML private Button createAccountButton;
     
     @FXML private Label statusLabel;
     
     private final MemberService memberService;
+    private final UserService userService;
     private final ActivityLogger activityLogger;
     private final SessionManager sessionManager;
     private final ObservableList<Member> memberList = FXCollections.observableArrayList();
     
     @Autowired
-    public ManageMemberController(MemberService memberService, ActivityLogger activityLogger, SessionManager sessionManager) {
+    public ManageMemberController(MemberService memberService, UserService userService, ActivityLogger activityLogger, SessionManager sessionManager) {
         this.memberService = memberService;
+        this.userService = userService;
         this.activityLogger = activityLogger;
         this.sessionManager = sessionManager;
     }
@@ -81,6 +91,11 @@ public class ManageMemberController {
             cellData.getValue().isActive() ? 
                 new javafx.beans.property.SimpleStringProperty("Active") : 
                 new javafx.beans.property.SimpleStringProperty("Inactive")
+        );
+        hasAccountColumn.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleStringProperty(
+                        cellData.getValue().hasUserAccount() ? "Yes" : "No"
+                )
         );
     }
     
@@ -126,6 +141,114 @@ public class ManageMemberController {
         sortedData.comparatorProperty().bind(memberTable.comparatorProperty());
         memberTable.setItems(sortedData);
     }
+
+    @FXML
+    private void handleCreateUserAccount() {
+        Member selectedMember = memberTable.getSelectionModel().getSelectedItem();
+        if (selectedMember == null) {
+            showStatus("Please select a member first!");
+            return;
+        }
+
+        // Check if member already has user account
+        if (selectedMember.hasUserAccount()) {
+            showStatus("Member already has a user account!");
+            return;
+        }
+
+        // Create the custom dialog
+        Dialog<UserCredentials> dialog = new Dialog<>();
+        dialog.setTitle("Create User Account");
+        dialog.setHeaderText("Enter user account details for " + selectedMember.getFullName());
+
+        // Set the button types
+        ButtonType createButtonType = new ButtonType("Create", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(createButtonType, ButtonType.CANCEL);
+
+        // Create the username and password fields
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField emailField = new TextField(selectedMember.getEmail());
+        emailField.setPromptText("Email");
+        TextField usernameField = new TextField(selectedMember.getEmail().substring(0, selectedMember.getEmail().indexOf('@')));
+        usernameField.setPromptText("Username");
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+
+        grid.add(new Label("Email:"), 0, 0);
+        grid.add(emailField, 1, 0);
+        grid.add(new Label("Username:"), 0, 1);
+        grid.add(usernameField, 1, 1);
+        grid.add(new Label("Password:"), 0, 2);
+        grid.add(passwordField, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Request focus on the username field by default
+        Platform.runLater(usernameField::requestFocus);
+
+        // Convert the result to a username-password-pair when the create button is clicked
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == createButtonType) {
+                return new UserCredentials(
+                        emailField.getText().trim(),
+                        usernameField.getText().trim(),
+                        passwordField.getText()
+                );
+            }
+            return null;
+        });
+
+        // Show the dialog and wait for user input
+        Optional<UserCredentials> result = dialog.showAndWait();
+
+        result.ifPresent(credentials -> {
+            try {
+                // Validate input
+                if (credentials.email().isEmpty() || credentials.username().isEmpty() || credentials.password().isEmpty()) {
+                    showStatus("All fields are required!");
+                    return;
+                }
+
+                if (userService.emailExists(credentials.email())) {
+                    showStatus("Email already in use!");
+                    return;
+                }
+
+                if (userService.usernameExists(credentials.username())) {
+                    showStatus("Username already taken!");
+                    return;
+                }
+
+                // Create the user
+                User newUser = new User();
+                newUser.setUsername(credentials.username());
+                newUser.setPassword(credentials.password());
+                newUser.setEmail(credentials.email());
+                newUser.setRole(User.UserRole.MEMBER);
+                newUser.setActive(true);
+                newUser.setMember(selectedMember);
+
+                // Save the user
+                userService.registerUser(newUser);
+
+                // Link the member to the user
+                selectedMember.setUserAccount(newUser);
+                memberService.updateMember(selectedMember.getId(), selectedMember);
+
+                showStatus("User account created successfully for " + selectedMember.getFullName());
+                loadMembers(); // Refresh the table
+            } catch (Exception e) {
+                showStatus("Error creating user account: " + e.getMessage());
+            }
+        });
+    }
+
+    // Helper record to store user credentials
+    private record UserCredentials(String email, String username, String password) {}
     
     @FXML
     private void handleAddMember() {

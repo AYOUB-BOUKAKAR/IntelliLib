@@ -3,8 +3,14 @@ package com.intellilib.repositories;
 import com.intellilib.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -32,4 +38,28 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> countByActiveFalse();
 
     long countByActiveTrue();
+
+    Optional<User> findByMemberId(Long memberId);
+
+    @Query("SELECT u FROM User u WHERE u.member IS NULL AND u.role = 'MEMBER'")
+    List<User> findMembersWithoutLinkedMember();
+
+    @Query("SELECT u FROM User u WHERE u.member IS NOT NULL")
+    List<User> findUsersWithLinkedMember();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.active = true AND u.createdAt < :date")
+    long countActiveMembersByDate(@Param("date") LocalDateTime date);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.active = true AND u.createdAt >= :startDate AND u.createdAt < :endDate")
+    long countActiveMembersBetween(@Param("startDate") LocalDateTime startDate,
+                                   @Param("endDate") LocalDateTime endDate);
+
+    // Count active members with role MEMBER (excluding ADMIN and LIBRARIAN)
+    @Query("SELECT COUNT(u) FROM User u WHERE u.active = true AND u.role = 'MEMBER'")
+    long countActiveMembersOnly();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.active = true AND u.role = 'MEMBER' AND u.createdAt >= :startDate AND u.createdAt < :endDate")
+    long countActiveMembersOnlyBetween(@Param("startDate") LocalDateTime startDate,
+                                       @Param("endDate") LocalDateTime endDate);
+
 }

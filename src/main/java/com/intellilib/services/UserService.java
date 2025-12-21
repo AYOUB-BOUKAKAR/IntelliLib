@@ -1,6 +1,8 @@
 package com.intellilib.services;
 
+import com.intellilib.models.Member;
 import com.intellilib.models.User;
+import com.intellilib.repositories.MemberRepository;
 import com.intellilib.repositories.UserRepository;
 import com.intellilib.session.SessionManager;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +21,7 @@ import java.util.Optional;
 public class UserService {
     
     private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionManager sessionManager;
     
@@ -33,6 +37,15 @@ public class UserService {
         // Set timestamps
         user.setCreatedAt(LocalDateTime.now());
         user.setActive(true);
+
+        if (user.getRole() == User.UserRole.MEMBER && user.getMember() != null) {
+            Member member = user.getMember();
+            member.linkUserAccount(user);
+            // Save member first if it's a new member
+            if (member.getId() == null) {
+                memberRepository.save(member);
+            }
+        }
         
         return userRepository.save(user);
     }
@@ -99,24 +112,88 @@ public class UserService {
     public User addUser(User user) {
         return userRepository.save(user);
     }
-    
+
     public User updateUser(User user) {
-        return userRepository.save(user);
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Handle member linking for MEMBER role
+        if (user.getRole() == User.UserRole.MEMBER && user.getMember() != null) {
+            Member member = user.getMember();
+            member.linkUserAccount(user);
+            // Update or create member
+            if (member.getId() == null) {
+                memberRepository.save(member);
+            } else {
+                memberRepository.save(member);
+            }
+        } else if (existingUser.getMember() != null && user.getRole() != User.UserRole.MEMBER) {
+            // If changing from MEMBER to another role, remove the link
+            existingUser.getMember().setUserAccount(null);
+            existingUser.setMember(null);
+        }
+
+        // Update other fields
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setRole(user.getRole());
+        existingUser.setActive(user.isActive());
+
+        // Update password if provided
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            String encryptedPassword = passwordEncoder.encode(user.getPassword());
+            existingUser.setPassword(encryptedPassword);
+        }
+
+        return userRepository.save(existingUser);
     }
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
-//    public List<UserActivity> getRecentActivity(int limit) {
-//        // This might be better in a separate ActivityService
-//        Pageable pageable = PageRequest.of(0, limit, Sort.by("lastLogin").descending());
-//        return userRepository.findRecentActiveUsers(pageable);
-//    }
-//
-//    // OR if you have a separate Activity entity:
-//    public List<Activity> getRecentActivity(int limit) {
-//        Pageable pageable = PageRequest.of(0, limit, Sort.by("timestamp").descending());
-//        return activityRepository.findAll(pageable).getContent();
-//    }
+    public double getActiveMembersChangeFromLastMonth() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // Get current month start
+        LocalDate today = LocalDate.now();
+        LocalDate currentMonthStart = today.withDayOfMonth(1);
+        LocalDateTime monthStart = currentMonthStart.atStartOfDay();
+
+        // Get previous month start
+        LocalDate lastMonthStart = currentMonthStart.minusMonths(1);
+        LocalDateTime lastMonthStartDateTime = lastMonthStart.atStartOfDay();
+        LocalDateTime lastMonthEndDateTime = monthStart.minusSeconds(1);
+
+        // Count active members added in current month
+        long currentMonthActiveMembers = userRepository.countActiveMembersOnlyBetween(monthStart, now);
+
+        // Count active members added in previous month
+        long lastMonthActiveMembers = userRepository.countActiveMembersOnlyBetween(
+                lastMonthStartDateTime,
+                lastMonthEndDateTime
+        );
+
+        // Calculate percentage change
+        return calculatePercentageChange(currentMonthActiveMembers, lastMonthActiveMembers);
+    }
+
+    public long getActiveMembersAddedThisMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.withDayOfMonth(1);
+        LocalDateTime monthStartDateTime = monthStart.atStartOfDay();
+
+        return userRepository.countActiveMembersOnlyBetween(monthStartDateTime, LocalDateTime.now());
+    }
+
+    private double calculatePercentageChange(double current, double previous) {
+        if (previous == 0) {
+            return current > 0 ? 100.0 : 0.0;
+        }
+        return ((current - previous) / previous) * 100;
+    }
+
+    public Optional<User> findByMemberId(Long memberId) {
+        return userRepository.findByMemberId(memberId);
+    }
 }

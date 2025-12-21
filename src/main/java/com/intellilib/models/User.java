@@ -41,6 +41,10 @@ public class User implements UserDetails {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", referencedColumnName = "id")
+    private Member member;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
@@ -71,11 +75,12 @@ public class User implements UserDetails {
     }
     
     // Custom constructor
-    public User(String username, String password, String email, UserRole role) {
+    public User(String username, String password, String email, UserRole role, Member member) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.role = role;
+        this.member = member;
         this.active = true;
         this.createdAt = LocalDateTime.now();
     }
