@@ -24,29 +24,59 @@ public class UserService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionManager sessionManager;
-    
+
+    public User createUserAccountForMember(String username, String password, String email, Long memberId) {
+        // Validate username and email
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username already exists");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        // Get the managed member entity
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
+
+        // Check if member already has an account
+        if (member.hasUserAccount()) {
+            throw new RuntimeException("Member already has a user account");
+        }
+
+        // Create new user
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
+        user.setRole(User.UserRole.MEMBER);
+        user.setActive(true);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setMember(member);
+
+        // Save the user (cascade will handle saving the member link)
+        User savedUser = userRepository.save(user);
+
+        // Update the member's reference
+        member.setUserAccount(savedUser);
+        memberRepository.save(member);
+
+        return savedUser;
+    }
+
     public User registerUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
-        
+
         // Encrypt password before saving
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
-        
+
         // Set timestamps
         user.setCreatedAt(LocalDateTime.now());
         user.setActive(true);
 
-        if (user.getRole() == User.UserRole.MEMBER && user.getMember() != null) {
-            Member member = user.getMember();
-            member.linkUserAccount(user);
-            // Save member first if it's a new member
-            if (member.getId() == null) {
-                memberRepository.save(member);
-            }
-        }
-        
+        // Save the user (cascade will handle the member if it's new)
         return userRepository.save(user);
     }
     
@@ -117,20 +147,37 @@ public class UserService {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Handle member linking for MEMBER role
-        if (user.getRole() == User.UserRole.MEMBER && user.getMember() != null) {
-            Member member = user.getMember();
-            member.linkUserAccount(user);
-            // Update or create member
-            if (member.getId() == null) {
+        // Check if role is changing
+        boolean roleChanged = existingUser.getRole() != user.getRole();
+
+        // Handle member linking/unlinking based on role
+        if (user.getRole() == User.UserRole.MEMBER) {
+            // User is being updated to MEMBER role
+            if (user.getMember() != null && user.getMember().getId() != null) {
+                // User should be linked to an existing member
+                Member member = memberRepository.findById(user.getMember().getId())
+                        .orElseThrow(() -> new RuntimeException("Member not found"));
+
+                // Check if this member is already linked to a different user
+                if (member.hasUserAccount() && !member.getUserAccount().getId().equals(user.getId())) {
+                    throw new RuntimeException("Member is already linked to another user account");
+                }
+
+                // Link the user to the member
+                existingUser.setMember(member);
+                member.setUserAccount(existingUser);
                 memberRepository.save(member);
-            } else {
-                memberRepository.save(member);
+            } else if (roleChanged && existingUser.getMember() == null) {
+                // Role changed to MEMBER but no member provided - can't link
+                throw new RuntimeException("Cannot assign MEMBER role without linking to a member");
             }
-        } else if (existingUser.getMember() != null && user.getRole() != User.UserRole.MEMBER) {
-            // If changing from MEMBER to another role, remove the link
-            existingUser.getMember().setUserAccount(null);
+            // If user.getMember() is null but existingUser already has a member, keep it
+        } else if (existingUser.getMember() != null) {
+            // User is changing from MEMBER to another role - remove the link
+            Member member = existingUser.getMember();
+            member.setUserAccount(null);
             existingUser.setMember(null);
+            memberRepository.save(member);
         }
 
         // Update other fields

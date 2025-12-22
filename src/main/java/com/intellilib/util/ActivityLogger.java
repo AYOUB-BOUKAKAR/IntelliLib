@@ -1,5 +1,6 @@
 package com.intellilib.util;
 
+import com.intellilib.models.FineTransaction;
 import com.intellilib.models.User;
 import com.intellilib.services.ActivityService;
 import org.springframework.stereotype.Component;
@@ -123,8 +124,22 @@ public class ActivityLogger {
             "Database backup created");
     }
     
-    public void logFinePayment(User user, String memberName, double amount) {
-        activityService.logActivity(user, "FINE_PAID", 
-            String.format("Fine paid for %s: %.2f €", memberName, amount));
+    public void logFinePayment(User user, String memberName, double amount, String paymentMethod, String reference, String notes) {
+        activityService.logActivity(user, "FINE_PAID",
+            String.format("Fine paid for %s: %.2f € (Method: %s, Ref: %s)%s",
+                memberName, 
+                amount,
+                paymentMethod,
+                reference,
+                notes.isEmpty() ? "" : ", Notes: " + notes));
+    }
+
+    public void logFineWaiver(User user, String memberName, double amount, Long borrowId, String reason) {
+        activityService.logActivity(user, "FINE_WAIVED",
+            String.format("Fine waived for %s: %.2f € (Ref: %s) Reason: %s",
+                memberName,
+                amount,
+                borrowId,
+                reason));
     }
 }

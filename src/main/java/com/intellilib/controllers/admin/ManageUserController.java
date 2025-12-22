@@ -208,7 +208,7 @@ public class ManageUserController {
         User selectedUser = userTable.getSelectionModel().getSelectedItem();
         if (selectedUser != null && validateInput()) {
             try {
-                // Get the existing user from the database
+                // Get the existing user
                 User existingUser = userService.findById(selectedUser.getId())
                         .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -218,9 +218,14 @@ public class ManageUserController {
                 userDetails.setCreatedAt(selectedUser.getCreatedAt());
                 userDetails.setLastLogin(selectedUser.getLastLogin());
 
-                // Preserve the member relationship if it exists and role is still MEMBER
-                if (existingUser.getMember() != null && userDetails.getRole() == User.UserRole.MEMBER) {
-                    userDetails.setMember(existingUser.getMember());
+                // If role is MEMBER and we want to link to a member, pass member ID
+                Long memberIdToLink = null;
+                if (userDetails.getRole() == User.UserRole.MEMBER) {
+                    // Check if we have a member to link
+                    if (existingUser.getMember() != null) {
+                        // Keep existing member link
+                        userDetails.setMember(existingUser.getMember());
+                    }
                 }
 
                 // If password field is empty, keep existing password
@@ -230,7 +235,7 @@ public class ManageUserController {
                     userDetails.setPassword(passwordField.getText().trim());
                 }
 
-                // Update the user using the service
+                // Update the user
                 userService.updateUser(userDetails);
                 activityLogger.logUserUpdate(sessionManager.getCurrentUser(), userDetails.getUsername());
 

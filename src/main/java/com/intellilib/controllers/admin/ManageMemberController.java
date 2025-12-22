@@ -213,31 +213,13 @@ public class ManageMemberController {
                     return;
                 }
 
-                if (userService.emailExists(credentials.email())) {
-                    showStatus("Email already in use!");
-                    return;
-                }
-
-                if (userService.usernameExists(credentials.username())) {
-                    showStatus("Username already taken!");
-                    return;
-                }
-
-                // Create the user
-                User newUser = new User();
-                newUser.setUsername(credentials.username());
-                newUser.setPassword(credentials.password());
-                newUser.setEmail(credentials.email());
-                newUser.setRole(User.UserRole.MEMBER);
-                newUser.setActive(true);
-                newUser.setMember(selectedMember);
-
-                // Save the user
-                userService.registerUser(newUser);
-
-                // Link the member to the user
-                selectedMember.setUserAccount(newUser);
-                memberService.updateMember(selectedMember.getId(), selectedMember);
+                // Use the new service method
+                userService.createUserAccountForMember(
+                        credentials.username(),
+                        credentials.password(),
+                        credentials.email(),
+                        selectedMember.getId()
+                );
 
                 showStatus("User account created successfully for " + selectedMember.getFullName());
                 loadMembers(); // Refresh the table

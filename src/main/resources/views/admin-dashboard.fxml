@@ -63,7 +63,6 @@
                     <!-- Statistics Cards -->
                     <GridPane styleClass="stats-grid" hgap="16" vgap="16">
                         <!-- Card 1 -->
-                        <!-- Card 1 -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="0">
                             <Label text="Total Books" styleClass="stat-label" />
                             <Label fx:id="totalBooksLabel" text="0" styleClass="stat-value" />
@@ -92,7 +91,7 @@
                         </VBox>
 
                         <!-- Card 5 -->
-                        <VBox styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="4">
                             <Label text="Total Fines" styleClass="stat-label" />
                             <Label fx:id="totalFinesLabel" text="0.00 $" styleClass="stat-value" />
                             <Label fx:id="totalFinesChangeLabel" text="+0% from last month" styleClass="stat-change" />
@@ -104,9 +103,8 @@
                         <Label text="Activity Overview" styleClass="section-title" />
                         
                         <!-- Chart Tabs for different views -->
-                        <TabPane styleClass="chart-tabs">
-                            <Tab text="Daily Activity">
-                                <LineChart fx:id="dailyActivityChart" title="Daily Activity Trend">
+                        <VBox spacing="8" styleClass="chart-container">
+                                <LineChart fx:id="dailyActivityChart">
                                     <xAxis>
                                         <CategoryAxis fx:id="xAxisDaily" label="Date" />
                                     </xAxis>
@@ -114,30 +112,77 @@
                                         <NumberAxis fx:id="yAxisDaily" label="Number of Activities" />
                                     </yAxis>
                                 </LineChart>
-                            </Tab>
-                            
-                            <Tab text="Activity Types">
-                                <BarChart fx:id="activityTypeChart" title="Activities by Type">
-                                    <xAxis>
-                                        <CategoryAxis fx:id="xAxisTypes" label="Activity Type" />
-                                    </xAxis>
-                                    <yAxis>
-                                        <NumberAxis fx:id="yAxisTypes" label="Count" />
-                                    </yAxis>
-                                </BarChart>
-                            </Tab>
-                            
-                            <Tab text="User Activity">
-                                <BarChart fx:id="userActivityChart" title="Most Active Users">
-                                    <xAxis>
-                                        <CategoryAxis fx:id="xAxisUsers" label="Username" />
-                                    </xAxis>
-                                    <yAxis>
-                                        <NumberAxis fx:id="yAxisUsers" label="Activities Count" />
-                                    </yAxis>
-                                </BarChart>
-                            </Tab>
-                        </TabPane>
+                        </VBox>
+
+                        <HBox spacing="16">
+                            <!-- Left Chart - Activity Types -->
+                            <VBox styleClass="chart-section" HBox.hgrow="ALWAYS" spacing="8">
+                                <Label text="Activities by Type" styleClass="section-title" />
+                                <VBox spacing="8" styleClass="chart-container">
+                                    <BarChart fx:id="activityTypeChart">
+                                        <xAxis>
+                                            <CategoryAxis fx:id="xAxisTypes" label="Activity Type" />
+                                        </xAxis>
+                                        <yAxis>
+                                            <NumberAxis fx:id="yAxisTypes" label="Count" />
+                                        </yAxis>
+                                    </BarChart>
+                                </VBox>
+<!--                                <HBox spacing="8" alignment="CENTER">-->
+<!--                                    <Label text="Most Common:" styleClass="chart-stat-label" />-->
+<!--                                    <Label fx:id="mostCommonActivityLabel" text="-" styleClass="chart-stat-value" />-->
+<!--                                </HBox>-->
+                            </VBox>
+
+                            <!-- Right Chart - User Activity -->
+                            <VBox styleClass="chart-section" HBox.hgrow="ALWAYS" spacing="8">
+                                <Label text="Most Active Users" styleClass="section-title" />
+                                <VBox spacing="8" styleClass="chart-container">
+                                    <BarChart fx:id="userActivityChart">
+                                        <xAxis>
+                                            <CategoryAxis fx:id="xAxisUsers" label="Username" />
+                                        </xAxis>
+                                        <yAxis>
+                                            <NumberAxis fx:id="yAxisUsers" label="Activities Count" />
+                                        </yAxis>
+                                    </BarChart>
+                                </VBox>
+<!--                                <HBox spacing="8" alignment="CENTER">-->
+<!--                                    <Label text="Top User:" styleClass="chart-stat-label" />-->
+<!--                                    <Label fx:id="topUserLabel" text="-" styleClass="chart-stat-value" />-->
+<!--                                </HBox>-->
+                            </VBox>
+                        </HBox>
+
+                        <!-- Two more charts side by side (new additions) -->
+<!--                        <HBox spacing="16" styleClass="bottom-charts-container">-->
+<!--                            &lt;!&ndash; Left Chart - Fine Distribution &ndash;&gt;-->
+<!--                            <VBox styleClass="chart-container" HBox.hgrow="ALWAYS" spacing="8">-->
+<!--                                <Label text="Fine Distribution by Status" styleClass="chart-subtitle" />-->
+<!--                                <PieChart fx:id="fineDistributionChart" legendVisible="true" />-->
+<!--                                <HBox spacing="8" alignment="CENTER">-->
+<!--                                    <Label text="Total Fines:" styleClass="chart-stat-label" />-->
+<!--                                    <Label fx:id="totalFinesAmountLabel" text="$0.00" styleClass="chart-stat-value" />-->
+<!--                                </HBox>-->
+<!--                            </VBox>-->
+
+<!--                            &lt;!&ndash; Right Chart - Borrowing Status &ndash;&gt;-->
+<!--                            <VBox styleClass="chart-container" HBox.hgrow="ALWAYS" spacing="8">-->
+<!--                                <Label text="Borrowing Status Overview" styleClass="chart-subtitle" />-->
+<!--                                <BarChart fx:id="borrowingStatusChart">-->
+<!--                                    <xAxis>-->
+<!--                                        <CategoryAxis fx:id="xAxisBorrowingStatus" label="Status" />-->
+<!--                                    </xAxis>-->
+<!--                                    <yAxis>-->
+<!--                                        <NumberAxis fx:id="yAxisBorrowingStatus" label="Count" />-->
+<!--                                    </yAxis>-->
+<!--                                </BarChart>-->
+<!--                                <HBox spacing="8" alignment="CENTER">-->
+<!--                                    <Label text="Overdue Rate:" styleClass="chart-stat-label" />-->
+<!--                                    <Label fx:id="overdueRateLabel" text="0%" styleClass="chart-stat-value" />-->
+<!--                                </HBox>-->
+<!--                            </VBox>-->
+<!--                        </HBox>-->
                         
                         <!-- Quick Stats under the charts -->
                         <GridPane hgap="16" vgap="8" styleClass="chart-stats">

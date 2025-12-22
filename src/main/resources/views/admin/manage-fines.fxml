@@ -96,24 +96,11 @@
                             <TableColumn fx:id="statusColumn" prefWidth="120" text="Status" styleClass="table-column"/>
                         </columns>
                     </TableView>
-                    
-                    <!-- Action Buttons -->
-                    <HBox spacing="10">
-                        <Button fx:id="payButton" text="Pay Fine" onAction="#handlePay" 
-                                styleClass="header-button-success" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="waiveButton" text="Waive Fine" onAction="#handleWaive" 
-                                styleClass="header-button-info" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="viewDetailsButton" text="View Details" onAction="#handleViewDetails" 
-                                styleClass="header-button" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="generateReportButton" text="Generate Report" onAction="#handleGenerateReport" 
-                                styleClass="header-button" HBox.hgrow="ALWAYS"/>
-                    </HBox>
                 </VBox>
                 
                 <!-- Recent Transactions -->
-                <VBox spacing="16" style="-fx-min-width: 320; -fx-pref-width: 320;">
+                <VBox spacing="16" HBox.hgrow="ALWAYS">
                     <Label styleClass="section-title" text="Recent Transactions"/>
-                    <VBox styleClass="chart-section" spacing="16" VBox.vgrow="ALWAYS">
                         <TableView fx:id="transactionsTable" styleClass="data-table" VBox.vgrow="ALWAYS">
                             <columns>
                                 <TableColumn fx:id="receiptColumn" prefWidth="140" text="Receipt #" styleClass="table-column"/>
@@ -122,9 +109,6 @@
                                 <TableColumn fx:id="methodColumn" prefWidth="120" text="Method" styleClass="table-column"/>
                                 <TableColumn fx:id="statusColumn2" prefWidth="120" text="Status" styleClass="table-column"/>
                             </columns>
-                            <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                            </columnResizePolicy>
                         </TableView>
                         
                         <!-- Quick Actions -->
@@ -139,13 +123,27 @@
                                         onAction="#handlePrintReport" HBox.hgrow="ALWAYS"/>
                             </HBox>
                         </VBox> -->
-                    </VBox>
                 </VBox>
             </HBox>
-            
-            <!-- Close Button -->
-            <HBox alignment="CENTER_RIGHT">
-                <Button fx:id="closeButton" text="Close" onAction="#handleClose" 
+
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <!-- Left side: 4 buttons -->
+                <HBox spacing="5">
+                    <Button fx:id="payButton" text="Pay Fine" onAction="#handlePay"
+                            styleClass="header-button" HBox.hgrow="NEVER"/>
+                    <Button fx:id="waiveButton" text="Waive Fine" onAction="#handleWaive"
+                            styleClass="header-button" HBox.hgrow="NEVER"/>
+                    <Button fx:id="viewDetailsButton" text="View Details" onAction="#handleViewDetails"
+                            styleClass="header-button" HBox.hgrow="NEVER"/>
+                    <Button fx:id="generateReportButton" text="Generate Report" onAction="#handleGenerateReport"
+                            styleClass="header-button" HBox.hgrow="NEVER"/>
+                </HBox>
+
+                <!-- Spacer to push the close button to the right -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Right side: 1 button -->
+                <Button fx:id="closeButton" text="Close" onAction="#handleClose"
                         styleClass="header-button"/>
             </HBox>
             

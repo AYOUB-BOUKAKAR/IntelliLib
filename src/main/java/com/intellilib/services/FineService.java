@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -143,66 +144,74 @@ public class FineService {
             }
         }
     }
-    
-    /**
-     * Process fine payment
-     */
+
     @Transactional
-    public FineTransaction processFinePayment(Long borrowId, Double amount, 
-                                            FineTransaction.PaymentMethod paymentMethod,
-                                            String paymentReference, String notes, Long userId) {
-        
+    public FineTransaction processFinePayment(Long borrowId, Double amount,
+                                              FineTransaction.PaymentMethod paymentMethod,
+                                              String paymentReference, String notes, Long userId) {
+
         Borrow borrow = borrowRepository.findById(borrowId)
                 .orElseThrow(() -> new RuntimeException("Borrow not found"));
-        
+
         if (borrow.getFineStatus() == Borrow.FineStatus.PAID) {
             throw new RuntimeException("Fine already paid");
         }
-        
+
+        if (borrow.getFineStatus() == Borrow.FineStatus.WAIVED) {
+            throw new RuntimeException("Fine has been waived");
+        }
+
         if (amount < borrow.getFineAmount()) {
             throw new RuntimeException("Payment amount less than fine amount");
         }
-        
+
         // Create transaction
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         FineTransaction transaction = FineTransaction.builder()
                 .borrow(borrow)
                 .member(borrow.getMember())
                 .amount(amount)
                 .paymentMethod(paymentMethod)
-                .paymentReference(paymentReference)
+                .transactionDate(LocalDateTime.now()) // Explicitly set transaction date
+                .paymentReference(paymentReference != null ? paymentReference : "MANUAL-" + System.currentTimeMillis())
                 .notes(notes)
                 .processedBy(user)
                 .status(FineTransaction.TransactionStatus.COMPLETED)
                 .build();
-        
+
         // Update borrow
         borrow.setFineStatus(Borrow.FineStatus.PAID);
         borrow.setFineAmount(0.0); // Reset fine after payment
-        
+
         // Update member
         Member member = borrow.getMember();
-        member.setCurrentFinesDue(member.getCurrentFinesDue() - amount);
+        double oldFinesDue = member.getCurrentFinesDue();
+        member.setCurrentFinesDue(Math.max(0, oldFinesDue - amount));
         member.setTotalFinesPaid(member.getTotalFinesPaid() + amount);
-        
+
         // If this was the last overdue book, decrement count
         if (borrow.isOverdue()) {
             member.setOverdueBooksCount(Math.max(0, member.getOverdueBooksCount() - 1));
         }
-        
+
         // Save all
-        fineTransactionRepository.save(transaction);
+        FineTransaction savedTransaction = fineTransactionRepository.save(transaction);
         borrowRepository.save(borrow);
         memberRepository.save(member);
-        
-        // Generate receipt
-        notificationService.sendPaymentReceipt(member, transaction);
-        
-        return transaction;
+
+        // Generate receipt (will be done by @PrePersist)
+        if (notificationService != null) {
+            notificationService.sendPaymentReceipt(member, savedTransaction);
+        }
+
+        log.info("Fine payment processed: Borrow ID={}, Amount=${}, Member={}",
+                borrowId, amount, member.getFullName());
+
+        return savedTransaction;
     }
-    
+
     /**
      * Waive fine (admin only)
      */
@@ -210,32 +219,39 @@ public class FineService {
     public void waiveFine(Long borrowId, String reason, Long userId) {
         Borrow borrow = borrowRepository.findById(borrowId)
                 .orElseThrow(() -> new RuntimeException("Borrow not found"));
-        
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         // Create waived transaction
         FineTransaction transaction = FineTransaction.builder()
                 .borrow(borrow)
                 .member(borrow.getMember())
                 .amount(borrow.getFineAmount())
                 .paymentMethod(FineTransaction.PaymentMethod.WAIVED)
+                .transactionDate(LocalDateTime.now()) // Explicitly set transaction date
                 .notes("Fine waived: " + reason)
                 .processedBy(user)
                 .status(FineTransaction.TransactionStatus.COMPLETED)
                 .build();
-        
+
         // Update borrow
         borrow.setFineStatus(Borrow.FineStatus.WAIVED);
-        borrow.setFineAmount(0.0);
-        
+
         // Update member
         Member member = borrow.getMember();
         member.setCurrentFinesDue(member.getCurrentFinesDue() - borrow.getFineAmount());
-        
+
+        // Reset borrow fine
+        double waivedAmount = borrow.getFineAmount();
+        borrow.setFineAmount(0.0);
+
         fineTransactionRepository.save(transaction);
         borrowRepository.save(borrow);
         memberRepository.save(member);
+
+        log.info("Fine waived: Borrow ID={}, Amount=${}, Member={}, Reason={}",
+                borrowId, waivedAmount, member.getFullName(), reason);
     }
     
     /**

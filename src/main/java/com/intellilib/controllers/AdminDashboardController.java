@@ -357,8 +357,7 @@ public class AdminDashboardController extends BaseDashboardController {
             
             // Log activity
             activityService.logActivity(currentUser, "DASHBOARD_REFRESH", "Dashboard refreshed");
-            
-            showSuccess("Actualisation", "Dashboard actualisé avec succès");
+
         } catch (Exception e) {
             showError("Erreur", "Impossible d'actualiser le dashboard");
             e.printStackTrace();
