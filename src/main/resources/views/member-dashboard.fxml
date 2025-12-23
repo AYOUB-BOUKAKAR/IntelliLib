@@ -5,7 +5,8 @@
 <VBox spacing="20.0" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/21" 
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.intellilib.controllers.MemberDashboardController"
-      styleClass="dashboard-container">
+      styleClass="dashboard-container"
+      stylesheets="@../css/member-dashboard.css">
 
     <!-- Title -->
     <Label text="Tableau de Bord Membre" styleClass="dashboard-title" />
