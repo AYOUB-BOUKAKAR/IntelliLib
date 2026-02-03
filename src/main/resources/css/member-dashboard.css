@@ -1,0 +1,196 @@
+/* member-dashboard.css - Version Sûre et Corrigée */
+
+/* Variables simplifiées - Aucune référence circulaire */
+.root {
+    -fx-primary: #2c3e50;
+    -fx-secondary: #3498db;
+    -fx-success: #27ae60;
+    -fx-danger: #e74c3c;
+    -fx-warning: #f39c12;
+    -fx-light: #ecf0f1;
+    -fx-dark: #2c3e50;
+    -fx-white: #ffffff;
+    -fx-gray: #95a5a6;
+}
+
+/* Conteneur principal */
+.dashboard-container {
+    -fx-background-color: -fx-light;
+    -fx-padding: 25px;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Titres */
+.dashboard-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary;
+    -fx-padding: 0 0 20px 0;
+}
+
+.welcome-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-primary;
+    -fx-padding: 0 0 15px 0;
+}
+
+/* Carte de bienvenue */
+.welcome-card {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 8px;
+    -fx-padding: 25px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);
+    -fx-spacing: 20px;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+/* Cartes de statistiques */
+.stat-card {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 8px;
+    -fx-padding: 20px;
+    -fx-alignment: center;
+    -fx-spacing: 10px;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-pref-width: 180px;
+    -fx-pref-height: 120px;
+}
+
+.stat-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 5);
+    -fx-translate-y: -2px;
+}
+
+.stat-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-gray;
+    -fx-font-weight: 600;
+}
+
+.stat-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-dark;
+}
+
+.warning {
+    -fx-text-fill: -fx-danger !important;
+}
+
+/* Section */
+.section {
+    -fx-background-color: -fx-white;
+    -fx-background-radius: 8px;
+    -fx-padding: 25px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);
+    -fx-spacing: 15px;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary;
+}
+
+/* Boutons */
+.refresh-button {
+    -fx-background-color: -fx-secondary;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.refresh-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.action-button {
+    -fx-background-color: -fx-white;
+    -fx-text-fill: -fx-primary;
+    -fx-font-weight: 600;
+    -fx-padding: 12px 20px;
+    -fx-background-radius: 8px;
+    -fx-border-color: -fx-secondary;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.action-button:hover {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: -fx-secondary;
+}
+
+.logout-button {
+    -fx-background-color: -fx-danger;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 30px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* Tableau */
+.data-table {
+    -fx-background-color: transparent;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+.data-table .column-header {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 0 0 1px 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary;
+    -fx-padding: 12px 10px;
+}
+
+.data-table .column-header-background {
+    -fx-background-radius: 8px 8px 0 0;
+}
+
+.data-table .table-row-cell {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.data-table .table-row-cell:odd {
+    -fx-background-color: #fafafa;
+}
+
+.data-table .table-row-cell:even {
+    -fx-background-color: -fx-white;
+}
+
+.data-table .table-row-cell:hover {
+    -fx-background-color: #e3f2fd;
+}
+
+.data-table .table-row-cell:selected {
+    -fx-background-color: #bbdefb;
+}
+
+/* Section déconnexion */
+.logout-section {
+    -fx-padding: 20px 0 0 0;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1px 0 0 0;
+}
