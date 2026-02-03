@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,14 +33,14 @@ public class ActivityService {
         if (userOpt.isEmpty()) {
             throw new RuntimeException("User not found: " + username);
         }
-        
+
         Activity activity = Activity.builder()
                 .user(userOpt.get())
                 .action(action)
                 .description(description)
                 .ipAddress(ipAddress)
                 .build();
-                
+
         activityRepository.save(activity);
     }
 
@@ -78,56 +78,50 @@ public class ActivityService {
         Map<String, Object> chartData = new HashMap<>();
 
         // Use proper date range (start of first day to end of last day)
-        LocalDateTime endDate = LocalDateTime.now()
+        LocalDateTime endDateTime = LocalDateTime.now()
                 .withHour(23).withMinute(59).withSecond(59).withNano(999999999);
-        LocalDateTime startDate = endDate.minusDays(days - 1)
+        LocalDateTime startDateTime = endDateTime.minusDays(days - 1)
                 .withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-        // Debug logging
-        System.out.println("DEBUG: Query range - Start: " + startDate + ", End: " + endDate);
+        // Convert LocalDateTime to Unix timestamp (milliseconds)
+        Long startDate = startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        Long endDate = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
         // Get daily activity counts
         List<Object[]> dailyCounts = activityRepository.countActivitiesByDay(startDate, endDate);
 
-        // Debug the results
-        System.out.println("DEBUG: Daily counts from DB: " + dailyCounts);
-
         List<String> labels = new ArrayList<>();
         List<Long> data = new ArrayList<>();
 
-        // Generate labels for all days
+        // Generate labels for all days and initialize with 0
+        Map<Long, Long> countMap = new HashMap<>();
         for (int i = 0; i < days; i++) {
             LocalDate date = LocalDate.now().minusDays(days - 1 - i);
             labels.add(date.toString());
-            data.add(0L); // Initialize with 0
+
+            // Calculate day number for this date
+            Long dayMillis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            Long dayNumber = dayMillis / 86400000L;
+            countMap.put(dayNumber, 0L);
         }
 
-        // Fill in actual data with null checks
+        // Fill in actual counts from database
         if (dailyCounts != null) {
             for (Object[] count : dailyCounts) {
-                // Add null checks to prevent NPE
                 if (count != null && count.length >= 2 && count[0] != null && count[1] != null) {
-                    // Convert java.sql.Date to LocalDate properly
-                    LocalDate date;
-                    if (count[0] instanceof java.sql.Date) {
-                        date = ((java.sql.Date) count[0]).toLocalDate();
-                    } else if (count[0] instanceof LocalDate) {
-                        date = (LocalDate) count[0];
-                    } else {
-                        // Handle other date types or skip this entry
-                        System.err.println("Unexpected date type: " + count[0].getClass());
-                        continue;
-                    }
-                    
-                    Long activityCount = (Long) count[1];
-
-                    String dateString = date.toString();
-                    int index = labels.indexOf(dateString);
-                    if (index != -1) {
-                        data.set(index, activityCount);
-                    }
+                    Long dayNumber = ((Number) count[0]).longValue();
+                    Long activityCount = ((Number) count[1]).longValue();
+                    countMap.put(dayNumber, activityCount);
                 }
             }
+        }
+
+        // Convert map to list in correct order
+        for (int i = 0; i < days; i++) {
+            LocalDate date = LocalDate.now().minusDays(days - 1 - i);
+            Long dayMillis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            Long dayNumber = dayMillis / 86400000L;
+            data.add(countMap.getOrDefault(dayNumber, 0L));
         }
 
         // Get activity by type with null checks
@@ -137,15 +131,14 @@ public class ActivityService {
 
         if (byType != null) {
             for (Object[] typeCount : byType) {
-                // Add null checks for type data
                 if (typeCount != null && typeCount.length >= 2 && typeCount[0] != null && typeCount[1] != null) {
                     types.add((String) typeCount[0]);
-                    typeCounts.add((Long) typeCount[1]);
+                    typeCounts.add(((Number) typeCount[1]).longValue());
                 }
             }
         }
 
-        // Get top users with activity counts (add this missing feature)
+        // Get top users with activity counts
         List<Object[]> topUserData = activityRepository.findTopActiveUsers(startDate, endDate, PageRequest.of(0, 5));
         List<String> topUsers = new ArrayList<>();
         List<Long> userActivityCounts = new ArrayList<>();
@@ -154,12 +147,12 @@ public class ActivityService {
             for (Object[] userData : topUserData) {
                 if (userData != null && userData.length >= 2 && userData[0] != null && userData[1] != null) {
                     topUsers.add((String) userData[0]);
-                    userActivityCounts.add((Long) userData[1]);
+                    userActivityCounts.add(((Number) userData[1]).longValue());
                 }
             }
         }
 
-        // Calculate total activities and average with null safety
+        // Calculate total activities and average
         Long totalActivities = activityRepository.countByTimestampBetween(startDate, endDate);
         if (totalActivities == null) {
             totalActivities = 0L;
@@ -191,13 +184,15 @@ public class ActivityService {
      */
     public List<User> getRecentRegisteredUsers(int limit) {
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-        return activityRepository.findRecentRegisteredUsers(thirtyDaysAgo, PageRequest.of(0, limit));
+        Long thirtyDaysAgoMillis = thirtyDaysAgo.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        return activityRepository.findRecentRegisteredUsers(thirtyDaysAgoMillis, PageRequest.of(0, limit));
     }
 
     /**
      * Clean up old activities
      */
     public int cleanupOldActivities(LocalDateTime olderThan) {
-        return activityRepository.deleteByTimestampBefore(olderThan);
+        Long olderThanMillis = olderThan.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        return activityRepository.deleteByTimestampBefore(olderThanMillis);
     }
 }

@@ -21,7 +21,7 @@ public class Member {
     @Column(unique = true)
     private String email;
 
-    @Column(unique = true)
+    @Column(unique = true , nullable = true)
     private String phone;
 
     private String address;
@@ -69,7 +69,9 @@ public class Member {
     private Double creditLimit = 50.0;
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
-    private User userAccount; // REMOVED CascadeType.ALL
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User userAccount;
 
     // Custom constructor
     public Member(String fullName, String email, String phone) {

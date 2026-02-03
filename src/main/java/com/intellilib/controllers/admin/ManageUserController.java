@@ -352,52 +352,80 @@ public class ManageUserController {
         
         return user;
     }
-    
+
     private boolean validateInput() {
         StringBuilder errorMessage = new StringBuilder();
-        
+
         if (usernameField.getText() == null || usernameField.getText().trim().isEmpty()) {
             errorMessage.append("Username is required!\n");
         } else if (usernameField.getText().trim().length() < 3) {
             errorMessage.append("Username must be at least 3 characters!\n");
         }
-        
-        // Only validate password for new users (when adding)
-        if (!addButton.isDisable() &&
-            (passwordField.getText() == null || passwordField.getText().trim().isEmpty())) {
-            errorMessage.append("Password is required for new users!\n");
-        } else if (passwordField.getText() != null && 
-                   passwordField.getText().trim().length() < 6) {
-            errorMessage.append("Password must be at least 6 characters!\n");
+
+        // Password validation
+        boolean isAddMode = !addButton.isDisable();
+        String password = passwordField.getText();
+
+        if (isAddMode) {
+            // For new users, password is required
+            if (password == null || password.trim().isEmpty()) {
+                errorMessage.append("Password is required for new users!\n");
+            } else if (password.trim().length() < 6) {
+                errorMessage.append("Password must be at least 6 characters!\n");
+            }
+        } else {
+            // For existing users, only validate if password is provided
+            if (password != null && !password.trim().isEmpty() && password.trim().length() < 6) {
+                errorMessage.append("Password must be at least 6 characters!\n");
+            }
         }
-        
+
         if (emailField.getText() == null || emailField.getText().trim().isEmpty()) {
             errorMessage.append("Email is required!\n");
         } else if (!emailField.getText().trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             errorMessage.append("Please enter a valid email address!\n");
         }
-        
+
         if (roleComboBox.getValue() == null) {
             errorMessage.append("Role is required!\n");
         }
-        
+
         // Check for duplicate username (only when adding new user)
-        if (!addButton.isDisable() &&
-            userService.usernameExists(usernameField.getText().trim())) {
+        if (isAddMode && userService.usernameExists(usernameField.getText().trim())) {
             errorMessage.append("Username already exists!\n");
         }
-        
+
         // Check for duplicate email (only when adding new user)
-        if (!addButton.isDisable() &&
-            userService.emailExists(emailField.getText().trim())) {
+        if (isAddMode && userService.emailExists(emailField.getText().trim())) {
             errorMessage.append("Email already exists!\n");
         }
-        
-        if (errorMessage.length() > 0) {
+
+        // When updating, check if username/email changed and if new values already exist
+        if (!isAddMode) {
+            User selectedUser = userTable.getSelectionModel().getSelectedItem();
+            if (selectedUser != null) {
+                String newUsername = usernameField.getText().trim();
+                String newEmail = emailField.getText().trim();
+
+                // Check username change
+                if (!selectedUser.getUsername().equals(newUsername) &&
+                        userService.usernameExists(newUsername)) {
+                    errorMessage.append("Username already exists!\n");
+                }
+
+                // Check email change
+                if (!selectedUser.getEmail().equals(newEmail) &&
+                        userService.emailExists(newEmail)) {
+                    errorMessage.append("Email already exists!\n");
+                }
+            }
+        }
+
+        if (!errorMessage.isEmpty()) {
             showStatus(errorMessage.toString(), true);
             return false;
         }
-        
+
         return true;
     }
     

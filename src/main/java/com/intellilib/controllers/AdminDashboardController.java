@@ -21,6 +21,7 @@ import javafx.scene.control.TableView;
 
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,16 +59,10 @@ public class AdminDashboardController extends BaseDashboardController {
     
     // Charts
     @FXML private LineChart<String, Number> dailyActivityChart;
-    @FXML private CategoryAxis xAxisDaily;
-    @FXML private NumberAxis yAxisDaily;
     
     @FXML private BarChart<String, Number> activityTypeChart;
-    @FXML private CategoryAxis xAxisTypes;
-    @FXML private NumberAxis yAxisTypes;
     
     @FXML private BarChart<String, Number> userActivityChart;
-    @FXML private CategoryAxis xAxisUsers;
-    @FXML private NumberAxis yAxisUsers;
     
     // Tables
     @FXML private TableView<Activity> recentActivityTable;
@@ -181,7 +176,7 @@ public class AdminDashboardController extends BaseDashboardController {
         List<Long> typeCounts = (List<Long>) chartData.getOrDefault("typeCounts", new ArrayList<Long>());
         List<String> topUsers = (List<String>) chartData.getOrDefault("topUsers", new ArrayList<String>());
         List<Long> userActivityCounts = (List<Long>) chartData.getOrDefault("userActivityCounts", new ArrayList<Long>());
-        
+
         // Update statistics labels with safe defaults
         long totalActivities = chartData.get("totalActivities") != null ? 
             ((Number) chartData.get("totalActivities")).longValue() : 0;
@@ -223,10 +218,10 @@ public class AdminDashboardController extends BaseDashboardController {
             e.printStackTrace();
         }
     }
-    
+
     private void loadDailyActivityChart(List<String> labels, List<Long> dailyActivity) {
         dailyActivityChart.getData().clear();
-        
+
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Daily Activities");
         
@@ -298,12 +293,16 @@ public class AdminDashboardController extends BaseDashboardController {
             actionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
 
-            timestampColumn.setCellValueFactory(cellData ->
-                    new SimpleStringProperty(
-                            cellData.getValue().getTimestamp()
-                                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-                    )
-            );
+            timestampColumn.setCellValueFactory(cellData -> {
+                Long timestamp = cellData.getValue().getTimestamp();
+                LocalDateTime dateTime = LocalDateTime.ofInstant(
+                        java.time.Instant.ofEpochMilli(timestamp),
+                        java.time.ZoneId.systemDefault()
+                );
+                return new SimpleStringProperty(
+                        dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                );
+            });
 
             // Load recent activity (last 20 actions)
             List<Activity> recentActivities = activityService.getRecentActivities(20);
@@ -330,7 +329,7 @@ public class AdminDashboardController extends BaseDashboardController {
             );
             
             // Get recent registered users
-            List<User> recentUsers = activityService.getRecentRegisteredUsers(10);
+            List<User> recentUsers = userService.getRecentUsers(10);
             
             // If no users from activities, get from user service
             if (recentUsers.isEmpty()) {
@@ -429,51 +428,16 @@ public class AdminDashboardController extends BaseDashboardController {
             e.printStackTrace();
         }
     }
-    
+
     @FXML
-    private void viewReports() {
+    private void showProfile() {
         try {
-            Stage stage = FXMLLoaderUtil.loadStage("/views/reports.fxml", "Rapports", true);
+            Stage stage = FXMLLoaderUtil.loadStage("/views/profile.fxml", "Profil", true);
             stage.show();
         } catch (Exception e) {
-            showError("Erreur", "Impossible d'ouvrir les rapports");
+            showError("Erreur", "Impossible d'ouvrir le profil");
             e.printStackTrace();
         }
-    }
-    
-    @FXML
-    private void systemSettings() {
-        try {
-            Stage stage = FXMLLoaderUtil.loadStage("/views/system-settings.fxml", "Paramètres Système", true);
-            stage.show();
-        } catch (Exception e) {
-            showError("Erreur", "Impossible d'ouvrir les paramètres");
-            e.printStackTrace();
-        }
-    }
-    
-    @FXML
-    private void backupDatabase() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Sauvegarde de la base de données");
-        alert.setHeaderText("Sauvegarder la base de données ?");
-        alert.setContentText("Cette action va créer une sauvegarde complète de la base de données.");
-        
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                try {
-                    boolean success = databaseService.backupDatabase();
-                    if (success) {
-                        showSuccess("Succès", "Sauvegarde effectuée avec succès!");
-                    } else {
-                        showError("Erreur", "Échec de la sauvegarde");
-                    }
-                } catch (Exception e) {
-                    showError("Erreur", "Erreur lors de la sauvegarde");
-                    e.printStackTrace();
-                }
-            }
-        });
     }
     
     @FXML

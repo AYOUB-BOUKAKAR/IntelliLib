@@ -337,10 +337,10 @@ public class ManageMemberController {
     }
     
     private void updateMemberFromForm(Member member) {
-        member.setFullName(nameField.getText().trim());
-        member.setEmail(emailField.getText().trim());
-        member.setPhone(phoneField.getText().trim());
-        member.setAddress(addressField.getText().trim());
+        member.setFullName(nameField.getText() != null ? nameField.getText().trim() : "");
+        member.setEmail(emailField.getText() != null ? emailField.getText().trim() : "");
+        member.setPhone(phoneField.getText() != null ? phoneField.getText().trim() : null);
+        member.setAddress(addressField.getText() != null ? addressField.getText().trim() : null);
         member.setMembershipDate(membershipDateField.getValue());
         member.setMembershipExpiry(expiryDateField.getValue());
         member.setActive(activeCheckBox.isSelected());

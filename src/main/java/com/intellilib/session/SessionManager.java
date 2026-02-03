@@ -10,7 +10,6 @@ public class SessionManager {
     
     public void login(User user) {
         this.currentUser = user;
-        System.out.println("User logged in: " + user.getUsername());
     }
     
     public void logout() {

@@ -195,8 +195,31 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        try {
+            // First, get the user with activities
+            User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                
+            // Clear activities first (this will delete them due to orphanRemoval)
+            user.getActivities().clear();
+            
+            // Unlink member if exists
+            if (user.getMember() != null) {
+                Member member = user.getMember();
+                member.setUserAccount(null);
+                user.setMember(null);
+                userRepository.save(user); // Save to update the relationship
+            }
+            
+            // Delete the user
+            userRepository.delete(user);
+            userRepository.flush();
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete user: " + e.getMessage(), e);
+        }
     }
 
     public double getActiveMembersChangeFromLastMonth() {
@@ -231,6 +254,11 @@ public class UserService {
         LocalDateTime monthStartDateTime = monthStart.atStartOfDay();
 
         return userRepository.countActiveMembersOnlyBetween(monthStartDateTime, LocalDateTime.now());
+    }
+
+    // In UserService.java, add this method:
+    public List<User> getRecentUsers(int limit) {
+        return userRepository.findTop10ByOrderByCreatedAtDesc();
     }
 
     private double calculatePercentageChange(double current, double previous) {

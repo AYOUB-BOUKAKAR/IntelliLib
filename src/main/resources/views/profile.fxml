@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intellilib.controllers.ProfileController"
+      stylesheets="@/css/style.css"
+      spacing="20"
+      styleClass="root">
+
+    <!-- Header Section -->
+    <HBox styleClass="site-header" spacing="20" alignment="CENTER_LEFT">
+        <VBox spacing="4">
+            <Text fx:id="pageTitle" styleClass="page-title" text="User Profile"/>
+            <Text fx:id="pageSubtitle" styleClass="page-subtitle"
+                  text="View your account information"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Refresh"
+                styleClass="header-button"
+                onAction="#handleRefresh"/>
+    </HBox>
+
+    <!-- Content Area -->
+    <ScrollPane styleClass="content-scroll" fitToWidth="true" hbarPolicy="NEVER">
+        <VBox styleClass="content-container" spacing="24">
+
+            <!-- User Information Card -->
+            <VBox styleClass="chart-section" spacing="16">
+                <Label styleClass="info-value-info" text="Account Information"/>
+
+                <GridPane hgap="20" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="LEFT" prefWidth="200"/>
+                        <ColumnConstraints halignment="LEFT" hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <!-- User Info -->
+                    <Text styleClass="info-label" text="Username:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <Text fx:id="usernameLabel" styleClass="info-value" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Email:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <Text fx:id="emailLabel" styleClass="info-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Role:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <Text fx:id="roleLabel" styleClass="info-value-info" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Account Status:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <Text fx:id="accountStatusLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Last Login:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <Text fx:id="lastLoginLabel" styleClass="info-value-info" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Account Created:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <Text fx:id="createdAtLabel" styleClass="info-value-info" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                </GridPane>
+            </VBox>
+
+            <!-- Member Information Card (if applicable) -->
+            <VBox fx:id="memberInfoSection" styleClass="chart-section" spacing="16" visible="false">
+                <Text styleClass="section-title" text="Member Information"/>
+
+                <GridPane hgap="20" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="LEFT" prefWidth="200"/>
+                        <ColumnConstraints halignment="LEFT" hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <Text styleClass="info-label" text="Member ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <Text fx:id="memberIdLabel" styleClass="info-value-info" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Full Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <Text fx:id="memberNameLabel" styleClass="info-value" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Phone:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <Text fx:id="memberPhoneLabel" styleClass="info-value" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Address:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <Text fx:id="memberAddressLabel" styleClass="info-value-info" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Member Status:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <Text fx:id="memberStatusLabel" styleClass="info-value" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Membership Date:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <Text fx:id="membershipDateLabel" styleClass="info-value-info" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                    <Text styleClass="info-label" text="Expiry Date:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                    <Text fx:id="expiryDateLabel" styleClass="info-value-info" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                </GridPane>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+
+</VBox>

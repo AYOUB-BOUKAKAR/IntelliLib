@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, CustomUserRepository {
     // FREE: save(), findById(), findAll(), deleteById(), etc.
     
     // Find by username
@@ -61,5 +61,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u WHERE u.active = true AND u.role = 'MEMBER' AND u.createdAt >= :startDate AND u.createdAt < :endDate")
     long countActiveMembersOnlyBetween(@Param("startDate") LocalDateTime startDate,
                                        @Param("endDate") LocalDateTime endDate);
+
+    // In UserRepository.java, add this method:
+    List<User> findTop10ByOrderByCreatedAtDesc();
 
 }

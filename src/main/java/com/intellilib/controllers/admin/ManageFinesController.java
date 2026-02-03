@@ -7,16 +7,21 @@ import com.intellilib.session.SessionManager;
 import com.intellilib.util.ActivityLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.beans.property.SimpleStringProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,25 +65,32 @@ public class ManageFinesController {
 
     private final FineService fineService;
     private final BorrowService borrowService;
-    private final FineTransactionRepository transactionRepository;
     private final MemberService memberService;
+    private final FineTransactionRepository transactionRepository;
+    private final BorrowRepository borrowRepository;
     private final SessionManager sessionManager;
     private final ActivityLogger activityLogger;
 
     private final ObservableList<Borrow> finesList = FXCollections.observableArrayList();
     private final ObservableList<FineTransaction> transactionsList = FXCollections.observableArrayList();
 
+    // Add these for proper filtering like in ManageCategoryController
+    private FilteredList<Borrow> filteredFinesData;
+    private SortedList<Borrow> sortedFinesData;
+
     public ManageFinesController(FineService fineService, BorrowService borrowService,
                                  FineTransactionRepository transactionRepository,
                                  MemberService memberService,
                                  SessionManager sessionManager,
-                                 ActivityLogger activityLogger) {
+                                 ActivityLogger activityLogger,
+                                 BorrowRepository borrowRepository) {
         this.fineService = fineService;
         this.borrowService = borrowService;
         this.transactionRepository = transactionRepository;
         this.memberService = memberService;
         this.sessionManager = sessionManager;
         this.activityLogger = activityLogger;
+        this.borrowRepository = borrowRepository;
     }
 
     @FXML
@@ -88,20 +100,21 @@ public class ManageFinesController {
         loadData();
         updateSummary();
         setupListeners();
+        setupSearchFilter(); // Add this method
     }
 
     private void setupTables() {
         // Fines table
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         bookColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
+                new SimpleStringProperty(cellData.getValue().getBook().getTitle()));
         memberColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getMember().getFullName()));
+                new SimpleStringProperty(cellData.getValue().getMember().getFullName()));
         dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
         daysOverdueColumn.setCellValueFactory(new PropertyValueFactory<>("daysOverdue"));
         fineAmountColumn.setCellValueFactory(new PropertyValueFactory<>("fineAmount"));
         statusColumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getFineStatus().toString()));
+                new SimpleStringProperty(cellData.getValue().getFineStatus().toString()));
 
         // Format fine amount
         fineAmountColumn.setCellFactory(column -> new TableCell<Borrow, Double>() {
@@ -183,52 +196,194 @@ public class ManageFinesController {
 
     private void setupFilters() {
         statusFilter.getItems().addAll(
-            null, // All
-            Borrow.FineStatus.PENDING,
-            Borrow.FineStatus.PAID,
-            Borrow.FineStatus.WAIVED,
-            Borrow.FineStatus.NONE
+                null, // All
+                Borrow.FineStatus.PENDING,
+                Borrow.FineStatus.PAID,
+                Borrow.FineStatus.WAIVED,
+                Borrow.FineStatus.NONE
         );
         statusFilter.getSelectionModel().selectFirst();
 
-        fromDateFilter.setValue(LocalDate.now().minusDays(30));
-        toDateFilter.setValue(LocalDate.now());
+        // DON'T set default dates for fines table - show all fines by default
+        fromDateFilter.setValue(null);
+        toDateFilter.setValue(null);
+    }
+
+    private void setupSearchFilter() {
+        // Initialize the FilteredList with the finesList
+        filteredFinesData = new FilteredList<>(finesList, p -> true);
+        sortedFinesData = new SortedList<>(filteredFinesData);
+
+        // Bind the SortedList comparator to the table comparator
+        sortedFinesData.comparatorProperty().bind(finesTable.comparatorProperty());
+
+        // Set the table items to the sorted data
+        finesTable.setItems(sortedFinesData);
+
+        // Set up the search filter listener
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilters();
+        });
+        
+        // Add status and date filter listeners
+        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilters();
+        });
+        
+        fromDateFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilters();
+        });
+        
+        toDateFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilters();
+        });
     }
 
     private void loadData() {
-        // Load pending fines
-        finesList.setAll(borrowService.getAllBorrows().stream()
-            .filter(b -> b.getFineAmount() > 0 || b.getFineStatus() != Borrow.FineStatus.NONE)
-            .toList());
-        finesTable.setItems(finesList);
+        try {
+            // Load all borrows with fines into the base list
+            List<Borrow> allFines = borrowService.getAllBorrows().stream()
+                    .filter(b -> b.getFineAmount() > 0 || b.getFineStatus() != Borrow.FineStatus.NONE)
+                    .toList();
 
-        // Load recent transactions
-        transactionsList.setAll(transactionRepository.findByDateRange(
-            fromDateFilter.getValue().atStartOfDay(),
-            toDateFilter.getValue().atTime(23, 59, 59)
-        ));
-        transactionsTable.setItems(transactionsList);
+            // Clear and add all items to maintain the observable list reference
+            finesList.clear();
+            finesList.addAll(allFines);
+
+            // Load recent transactions - handle null fromDate
+            LocalDate fromDate = fromDateFilter.getValue();
+            LocalDate toDate = toDateFilter.getValue();
+
+            if (toDate != null) {
+                LocalDateTime startDate = (fromDate != null) ?
+                        fromDate.atStartOfDay() :
+                        LocalDate.now().minusDays(30).atStartOfDay(); // Default to last 30 days
+
+                LocalDateTime endDate = toDate.atTime(23, 59, 59);
+
+                transactionsList.setAll(transactionRepository.findByDateRange(startDate, endDate));
+                transactionsTable.setItems(transactionsList);
+            }
+
+            // Update summary
+            updateSummary();
+
+            // Clear any existing selection
+            finesTable.getSelectionModel().clearSelection();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Load Error", "Failed to load fines data: " + e.getMessage());
+        }
+    }
+
+    private void updateFilters() {
+        if (filteredFinesData == null) {
+            return;
+        }
+
+        filteredFinesData.setPredicate(borrow -> {
+            if (borrow == null) {
+                return false;
+            }
+
+            // First, check if it has a fine
+            if (borrow.getFineAmount() <= 0 && borrow.getFineStatus() == Borrow.FineStatus.NONE) {
+                return false;
+            }
+
+            // Apply status filter
+            if (statusFilter.getValue() != null) {
+                if (borrow.getFineStatus() != statusFilter.getValue()) {
+                    return false;
+                }
+            }
+
+            // Apply date filter - only if dates are set
+            LocalDate fromDate = fromDateFilter.getValue();
+            LocalDate toDate = toDateFilter.getValue();
+            LocalDate dueDate = borrow.getDueDate();
+
+            if (fromDate != null && dueDate != null) {
+                if (dueDate.isBefore(fromDate)) {
+                    return false;
+                }
+            }
+
+            if (toDate != null && dueDate != null) {
+                if (dueDate.isAfter(toDate)) {
+                    return false;
+                }
+            }
+
+            // Apply search filter
+            String searchText = searchField.getText();
+            if (searchText != null && !searchText.trim().isEmpty()) {
+                String lowerSearchText = searchText.toLowerCase().trim();
+
+                // Check book title
+                if (borrow.getBook() != null && borrow.getBook().getTitle() != null &&
+                        borrow.getBook().getTitle().toLowerCase().contains(lowerSearchText)) {
+                    return true;
+                }
+
+                // Check member name
+                if (borrow.getMember() != null && borrow.getMember().getFullName() != null &&
+                        borrow.getMember().getFullName().toLowerCase().contains(lowerSearchText)) {
+                    return true;
+                }
+
+                // Check member email
+                if (borrow.getMember() != null && borrow.getMember().getEmail() != null &&
+                        borrow.getMember().getEmail().toLowerCase().contains(lowerSearchText)) {
+                    return true;
+                }
+
+                // Check borrow ID
+                if (borrow.getId() != null &&
+                        borrow.getId().toString().contains(lowerSearchText)) {
+                    return true;
+                }
+
+                // Check ISBN if available
+                if (borrow.getBook() != null && borrow.getBook().getIsbn() != null &&
+                        borrow.getBook().getIsbn().toLowerCase().contains(lowerSearchText)) {
+                    return true;
+                }
+
+                // If no match, filter out
+                return false;
+            }
+
+            // If no search text, include all matching the other filters
+            return true;
+        });
+
+        // Update summary after filtering
+        updateSummary();
     }
 
     private void updateSummary() {
-        double totalPending = finesList.stream()
-            .filter(b -> b.getFineStatus() == Borrow.FineStatus.PENDING)
-            .mapToDouble(Borrow::getFineAmount)
-            .sum();
+        // Use the filtered data for summary calculations
+        double totalPending = sortedFinesData != null ?
+                sortedFinesData.stream()
+                        .filter(b -> b.getFineStatus() == Borrow.FineStatus.PENDING)
+                        .mapToDouble(Borrow::getFineAmount)
+                        .sum() : 0.0;
 
         double totalCollected = transactionRepository.getTotalCollectedFines() != null ?
-            transactionRepository.getTotalCollectedFines() : 0.0;
+                transactionRepository.getTotalCollectedFines() : 0.0;
 
         double totalWaived = transactionRepository.getTotalWaivedFines() != null ?
-            transactionRepository.getTotalWaivedFines() : 0.0;
+                transactionRepository.getTotalWaivedFines() : 0.0;
 
         long overdueMembers = memberService.getAllMembers().stream()
-            .filter(m -> m.getCurrentFinesDue() > 0)
-            .count();
+                .filter(m -> m.getCurrentFinesDue() > 0)
+                .count();
 
         long bannedMembers = memberService.getAllMembers().stream()
-            .filter(Member::getIsBanned)
-            .count();
+                .filter(Member::getIsBanned)
+                .count();
 
         totalPendingLabel.setText(String.format("$%.2f", totalPending));
         totalCollectedLabel.setText(String.format("$%.2f", totalCollected));
@@ -239,58 +394,29 @@ public class ManageFinesController {
 
     private void setupListeners() {
         finesTable.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldSelection, newSelection) -> {
-                if (newSelection != null) {
-                    updateButtonStates();
-                }
-            });
-
-        // Filter listeners
-        statusFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        fromDateFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        toDateFilter.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-    }
-
-    private void applyFilters() {
-        var filtered = borrowService.getAllBorrows().stream()
-            .filter(b -> b.getFineAmount() > 0 || b.getFineStatus() != Borrow.FineStatus.NONE);
-
-        // Apply status filter
-        if (statusFilter.getValue() != null) {
-            filtered = filtered.filter(b -> b.getFineStatus() == statusFilter.getValue());
-        }
-
-        // Apply date filter
-        if (fromDateFilter.getValue() != null) {
-            filtered = filtered.filter(b ->
-                !b.getDueDate().isBefore(fromDateFilter.getValue()));
-        }
-
-        if (toDateFilter.getValue() != null) {
-            filtered = filtered.filter(b ->
-                !b.getDueDate().isAfter(toDateFilter.getValue()));
-        }
-
-        // Apply search filter
-        String searchText = searchField.getText().toLowerCase();
-        if (!searchText.isEmpty()) {
-            filtered = filtered.filter(b ->
-                b.getBook().getTitle().toLowerCase().contains(searchText) ||
-                b.getMember().getFullName().toLowerCase().contains(searchText) ||
-                b.getId().toString().contains(searchText)
-            );
-        }
-
-        finesList.setAll(filtered.toList());
-        updateSummary();
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        updateButtonStates();
+                    }
+                });
     }
 
     @FXML
     private void handleRefresh() {
+        // Reset all filters
+        searchField.clear();
+        statusFilter.getSelectionModel().selectFirst();
+        fromDateFilter.setValue(null);
+        toDateFilter.setValue(LocalDate.now()); // Only set toDate for transactions
+
+        // Reload data
         loadData();
-        updateSummary();
-        showSuccess("Refreshed", "Data refreshed successfully!");
+
+        // Clear selection
+        finesTable.getSelectionModel().clearSelection();
+        updateButtonStates();
+
+        showSuccess("Refreshed", "All data and filters have been reset!");
     }
 
     @FXML
@@ -566,37 +692,37 @@ public class ManageFinesController {
 
             Member member = selectedBorrow.getMember();
             String content = String.format(
-                "Member Information:\n" +
-                "  Name: %s\n" +
-                "  Email: %s\n" +
-                "  Current Fines Due: $%.2f\n" +
-                "  Total Fines Paid: $%.2f\n" +
-                "  Overdue Books: %d\n" +
-                "  Banned: %s\n\n" +
-                "Borrow Information:\n" +
-                "  Book: %s\n" +
-                "  Borrow Date: %s\n" +
-                "  Due Date: %s\n" +
-                "  Return Date: %s\n" +
-                "  Days Overdue: %d\n" +
-                "  Fine Per Day: $%.2f\n" +
-                "  Fine Amount: $%.2f\n" +
-                "  Fine Status: %s\n",
-                member.getFullName(),
-                member.getEmail(),
-                member.getCurrentFinesDue(),
-                member.getTotalFinesPaid(),
-                member.getOverdueBooksCount(),
-                member.getIsBanned() ? "Yes" : "No",
-                selectedBorrow.getBook().getTitle(),
-                selectedBorrow.getBorrowDate(),
-                selectedBorrow.getDueDate(),
-                selectedBorrow.getReturnDate() != null ?
-                    selectedBorrow.getReturnDate().toString() : "Not returned",
-                selectedBorrow.getDaysOverdue(),
-                selectedBorrow.getFinePerDay(),
-                selectedBorrow.getFineAmount(),
-                selectedBorrow.getFineStatus()
+                    "Member Information:\n" +
+                            "  Name: %s\n" +
+                            "  Email: %s\n" +
+                            "  Current Fines Due: $%.2f\n" +
+                            "  Total Fines Paid: $%.2f\n" +
+                            "  Overdue Books: %d\n" +
+                            "  Banned: %s\n\n" +
+                            "Borrow Information:\n" +
+                            "  Book: %s\n" +
+                            "  Borrow Date: %s\n" +
+                            "  Due Date: %s\n" +
+                            "  Return Date: %s\n" +
+                            "  Days Overdue: %d\n" +
+                            "  Fine Per Day: $%.2f\n" +
+                            "  Fine Amount: $%.2f\n" +
+                            "  Fine Status: %s\n",
+                    member.getFullName(),
+                    member.getEmail(),
+                    member.getCurrentFinesDue(),
+                    member.getTotalFinesPaid(),
+                    member.getOverdueBooksCount(),
+                    member.getIsBanned() ? "Yes" : "No",
+                    selectedBorrow.getBook().getTitle(),
+                    selectedBorrow.getBorrowDate(),
+                    selectedBorrow.getDueDate(),
+                    selectedBorrow.getReturnDate() != null ?
+                            selectedBorrow.getReturnDate().toString() : "Not returned",
+                    selectedBorrow.getDaysOverdue(),
+                    selectedBorrow.getFinePerDay(),
+                    selectedBorrow.getFineAmount(),
+                    selectedBorrow.getFineStatus()
             );
 
             alert.setContentText(content);
@@ -655,11 +781,11 @@ public class ManageFinesController {
                 if (dialogButton == generateButtonType) {
                     // Generate report
                     generateReport(reportType.getValue(),
-                                  reportFromDate.getValue(),
-                                  reportToDate.getValue(),
-                                  includePaid.isSelected(),
-                                  includeWaived.isSelected(),
-                                  exportToCSV.isSelected());
+                            reportFromDate.getValue(),
+                            reportToDate.getValue(),
+                            includePaid.isSelected(),
+                            includeWaived.isSelected(),
+                            exportToCSV.isSelected());
                     return null;
                 }
                 return null;
@@ -672,25 +798,25 @@ public class ManageFinesController {
     }
 
     private void generateReport(String type, LocalDate fromDate, LocalDate toDate,
-                              boolean includePaid, boolean includeWaived, boolean exportCSV) {
+                                boolean includePaid, boolean includeWaived, boolean exportCSV) {
         try {
             // In a real application, you would generate the report here
             // For now, just show a success message
 
             String message = String.format(
-                "Report Generated Successfully!\n\n" +
-                "Type: %s\n" +
-                "Period: %s to %s\n" +
-                "Included Paid: %s\n" +
-                "Included Waived: %s\n" +
-                "Export to CSV: %s\n\n" +
-                "Report has been generated and saved to the reports folder.",
-                type,
-                fromDate,
-                toDate,
-                includePaid ? "Yes" : "No",
-                includeWaived ? "Yes" : "No",
-                exportCSV ? "Yes" : "No"
+                    "Report Generated Successfully!\n\n" +
+                            "Type: %s\n" +
+                            "Period: %s to %s\n" +
+                            "Included Paid: %s\n" +
+                            "Included Waived: %s\n" +
+                            "Export to CSV: %s\n\n" +
+                            "Report has been generated and saved to the reports folder.",
+                    type,
+                    fromDate,
+                    toDate,
+                    includePaid ? "Yes" : "No",
+                    includeWaived ? "Yes" : "No",
+                    exportCSV ? "Yes" : "No"
             );
 
             showSuccess("Report Generated", message);
@@ -712,15 +838,15 @@ public class ManageFinesController {
 
         if (selectedBorrow != null) {
             payButton.setDisable(
-                selectedBorrow.getFineAmount() <= 0 ||
-                selectedBorrow.getFineStatus() == Borrow.FineStatus.PAID ||
-                selectedBorrow.getFineStatus() == Borrow.FineStatus.WAIVED
+                    selectedBorrow.getFineAmount() <= 0 ||
+                            selectedBorrow.getFineStatus() == Borrow.FineStatus.PAID ||
+                            selectedBorrow.getFineStatus() == Borrow.FineStatus.WAIVED
             );
 
             waiveButton.setDisable(
-                selectedBorrow.getFineAmount() <= 0 ||
-                selectedBorrow.getFineStatus() == Borrow.FineStatus.PAID ||
-                selectedBorrow.getFineStatus() == Borrow.FineStatus.WAIVED
+                    selectedBorrow.getFineAmount() <= 0 ||
+                            selectedBorrow.getFineStatus() == Borrow.FineStatus.PAID ||
+                            selectedBorrow.getFineStatus() == Borrow.FineStatus.WAIVED
             );
 
             viewDetailsButton.setDisable(false);
@@ -746,11 +872,11 @@ public class ManageFinesController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     private record PaymentInfo(
             Double amount,
             FineTransaction.PaymentMethod paymentMethod,
             String reference,
             String notes
     ) {}
-
 }

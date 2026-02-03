@@ -74,4 +74,7 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
 
     @Query("SELECT SUM(b.fineAmount) FROM Borrow b WHERE b.fineAmount > 0")
     Double sumAllFines();
+
+    @Query("SELECT b FROM Borrow b WHERE b.fineAmount > 0 OR b.fineStatus != 'NONE'")
+    List<Borrow> findBorrowsWithFines();
 }

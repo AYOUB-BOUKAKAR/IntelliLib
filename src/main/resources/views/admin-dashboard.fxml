@@ -22,21 +22,17 @@
             
             <!-- Sidebar Navigation -->
             <VBox styleClass="sidebar-nav" spacing="4" VBox.vgrow="ALWAYS">
-                <!-- <Button text="Dashboard" styleClass="nav-button, nav-button-active" onAction="#showDashboard" /> -->
                 <Button text="Books" styleClass="nav-button" onAction="#manageBooks" />
                 <Button text="Members" styleClass="nav-button" onAction="#manageMembers" />
                 <Button text="Users" styleClass="nav-button" onAction="#manageUsers" />
                 <Button text="Borrowings" styleClass="nav-button" onAction="#manageBorrowings" />
                 <Button text="Fines" styleClass="nav-button" onAction="#manageFines" />
                 <Button text="Categories" styleClass="nav-button" onAction="#manageCategories" />
-                <Button text="Reports" styleClass="nav-button" onAction="#viewReports" />
-                <Button text="Settings" styleClass="nav-button" onAction="#systemSettings" />
                 
                 <!-- Spacer -->
                 <Region VBox.vgrow="ALWAYS" />
                 
                 <Separator styleClass="sidebar-separator" />
-                <Button text="Backup Database" styleClass="nav-button" onAction="#backupDatabase" />
                 <Button text="Logout" styleClass="nav-button, nav-button-logout" onAction="#logout" />
             </VBox>
         </VBox>
@@ -53,15 +49,29 @@
                 </VBox>
                 <HBox spacing="8">
                     <Button text="Refresh" styleClass="header-button" onAction="#refreshDashboard" />
-                    <Button text="User Profile" styleClass="header-button" />
+                    <Button text="User Profile" styleClass="header-button" onAction="#showProfile" />
                 </HBox>
             </HBox>
             
             <!-- Scrollable Content -->
             <ScrollPane styleClass="content-scroll" fitToWidth="true" VBox.vgrow="ALWAYS">
                 <VBox styleClass="content-container" spacing="24">
+
                     <!-- Statistics Cards -->
                     <GridPane styleClass="stats-grid" hgap="16" vgap="16">
+                        <!-- Column Constraints to make grid flexible -->
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="20" hgrow="ALWAYS" />
+                            <ColumnConstraints percentWidth="20" hgrow="ALWAYS" />
+                            <ColumnConstraints percentWidth="20" hgrow="ALWAYS" />
+                            <ColumnConstraints percentWidth="20" hgrow="ALWAYS" />
+                            <ColumnConstraints percentWidth="20" hgrow="ALWAYS" />
+                        </columnConstraints>
+
+                        <!-- Row Constraints -->
+                        <rowConstraints>
+                            <RowConstraints vgrow="ALWAYS" />
+                        </rowConstraints>
                         <!-- Card 1 -->
                         <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="0">
                             <Label text="Total Books" styleClass="stat-label" />
@@ -184,30 +194,47 @@
 <!--                            </VBox>-->
 <!--                        </HBox>-->
                         
-                        <!-- Quick Stats under the charts -->
-                        <GridPane hgap="16" vgap="8" styleClass="chart-stats">
-                            <Label text="Total Activities (7 days):" GridPane.rowIndex="0" GridPane.columnIndex="0" 
-                                   styleClass="chart-stat-label" />
-                            <Label fx:id="totalActivitiesLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1" 
-                                   styleClass="chart-stat-value" />
-                            
-                            <Label text="Average Daily:" GridPane.rowIndex="1" GridPane.columnIndex="0" 
-                                   styleClass="chart-stat-label" />
-                            <Label fx:id="avgDailyActivitiesLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1" 
-                                   styleClass="chart-stat-value" />
-                            
-                            <Label text="Most Active Day:" GridPane.rowIndex="0" GridPane.columnIndex="2" 
-                                   styleClass="chart-stat-label" />
-                            <Label fx:id="mostActiveDayLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="3" 
-                                   styleClass="chart-stat-value" />
-                            
-                            <Label text="Most Active User:" GridPane.rowIndex="1" GridPane.columnIndex="2" 
-                                   styleClass="chart-stat-label" />
-                            <Label fx:id="mostActiveUserLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="3" 
-                                   styleClass="chart-stat-value" />
-                        </GridPane>
                     </VBox>
-                    
+
+                    <!-- Quick Stats under the charts -->
+                    <GridPane styleClass="stats-grid" hgap="16" vgap="16">
+                        <!-- Column Constraints to make grid flexible -->
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS" />
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS" />
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS" />
+                            <ColumnConstraints percentWidth="25" hgrow="ALWAYS" />
+                        </columnConstraints>
+
+                        <!-- Row Constraints -->
+                        <rowConstraints>
+                            <RowConstraints vgrow="ALWAYS" />
+                        </rowConstraints>
+                        <!-- Card 1: Total Activities -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                            <Label text="Total Activities (7 days)" styleClass="stat-label" />
+                            <Label fx:id="totalActivitiesLabel" text="0" styleClass="stat-value" />
+                        </VBox>
+
+                        <!-- Card 2: Average Daily -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                            <Label text="Average Daily" styleClass="stat-label" />
+                            <Label fx:id="avgDailyActivitiesLabel" text="0" styleClass="stat-value" />
+                        </VBox>
+
+                        <!-- Card 3: Most Active Day -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="2">
+                            <Label text="Most Active Day" styleClass="stat-label" />
+                            <Label fx:id="mostActiveDayLabel" text="-" styleClass="stat-value" />
+                        </VBox>
+
+                        <!-- Card 4: Most Active User -->
+                        <VBox styleClass="stat-card" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                            <Label text="Most Active User" styleClass="stat-label" />
+                            <Label fx:id="mostActiveUserLabel" text="-" styleClass="stat-value" />
+                        </VBox>
+                    </GridPane>
+
                     <!-- Data Tables -->
                     <VBox styleClass="table-section" spacing="24">
                         <!-- Recent Activity Table -->

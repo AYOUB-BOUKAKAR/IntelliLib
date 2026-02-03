@@ -80,11 +80,11 @@
                         <HBox spacing="10">
                             <VBox spacing="5" HBox.hgrow="ALWAYS">
                                 <Label styleClass="form-label" text="Membership Date *"/>
-                                <DatePicker fx:id="membershipDateField" styleClass="form-field"/>
+                                <DatePicker fx:id="membershipDateField" styleClass="date-picker"/>
                             </VBox>
                             <VBox spacing="5" HBox.hgrow="ALWAYS">
                                 <Label styleClass="form-label" text="Expiry Date"/>
-                                <DatePicker fx:id="expiryDateField" styleClass="form-field">
+                                <DatePicker fx:id="expiryDateField" styleClass="date-picker">
                                     <tooltip>
                                         <Tooltip text="Optional"/>
                                     </tooltip>
